@@ -11,49 +11,29 @@
       width: 30px;
       height: 30px;
       background-color: black;
-      border: 5px solid #333;
+      border: 8px solid #666;
       border-radius: 50%;
     }
 
     .rack {
       display: flex;
       flex-direction: row;
+      overflow-x: scroll;
     }
 
     .rack > * {
-      width: 316px;
+      flex: 0 0 auto;
+      padding: 4px;
     }
     
     input {
-      width: 300px;
+      width: 100%;
     }
   </style>
 </head>
 
 <body>
   <div class="rack">
-    <div>
-      <input type="range" step="0.001" name="modulatorFreq" id="modulatorFreq" min="5" max="100">
-      modulatorOut
-      <div class="plug" id="modulatorOut"></div>
-    </div>
-    <div>
-      <input type="range" step="0.001" name="modulatorAmp" id="modulatorAmp" min="0.01" max="1000">
-      modulatorAmpIn
-      <div class="plug" id="modulatorAmpIn"></div>
-      modulatorAmpGainIn
-      <div class="plug" id="modulatorAmpGainIn"></div>
-      modulatorAmpOut
-      <div class="plug" id="modulatorAmpOut"></div>
-    </div>
-    <div>
-      <input type="range" step="0.001" name="carrierFreq" id="carrierFreq" min="18" max="100">
-      carrierFreqIn
-      <div class="plug" id="carrierFreqIn"></div>
-      carrierOut
-      <div class="plug" id="carrierOut"></div>
-    </div>
-
     <div>
       <input type="range" step="0.001" name="lowpassFreq" id="lowpassFreq" min="0.01" max="2000">
       lowpassIn
@@ -64,7 +44,7 @@
       <div class="plug" id="lowpassOut"></div>
     </div>
     <div>
-      destinationIn
+      destination
       <div class="plug" id="destinationIn"></div>
     </div>
   </div>
