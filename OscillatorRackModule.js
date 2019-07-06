@@ -3,7 +3,7 @@ import Plug from './Plug.js';
 import Control from './Control.js';
 
 export default class OscillatorRackModule extends RackModule {
-  constructor(rack, startingFreq = 440, type = 'sine') {
+  constructor(rack, startingFreq = 440, type = 'sine', min = 3, max = 200) {
     super(rack);
     this.audioContext = rack.audioContext;
     this.osc = this.audioContext.createOscillator();
@@ -15,7 +15,7 @@ export default class OscillatorRackModule extends RackModule {
     this.rootEl.style.width = '200px';
 
     
-    this.frequencyControlEl = this.createRangeControlEl(3, 200);
+    this.frequencyControlEl = this.createRangeControlEl(min, max);
     new Control(this.osc.frequency, this.frequencyControlEl, this.audioContext);
     this.rootEl.appendChild(this.frequencyControlEl);
     
@@ -25,6 +25,7 @@ export default class OscillatorRackModule extends RackModule {
     
     this.frequencyPlugEl = document.createElement('div');
     this.frequencyPlugEl.classList.add('plug');
+    this.frequencyPlugEl.classList.add('in');
     this.rootEl.appendChild(this.frequencyPlugEl);
     
     this.outPlugLabelEl = document.createElement('p');
@@ -33,6 +34,7 @@ export default class OscillatorRackModule extends RackModule {
     
     this.outPlugEl = document.createElement('div');
     this.outPlugEl.classList.add('plug');
+    this.outPlugEl.classList.add('out');
     this.rootEl.appendChild(this.outPlugEl);
 
     this.frequencyPlug = new Plug(this.osc.frequency, this.frequencyPlugEl, this.rack);

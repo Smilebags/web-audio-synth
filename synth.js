@@ -10,9 +10,9 @@ const audioCtx = new AudioContext();
 const rackEl = document.querySelector('.rack');
 const rack = new Rack(audioCtx, rackEl);
 
-new OscillatorRackModule(rack, 101);
+new OscillatorRackModule(rack, 101, 'sine', 0.1, 30);
 new GainRackModule(rack, 1, 1, 200);
-new OscillatorRackModule(rack, 3);
+new OscillatorRackModule(rack, 3, 'square', 0.2, 4);
 new GainRackModule(rack, 1, 1, 200);
 new OscillatorRackModule(rack, 50, 'sawtooth');
 new GainRackModule(rack);

@@ -11,8 +11,20 @@
       width: 30px;
       height: 30px;
       background-color: black;
-      border: 8px solid #666;
+      box-shadow: 
+        0 0 0 4px #666,
+        0 0 0 7px #999,
+        0 0 0 8px #666;
+      margin: 8px;
       border-radius: 50%;
+    }
+
+    .plug.in {
+      background-color: #0e1e3f;
+    }
+
+    .plug.out {
+      background-color: #25420a;
     }
 
     .rack {
@@ -37,15 +49,15 @@
     <div>
       <input type="range" step="0.001" name="lowpassFreq" id="lowpassFreq" min="0.01" max="2000">
       lowpassIn
-      <div class="plug" id="lowpassIn"></div>
+      <div class="plug in" id="lowpassIn"></div>
       lowpassFreqIn
-      <div class="plug" id="lowpassFreqIn"></div>
+      <div class="plug in" id="lowpassFreqIn"></div>
       lowpassOut
-      <div class="plug" id="lowpassOut"></div>
+      <div class="plug out" id="lowpassOut"></div>
     </div>
     <div>
       destination
-      <div class="plug" id="destinationIn"></div>
+      <div class="plug in" id="destinationIn"></div>
     </div>
   </div>
 

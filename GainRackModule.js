@@ -22,6 +22,7 @@ export default class GainRackModule extends RackModule {
     
     this.inPlugEl = document.createElement('div');
     this.inPlugEl.classList.add('plug');
+    this.inPlugEl.classList.add('in');
     this.rootEl.appendChild(this.inPlugEl);
     
     this.gainPlugLabelEl = document.createElement('p');
@@ -30,6 +31,7 @@ export default class GainRackModule extends RackModule {
 
     this.gainPlugEl = document.createElement('div');
     this.gainPlugEl.classList.add('plug');
+    this.gainPlugEl.classList.add('in');
     this.rootEl.appendChild(this.gainPlugEl);
     
     this.outPlugLabelEl = document.createElement('p');
@@ -38,6 +40,7 @@ export default class GainRackModule extends RackModule {
 
     this.outPlugEl = document.createElement('div');
     this.outPlugEl.classList.add('plug');
+    this.outPlugEl.classList.add('out');
     this.rootEl.appendChild(this.outPlugEl);
 
     this.inPlug = new Plug(this.node, this.inPlugEl, this.rack);
