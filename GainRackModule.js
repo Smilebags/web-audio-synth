@@ -16,8 +16,7 @@ export default class GainRackModule extends RackModule {
     new Control(this.node.gain, this.gainControlEl, this.audioContext);
     this.rootEl.appendChild(this.gainControlEl);
     
-    this.inPlugLabelEl = document.createElement('p');
-    this.inPlugLabelEl.textContent = 'In';
+    this.inPlugLabelEl = this.createLabel('IN');
     this.rootEl.appendChild(this.inPlugLabelEl);
     
     this.inPlugEl = document.createElement('div');
@@ -25,8 +24,7 @@ export default class GainRackModule extends RackModule {
     this.inPlugEl.classList.add('in');
     this.rootEl.appendChild(this.inPlugEl);
     
-    this.gainPlugLabelEl = document.createElement('p');
-    this.gainPlugLabelEl.textContent = 'Gain VC';
+    this.gainPlugLabelEl = this.createLabel('GAIN VC');
     this.rootEl.appendChild(this.gainPlugLabelEl);
 
     this.gainPlugEl = document.createElement('div');
@@ -34,8 +32,7 @@ export default class GainRackModule extends RackModule {
     this.gainPlugEl.classList.add('in');
     this.rootEl.appendChild(this.gainPlugEl);
     
-    this.outPlugLabelEl = document.createElement('p');
-    this.outPlugLabelEl.textContent = 'Out';
+    this.outPlugLabelEl = this.createLabel('OUT');
     this.rootEl.appendChild(this.outPlugLabelEl);
 
     this.outPlugEl = document.createElement('div');

@@ -12,15 +12,14 @@ export default class OscillatorRackModule extends RackModule {
     this.osc.start();
 
     this.rootEl = document.createElement('div');
-    this.rootEl.style.width = '200px';
+    this.rootEl.style.width = '150px';
 
     
     this.frequencyControlEl = this.createRangeControlEl(min, max);
     new Control(this.osc.frequency, this.frequencyControlEl, this.audioContext);
     this.rootEl.appendChild(this.frequencyControlEl);
     
-    this.frequencyPlugLabelEl = document.createElement('p');
-    this.frequencyPlugLabelEl.textContent = 'Frequency VC';
+    this.frequencyPlugLabelEl = this.createLabel('FREQUENCY VC');
     this.rootEl.appendChild(this.frequencyPlugLabelEl);
     
     this.frequencyPlugEl = document.createElement('div');
@@ -28,8 +27,7 @@ export default class OscillatorRackModule extends RackModule {
     this.frequencyPlugEl.classList.add('in');
     this.rootEl.appendChild(this.frequencyPlugEl);
     
-    this.outPlugLabelEl = document.createElement('p');
-    this.outPlugLabelEl.textContent = 'Out';
+    this.outPlugLabelEl = this.createLabel('OUT');
     this.rootEl.appendChild(this.outPlugLabelEl);
     
     this.outPlugEl = document.createElement('div');

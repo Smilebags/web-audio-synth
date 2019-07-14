@@ -2,6 +2,7 @@ export default class Plug {
   /**
    * @param {AudioNode} node 
    * @param {HTMLElement} el
+   * @param {Rack} rack
    */
   constructor(node, el, rack) {
     this.node = node;
