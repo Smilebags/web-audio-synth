@@ -3,10 +3,10 @@ class EnvelopeGeneratorProcessor extends AudioWorkletProcessor {
     super();
     const options = {
       ...args,
-      a: 0.1,
-      d: 0.4,
-      s: 0.3,
-      r: 0.6,
+      a: 0.01,
+      d: 0.2,
+      s: 0.0,
+      r: 0.2,
       cutoffVoltage: 0.8,
     };
 
