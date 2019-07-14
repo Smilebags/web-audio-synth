@@ -37,7 +37,7 @@ export default class Rack {
 // );
 
 // plugWithContext(
-//   audioCtx.destination,
+//   audioContext.destination,
 //   destinationInEl,
 // );
 
