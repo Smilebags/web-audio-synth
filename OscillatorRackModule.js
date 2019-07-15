@@ -3,7 +3,7 @@ import Plug from './Plug.js';
 import Control from './Control.js';
 
 export default class OscillatorRackModule extends RackModule {
-  constructor(rack, type = 'sine', min = 0, max = 8) {
+  constructor(rack, type = 'sine', min = -2, max = 8) {
     super(rack);
     this.audioContext = rack.audioContext;
     this.osc = this.audioContext.createOscillator();
