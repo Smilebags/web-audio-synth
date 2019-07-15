@@ -14,7 +14,7 @@ export default class OscillatorRackModule extends RackModule {
     this.vo.connect(this.osc.frequency);
 
     this.rootEl = document.createElement('div');
-    this.rootEl.style.width = '150px';
+    this.rootEl.style.width = '200px';
 
     
     this.frequencyControlEl = this.createRangeControlEl(min, max);

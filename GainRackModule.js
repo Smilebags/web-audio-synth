@@ -10,7 +10,7 @@ export default class GainRackModule extends RackModule {
     this.node.gain.value = startingGain;
     
     this.rootEl = document.createElement('div');
-    this.rootEl.style.width = '100px';
+    this.rootEl.style.width = '200px';
 
     this.gainControlEl = this.createRangeControlEl(min, max);
     new Control(this.node.gain, this.gainControlEl, this.audioContext);
