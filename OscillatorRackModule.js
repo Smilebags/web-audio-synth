@@ -3,20 +3,22 @@ import Plug from './Plug.js';
 import Control from './Control.js';
 
 export default class OscillatorRackModule extends RackModule {
-  constructor(rack, startingFreq = 440, type = 'sine', min = 3, max = 200) {
+  constructor(rack, type = 'sine', min = 0, max = 8) {
     super(rack);
     this.audioContext = rack.audioContext;
     this.osc = this.audioContext.createOscillator();
-    this.osc.frequency.value = startingFreq;
+    this.osc.frequency.value = 2;
     this.osc.type = type;
     this.osc.start();
+    this.vo = new AudioWorkletNode(this.audioContext, 'volt-per-octave-processor');
+    this.vo.connect(this.osc.frequency);
 
     this.rootEl = document.createElement('div');
     this.rootEl.style.width = '150px';
 
     
     this.frequencyControlEl = this.createRangeControlEl(min, max);
-    new Control(this.osc.frequency, this.frequencyControlEl, this.audioContext);
+    new Control(this.vo.parameters.get('coarse'), this.frequencyControlEl, this.audioContext);
     this.rootEl.appendChild(this.frequencyControlEl);
     
     this.frequencyPlugLabelEl = this.createLabel('FREQUENCY VC');
@@ -35,7 +37,7 @@ export default class OscillatorRackModule extends RackModule {
     this.outPlugEl.classList.add('out');
     this.rootEl.appendChild(this.outPlugEl);
 
-    this.frequencyPlug = new Plug(this.osc.frequency, this.frequencyPlugEl, this.rack);
+    this.frequencyPlug = new Plug(this.vo, this.frequencyPlugEl, this.rack);
     this.outPlug = new Plug(this.osc, this.outPlugEl, this.rack);
 
     this.registerPlug(this.frequencyPlug);

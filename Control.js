@@ -11,13 +11,13 @@ export default class Control {
     this.audioContext = audioContext;
     el.addEventListener('input', (changeEvent) => {
       this.node.setValueAtTime(
-        this.node.value,
+        Number(changeEvent.target.value),
         this.audioContext.currentTime,
       );
-      this.node.exponentialRampToValueAtTime(
-        changeEvent.target.value,
-        this.audioContext.currentTime + 0.01,
-      );
+      // this.node.exponentialRampToValueAtTime(
+      //   Number(changeEvent.target.value),
+      //   this.audioContext.currentTime + 0.0001,
+      // );
     });
   }
 }

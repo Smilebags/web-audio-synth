@@ -15,10 +15,10 @@ async function init() {
   const rack = new Rack(audioContext, rackEl);
   
   
-  new OscillatorRackModule(rack, 3, 'square', 0.2, 40);
+  new OscillatorRackModule(rack, 'square');
   new EnvelopeRackModule(rack);
-  new GainRackModule(rack, 1, 1, 200);
-  new OscillatorRackModule(rack, 50, 'sawtooth');
+  new GainRackModule(rack, 1, 0, 4);
+  new OscillatorRackModule(rack, 'sawtooth');
   new GainRackModule(rack);
   // new OscillatorRackModule(rack, 101, 'sine', 0.1, 30);
   // new GainRackModule(rack, 1, 1, 200);
@@ -46,5 +46,6 @@ async function init() {
 async function registerProcessors(audioContext) {
   await Promise.all([
     audioContext.audioWorklet.addModule('EnvelopeGeneratorProcessor.js'),
+    audioContext.audioWorklet.addModule('VoltPerOctaveProcessor.js'),
   ]);
 }
