@@ -1,5 +1,5 @@
-import { Vec2 } from "./types";
-import Plug from "./Plug";
+import { Vec2 } from "./types.js";
+import Plug from "./Plug.js";
 
 export default interface RackModule {
   width: number;

@@ -1,7 +1,7 @@
-import RackModule from "../RackModule";
-import Plug from "../Plug";
-import { distance } from "../util";
-import { Vec2 } from "../types";
+import RackModule from "../RackModule.js";
+import Plug from "../Plug.js";
+import { distance } from "../util.js";
+import { Vec2 } from "../types.js";
 
 export default class AbstractRackModule implements RackModule {
   width: number;
