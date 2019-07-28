@@ -1,0 +1,25 @@
+{
+  "name": "web-audio-synth",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "cp src/index.html dist && npx tsc -w",
+    "serve": "ws -d dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Smilebags/web-audio-synth.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Smilebags/web-audio-synth/issues"
+  },
+  "homepage": "https://github.com/Smilebags/web-audio-synth#readme",
+  "devDependencies": {
+    "typescript": "^3.5.3",
+    "ws": "^7.1.1"
+  }
+}

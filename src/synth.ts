@@ -4,6 +4,8 @@ import Control from './Control.js';
 import OscillatorRackModule from './OscillatorRackModule.js';
 import GainRackModule from './GainRackModule.js';
 import EnvelopeRackModule from './NewEnvelopeRackModule.js';
+import BigKnobRackModule from './BigKnobRackModule.js';
+import SequencerRackModule from './SequencerRackModule.js';
 
 document.addEventListener('click', init, {once: true});
 
@@ -11,15 +13,22 @@ async function init() {
   const audioContext = new AudioContext();
   await registerProcessors(audioContext);
 
-  const rackEl = document.querySelector('.rack');
-  const rack = new Rack(audioContext, rackEl);
+  const rackEl: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>('.rack')!;
+  const rackContext = rackEl.getContext('2d')!;
+  const rack = new Rack(audioContext, rackContext);
   
   
-  new OscillatorRackModule(rack, 'square');
-  new EnvelopeRackModule(rack);
-  new GainRackModule(rack, 1, 0, 4);
-  new OscillatorRackModule(rack, 'sawtooth');
+  new SequencerRackModule(rack);
+  new SequencerRackModule(rack);
+  new SequencerRackModule(rack);
   new GainRackModule(rack);
+  new GainRackModule(rack);
+  // new BigKnobRackModule(rack);
+  new EnvelopeRackModule(rack);
+  new OscillatorRackModule(rack);
+  new GainRackModule(rack);
+  new GainRackModule(rack);
+  new OscillatorRackModule(rack, 'sawtooth');
   // new OscillatorRackModule(rack, 101, 'sine', 0.1, 30);
   // new GainRackModule(rack, 1, 1, 200);
   
@@ -43,7 +52,7 @@ async function init() {
   const lowpassOutEl = document.querySelector('#lowpassOut');
 }
 
-async function registerProcessors(audioContext) {
+async function registerProcessors(audioContext: AudioContext) {
   await Promise.all([
     audioContext.audioWorklet.addModule('EnvelopeGeneratorProcessor.js'),
     audioContext.audioWorklet.addModule('VoltPerOctaveProcessor.js'),
