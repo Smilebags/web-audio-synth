@@ -4,8 +4,8 @@ class EnvelopeGeneratorProcessor extends AudioWorkletProcessor {
     const options = {
       ...args,
       a: 0.01,
-      d: 0.2,
-      s: 0.0,
+      d: 0.1,
+      s: 0.5,
       r: 0.2,
       cutoffVoltage: 0.8,
     };
