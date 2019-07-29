@@ -26,10 +26,10 @@ export default class Rack {
     this.cables = [];
     this.modules = [
       new OutputModule(this.audioContext),
+      new OscillatorModule(this.audioContext, 'sawtooth', 110),
       new GainModule(this.audioContext),
-      new OscillatorModule(this.audioContext, 'sine', 10),
-      new OscillatorModule(this.audioContext, 'sawtooth', 220),
-      new OscillatorModule(this.audioContext, 'square'),
+      new OscillatorModule(this.audioContext, 'sine', 57),
+      new OscillatorModule(this.audioContext, 'sine', 0.2),
     ];
     this.renderContext = context;
     this.renderContext.canvas.width = window.innerWidth;
@@ -48,6 +48,7 @@ export default class Rack {
       y: mousedownEvent.clientY,
     };
     this.mousedownPlug = this.getPlugAtRackPosition(this.mousedownPosition);
+    this.delegateMousedown(this.mousedownPosition);
     addEventListener("mousemove", this.onMousemove);
   }
 
@@ -56,6 +57,7 @@ export default class Rack {
       x: mousemoveEvent.clientX,
       y: mousemoveEvent.clientY,
     };
+    this.delegateMousemove(this.mousedragPosition);
     addEventListener("mouseup", this.onMouseup);
   }
 
@@ -72,6 +74,8 @@ export default class Rack {
     ) {
       this.patch(this.mousedownPlug, this.mouseupPlug);
     }
+
+    this.delegateMouseup(this.mouseupPosition);
     
     this.mousedownPosition = null;
     this.mousedragPosition = null;
@@ -103,6 +107,11 @@ export default class Rack {
     }) || null;
   }
 
+  getModuleLocalPosition(rackModule: RackModule, position: Vec2): Vec2 {
+    const modulePosition = this.getModulePosition(rackModule);
+    return subtract(position, modulePosition);
+  }
+
   getPlugAtRackPosition(pos: Vec2): Plug | null {
     const selectedModule = this.getModuleByPosition(pos);
     if (!selectedModule) {
@@ -119,6 +128,33 @@ export default class Rack {
   patch(outPlug: Plug, inPlug: Plug): void {
     outPlug.connect(inPlug);
     this.cables.push(new Cable(this, outPlug, inPlug));
+  }
+
+  delegateMousedown(rackPosition: Vec2): void {
+    const rackModule = this.getModuleByPosition(rackPosition);
+    if (!rackModule) {
+      return;
+    }
+    const localPosition = this.getModuleLocalPosition(rackModule, rackPosition);
+    rackModule.onMousedown(localPosition);
+  }
+
+  delegateMousemove(rackPosition: Vec2): void {
+    const rackModule = this.getModuleByPosition(rackPosition);
+    if (!rackModule) {
+      return;
+    }
+    const localPosition = this.getModuleLocalPosition(rackModule, rackPosition);
+    rackModule.onMousemove(localPosition);
+  }
+
+  delegateMouseup(rackPosition: Vec2): void {
+    const rackModule = this.getModuleByPosition(rackPosition);
+    if (!rackModule) {
+      return;
+    }
+    const localPosition = this.getModuleLocalPosition(rackModule, rackPosition);
+    rackModule.onMouseup(localPosition);
   }
 
   render(): void {
