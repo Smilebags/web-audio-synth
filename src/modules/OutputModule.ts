@@ -8,6 +8,6 @@ export default class OutputModule extends AbstractRackModule {
   constructor(context: AudioContext) {
     super();
     this.context = context;
-    this.addPlug(this.context.destination, 'System Out', 'out');
+    this.addPlug(this.context.destination, 'System Out', 'in');
   }
 }
