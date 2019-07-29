@@ -5,6 +5,7 @@ export default class OscillatorModule extends AbstractRackModule {
   width!: number;
   context: AudioContext;
   plugs!: Plug[];
+  name: string = 'Osc';
   private osc: OscillatorNode;
   private vo: AudioWorkletNode;
   constructor(context: AudioContext, type: OscillatorType = 'sine', startingFrequency: number = 440) {
@@ -18,7 +19,7 @@ export default class OscillatorModule extends AbstractRackModule {
     this.vo = new AudioWorkletNode(this.context, 'volt-per-octave-processor');
     this.vo.connect(this.osc.frequency);
 
-    this.addPlug(this.vo, 'V/O In', 'in');
-    this.addPlug(this.osc, 'Out', 'out');
+    this.addPlug(this.vo, 'V/O In', 'in', 0);
+    this.addPlug(this.osc, 'Out', 'out', 2);
   }
 }
