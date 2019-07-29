@@ -2,6 +2,7 @@ import { Vec2 } from "./types.js";
 import RackModule from "./RackModule.js";
 import Plug from "./Plug.js";
 import OutputModule from "./modules/OutputModule.js";
+import GainModule from "./modules/GainModule.js";
 import OscillatorModule from "./modules/OscillatorModule.js";
 import { subtract } from "./util.js";
 import Cable from "./Cable.js";
@@ -25,7 +26,10 @@ export default class Rack {
     this.cables = [];
     this.modules = [
       new OutputModule(this.audioContext),
-      new OscillatorModule(this.audioContext),
+      new GainModule(this.audioContext),
+      new OscillatorModule(this.audioContext, 'sine', 10),
+      new OscillatorModule(this.audioContext, 'sawtooth', 220),
+      new OscillatorModule(this.audioContext, 'square'),
     ];
     this.renderContext = context;
     this.renderContext.canvas.width = window.innerWidth;
