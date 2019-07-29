@@ -14,7 +14,7 @@ export default class Plug {
     position: Vec2,
     name: string | null = null,
     type: 'in' | 'out' = 'in',
-    radius: number = 20,
+    radius: number = 10,
   ) {
     this.module = rackModule;
     this.param = param;
