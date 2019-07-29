@@ -17,9 +17,9 @@ export default class OscillatorModule extends AbstractRackModule {
     this.osc.start();
     this.vo = new AudioWorkletNode(this.context, 'volt-per-octave-processor');
     this.vo.connect(this.osc.frequency);
-    const voPlug = new Plug(this.osc, {x: 50, y: 50});
+    const voPlug = new Plug(this, this.osc, {x: 50, y: 50});
     this.plugs.push(voPlug);
-    const outputPlug = new Plug(this.osc, {x: 50, y: 150});
+    const outputPlug = new Plug(this, this.osc, {x: 50, y: 150});
     this.plugs.push(outputPlug);
   }
 

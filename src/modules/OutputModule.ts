@@ -8,7 +8,7 @@ export default class OutputModule extends AbstractRackModule {
   constructor(context: AudioContext) {
     super();
     this.context = context;
-    const outputPlug = new Plug(this.context.destination, {x: 50, y: 50});
+    const outputPlug = new Plug(this, this.context.destination, {x: 50, y: 50});
     this.plugs.push(outputPlug);
   }
 

@@ -4,10 +4,11 @@ import Plug from "./Plug.js";
 import OutputModule from "./modules/OutputModule.js";
 import OscillatorModule from "./modules/OscillatorModule.js";
 import { subtract } from "./util.js";
+import Cable from "./Cable.js";
 
 export default class Rack {
   audioContext: AudioContext;
-  cables: Plug[];
+  cables: Cable[];
   modules: RackModule[];
   renderContext: CanvasRenderingContext2D;
   mousedownPosition: Vec2 | null = null;
@@ -65,7 +66,7 @@ export default class Rack {
       && this.mouseupPlug
       && this.mousedownPlug !== this.mouseupPlug
     ) {
-      this.mousedownPlug.connect(this.mouseupPlug);
+      this.patch(this.mousedownPlug, this.mouseupPlug);
     }
     
     this.mousedownPosition = null;
@@ -112,8 +113,8 @@ export default class Rack {
   }
 
   patch(outPlug: Plug, inPlug: Plug): void {
-    this.patch(outPlug, inPlug);
-    this.cables.push(new Cable(outPlug, inPlug));
+    outPlug.connect(inPlug);
+    this.cables.push(new Cable(this, outPlug, inPlug));
   }
 
   render(): void {
@@ -145,7 +146,7 @@ export default class Rack {
   }
 
   renderCables(): void {
-
+    this.cables.forEach(cable => cable.render(this.renderContext));
   }
 
   renderDraggingCable() {
