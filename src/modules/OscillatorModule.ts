@@ -17,21 +17,8 @@ export default class OscillatorModule extends AbstractRackModule {
     this.osc.start();
     this.vo = new AudioWorkletNode(this.context, 'volt-per-octave-processor');
     this.vo.connect(this.osc.frequency);
-    const voPlug = new Plug(this, this.vo, {x: 50, y: 50});
-    this.plugs.push(voPlug);
-    const outputPlug = new Plug(this, this.osc, {x: 50, y: 150});
-    this.plugs.push(outputPlug);
-  }
 
-  render(renderContext: CanvasRenderingContext2D): void {
-    renderContext.beginPath();
-    renderContext.fillStyle = "#00ff00";
-    renderContext.arc(50, 50, 20, 0, 2 * Math.PI);
-    renderContext.fill();
-    
-    renderContext.beginPath();
-    renderContext.fillStyle = "#0000ff";
-    renderContext.arc(50, 150, 20, 0, 2 * Math.PI);
-    renderContext.fill();
+    this.addPlug(this.vo, 'V/O In', 'in');
+    this.addPlug(this.osc, 'Out', 'out');
   }
 }
