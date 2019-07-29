@@ -1,6 +1,4 @@
 import Plug from "../Plug.js";
-import { distance } from "../util.js";
-import { Vec2 } from "../types.js";
 import AbstractRackModule from "./AbstractRackModule.js";
 
 export default class OutputModule extends AbstractRackModule {
@@ -14,10 +12,10 @@ export default class OutputModule extends AbstractRackModule {
     this.plugs.push(outputPlug);
   }
 
-  getPlugAtPosition(pos: Vec2): Plug | null {
-    return this.plugs.find(plug => {
-      return distance(pos, plug.position) <= plug.radius;
-    }) || null;
+  render(renderContext: CanvasRenderingContext2D): void {
+    renderContext.beginPath();
+    renderContext.fillStyle = "#00ff00";
+    renderContext.arc(50, 50, 20, 0, 2 * Math.PI);
+    renderContext.fill();
   }
-  render(renderContext: CanvasRenderingContext2D): void {}
 }

@@ -1,30 +1,40 @@
 import { Vec2 } from "./types.js";
-import { distance as dist } from "./util.js";
 import RackModule from "./RackModule.js";
 import Plug from "./Plug.js";
 import OutputModule from "./modules/OutputModule.js";
+import OscillatorModule from "./modules/OscillatorModule.js";
+import { subtract } from "./util.js";
 
 export default class Rack {
   audioContext: AudioContext;
   cables: Plug[];
   modules: RackModule[];
   renderContext: CanvasRenderingContext2D;
-  mousedownPosition: Vec2 | null;
-  mousedragPosition: Vec2 | null;
+  mousedownPosition: Vec2 | null = null;
+  mousedragPosition: Vec2 | null = null;
+  mouseupPosition: Vec2 | null = null;
+  mousedownPlug: Plug | null = null;
+  mouseupPlug: Plug | null = null;
+  onMousedown: (e: MouseEvent) => void;
+  onMousemove: (e: MouseEvent) => void;
+  onMouseup: (e: MouseEvent) => void;
 
   constructor(audioContext: AudioContext, context: CanvasRenderingContext2D) {
     this.audioContext = audioContext;
     this.cables = [];
     this.modules = [
       new OutputModule(this.audioContext),
+      new OscillatorModule(this.audioContext),
     ];
     this.renderContext = context;
     this.renderContext.canvas.width = window.innerWidth;
     this.renderContext.canvas.height = window.innerHeight;
-    this.mousedownPosition = null;
-    this.mousedragPosition = null;
     this.render();
-    addEventListener("mousedown", (mousedownEvent) => {this.handleMousedown(mousedownEvent)});
+
+    this.onMousedown = (e) => this.handleMousedown(e);
+    this.onMousemove = (e) => this.handleMousemove(e);
+    this.onMouseup = (e) => this.handleMouseup(e);
+    addEventListener("mousedown", this.onMousedown);
   }
 
   handleMousedown(mousedownEvent: MouseEvent): void {
@@ -32,7 +42,8 @@ export default class Rack {
       x: mousedownEvent.clientX,
       y: mousedownEvent.clientY,
     };
-    addEventListener("mousemove", (mousemoveEvent) => {this.handleMousemove(mousemoveEvent)});
+    this.mousedownPlug = this.getPlugAtRackPosition(this.mousedownPosition);
+    addEventListener("mousemove", this.onMousemove);
   }
 
   handleMousemove(mousemoveEvent: MouseEvent): void {
@@ -40,33 +51,69 @@ export default class Rack {
       x: mousemoveEvent.clientX,
       y: mousemoveEvent.clientY,
     };
-    addEventListener("mouseup", (mouseupEvent) => {this.handleMouseup(mouseupEvent)});
+    addEventListener("mouseup", this.onMouseup);
   }
 
   handleMouseup(mouseupEvent: MouseEvent): void {
-    // see if the module under mousedown has a plug in that location
-    // see if the module under mouseup has a plug in that location
-    // connect plug down to plug up
+    this.mouseupPosition = {
+      x: mouseupEvent.clientX,
+      y: mouseupEvent.clientY,
+    };
+    this.mouseupPlug = this.getPlugAtRackPosition(this.mouseupPosition);
+    if (
+      this.mousedownPlug
+      && this.mouseupPlug
+      && this.mousedownPlug !== this.mouseupPlug
+    ) {
+      this.mousedownPlug.connect(this.mouseupPlug);
+    }
     
-    // reset temporary plug
     this.mousedownPosition = null;
     this.mousedragPosition = null;
+    this.mouseupPosition = null;
+    this.mousedownPlug = null;
+    this.mouseupPlug = null;
+    removeEventListener('mousemove', this.onMousemove);
+    removeEventListener('mouseup', this.onMouseup);
   }
 
   addModule(rackModule: RackModule): void {
     this.modules.push(rackModule);
   }
 
-  getModulePosition(moduleIndex: number): Vec2 {
+  getModuleIndex(rackModule: RackModule) {
+    return this.modules.findIndex(item => item === rackModule);
+  }
+
+  getModulePosition(rackModule: RackModule): Vec2 {
+    const moduleIndex = this.getModuleIndex(rackModule);
     return {x: moduleIndex * 100, y: 0};
   }
 
   getModuleByPosition(pos: Vec2): RackModule | null {
-    return this.modules.find((rackModule, index) => {
-      const modulePosition = this.getModulePosition(index);
-      return modulePosition.x >= pos.x
-        && modulePosition.x + rackModule.width <= pos.x;
+    return this.modules.find((rackModule) => {
+      const modulePosition = this.getModulePosition(rackModule);
+      return modulePosition.x <= pos.x
+        && modulePosition.x + rackModule.width >= pos.x;
     }) || null;
+  }
+
+  getPlugAtRackPosition(pos: Vec2): Plug | null {
+    const selectedModule = this.getModuleByPosition(pos);
+    if (!selectedModule) {
+      return null;
+    }
+    const moduleRelativePosition = subtract(
+      pos,
+      this.getModulePosition(selectedModule),
+    );
+    const selectedPlug = selectedModule.getPlugAtPosition(moduleRelativePosition);
+    return selectedPlug;
+  }
+
+  patch(outPlug: Plug, inPlug: Plug): void {
+    this.patch(outPlug, inPlug);
+    this.cables.push(new Cable(outPlug, inPlug));
   }
 
   render(): void {
@@ -86,15 +133,14 @@ export default class Rack {
   }
 
   renderModules(): void {
-    this.modules.forEach((rackModule, index) => {
-      const modulePosition = this.getModulePosition(index);
+    this.modules.forEach((rackModule) => {
+      this.renderContext.save();
+      const modulePosition = this.getModulePosition(rackModule);
+      this.renderContext.translate(modulePosition.x, modulePosition.y);
       this.renderContext.fillStyle = "#222222";
-      this.renderContext.fillRect(
-        modulePosition.x,
-        modulePosition.y,
-        modulePosition.x + rackModule.width,
-        400,
-      );
+      this.renderContext.fillRect(0, 0, rackModule.width, 400);
+      rackModule.render(this.renderContext);
+      this.renderContext.restore();
     });
   }
 
