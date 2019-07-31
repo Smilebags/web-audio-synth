@@ -50,6 +50,7 @@ export default class Rack {
     this.mousedownPlug = this.getPlugAtRackPosition(this.mousedownPosition);
     this.delegateMousedown(this.mousedownPosition);
     addEventListener("mousemove", this.onMousemove);
+    addEventListener("mouseup", this.onMouseup);
   }
 
   handleMousemove(mousemoveEvent: MouseEvent): void {
@@ -58,7 +59,6 @@ export default class Rack {
       y: mousemoveEvent.clientY,
     };
     this.delegateMousemove(this.mousedragPosition);
-    addEventListener("mouseup", this.onMouseup);
   }
 
   handleMouseup(mouseupEvent: MouseEvent): void {
