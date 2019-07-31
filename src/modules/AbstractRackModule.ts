@@ -7,6 +7,7 @@ export default abstract class AbstractRackModule implements RackModule {
   width: number = 100;
   plugs: Plug[] = [];
   abstract name: string;
+  private eventListeners: {[key: string]: Function[]} = {};
 
   getPlugAtPosition(pos: Vec2): Plug | null {
     return this.plugs.find(plug => {
@@ -14,9 +15,15 @@ export default abstract class AbstractRackModule implements RackModule {
     }) || null;
   }
 
-  onMousedown(position: Vec2): void {}
-  onMousemove(position: Vec2): void {}
-  onMouseup(position: Vec2): void {}
+  onMousedown(position: Vec2): void {
+    this.emit('mousedown', position);
+  }
+  onMousemove(position: Vec2): void {
+    this.emit('mousemove', position);
+  }
+  onMouseup(position: Vec2): void {
+    this.emit('mouseup', position);
+  }
 
   protected addPlug(param: AudioNode | AudioParam, name: string, type: 'in' | 'out', order: number | null = null): void {
     const slot = order !== null ? order : this.plugs.length;
@@ -46,5 +53,30 @@ export default abstract class AbstractRackModule implements RackModule {
       renderContext.arc(plug.position.x, plug.position.y, plug.radius, 0, 2 * Math.PI);
       renderContext.fill();
     });
+  }
+
+  emit(eventName: string, eventValue: any): void {
+    if (!this.eventListeners[eventName]) {
+      return;
+    }
+    this.eventListeners[eventName].forEach(callback => callback(eventValue));
+  }
+
+  removeEventListener(eventName: string, callback: Function): void {
+    if (!this.eventListeners[eventName]) {
+      return;
+    }
+    const callbackIndex = this.eventListeners[eventName].indexOf(callback);
+    if (callbackIndex === -1) {
+      return;
+    }
+    this.eventListeners[eventName].splice(callbackIndex, 1);
+  }
+
+  addEventListener(eventName: string, callback: Function): void {
+    if (!this.eventListeners[eventName]) {
+      this.eventListeners[eventName] = [];
+    }
+    this.eventListeners[eventName].push(callback);
   }
 }
