@@ -6,6 +6,7 @@ import GainModule from "./modules/GainModule.js";
 import OscillatorModule from "./modules/OscillatorModule.js";
 import { subtract } from "./util.js";
 import Cable from "./Cable.js";
+import FilterModule from "./modules/FilterModule.js";
 
 export default class Rack {
   audioContext: AudioContext;
@@ -27,9 +28,19 @@ export default class Rack {
     this.cables = [];
     this.modules = [
       new OutputModule(this.audioContext),
+      new GainModule(this.audioContext),
+      new FilterModule(this.audioContext),
+      new OscillatorModule(this.audioContext, 'sawtooth', 110),
+      new OscillatorModule(this.audioContext, 'sawtooth', 110),
+      new OscillatorModule(this.audioContext, 'sawtooth', 110),
+      new OscillatorModule(this.audioContext, 'sawtooth', 110),
       new OscillatorModule(this.audioContext, 'sawtooth', 110),
       new GainModule(this.audioContext),
+      new GainModule(this.audioContext),
+      new GainModule(this.audioContext),
+      new OscillatorModule(this.audioContext, 'sawtooth', 110),
       new OscillatorModule(this.audioContext, 'sine', 57),
+      new GainModule(this.audioContext),
       new OscillatorModule(this.audioContext, 'sine', 0.2),
     ];
     this.renderContext = context;
