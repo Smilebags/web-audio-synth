@@ -20,6 +20,7 @@ export default class Rack {
   onMousedown: (e: MouseEvent) => void;
   onMousemove: (e: MouseEvent) => void;
   onMouseup: (e: MouseEvent) => void;
+  delegateModule: RackModule | null = null;
 
   constructor(audioContext: AudioContext, context: CanvasRenderingContext2D) {
     this.audioContext = audioContext;
@@ -132,6 +133,7 @@ export default class Rack {
 
   delegateMousedown(rackPosition: Vec2): void {
     const rackModule = this.getModuleByPosition(rackPosition);
+    this.delegateModule = rackModule;
     if (!rackModule) {
       return;
     }
@@ -140,21 +142,19 @@ export default class Rack {
   }
 
   delegateMousemove(rackPosition: Vec2): void {
-    const rackModule = this.getModuleByPosition(rackPosition);
-    if (!rackModule) {
+    if (!this.delegateModule) {
       return;
     }
-    const localPosition = this.getModuleLocalPosition(rackModule, rackPosition);
-    rackModule.onMousemove(localPosition);
+    const localPosition = this.getModuleLocalPosition(this.delegateModule, rackPosition);
+    this.delegateModule.onMousemove(localPosition);
   }
 
   delegateMouseup(rackPosition: Vec2): void {
-    const rackModule = this.getModuleByPosition(rackPosition);
-    if (!rackModule) {
+    if (!this.delegateModule) {
       return;
     }
-    const localPosition = this.getModuleLocalPosition(rackModule, rackPosition);
-    rackModule.onMouseup(localPosition);
+    const localPosition = this.getModuleLocalPosition(this.delegateModule, rackPosition);
+    this.delegateModule.onMouseup(localPosition);
   }
 
   render(): void {
