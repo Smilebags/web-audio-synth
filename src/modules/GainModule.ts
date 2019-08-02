@@ -44,7 +44,6 @@ export default class OscillatorModule extends AbstractRackModule {
       return;
     }
     const relativeYPos = subtract(this.mousedownPos, this.mousemovePos).y;
-    console.log(relativeYPos);
     this.gainNode.gain.value = this.initialGain + (relativeYPos * 0.02);
   }
   isInVolumeBox(pos: Vec2): boolean {
