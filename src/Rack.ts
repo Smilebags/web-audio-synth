@@ -10,8 +10,8 @@ import FilterModule from "./modules/FilterModule.js";
 
 export default class Rack {
   audioContext: AudioContext;
-  cables: Cable[];
-  modules: RackModule[];
+  cables: Cable[] = [];
+  moduleSlots: {module: RackModule, position: Vec2}[] = [];
   renderContext: CanvasRenderingContext2D;
   mousedownPosition: Vec2 | null = null;
   mousedragPosition: Vec2 | null = null;
@@ -25,24 +25,21 @@ export default class Rack {
 
   constructor(audioContext: AudioContext, context: CanvasRenderingContext2D) {
     this.audioContext = audioContext;
-    this.cables = [];
-    this.modules = [
-      new OutputModule(this.audioContext),
-      new GainModule(this.audioContext),
-      new FilterModule(this.audioContext),
-      new OscillatorModule(this.audioContext, 'sawtooth', 110),
-      new OscillatorModule(this.audioContext, 'sawtooth', 110),
-      new OscillatorModule(this.audioContext, 'sawtooth', 110),
-      new OscillatorModule(this.audioContext, 'sawtooth', 110),
-      new OscillatorModule(this.audioContext, 'sawtooth', 110),
-      new GainModule(this.audioContext),
-      new GainModule(this.audioContext),
-      new GainModule(this.audioContext),
-      new OscillatorModule(this.audioContext, 'sawtooth', 110),
-      new OscillatorModule(this.audioContext, 'sine', 57),
-      new GainModule(this.audioContext),
-      new OscillatorModule(this.audioContext, 'sine', 0.2),
-    ];
+    this.addModule(new OutputModule(this.audioContext));
+    this.addModule(new GainModule(this.audioContext));
+    this.addModule(new FilterModule(this.audioContext));
+    this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
+    this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
+    this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
+    this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
+    this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
+    this.addModule(new GainModule(this.audioContext));
+    this.addModule(new GainModule(this.audioContext));
+    this.addModule(new GainModule(this.audioContext));
+    this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
+    this.addModule(new OscillatorModule(this.audioContext, 'sine', 57));
+    this.addModule(new GainModule(this.audioContext));
+    this.addModule(new OscillatorModule(this.audioContext, 'sine', 0.2));
     this.renderContext = context;
     this.renderContext.canvas.width = window.innerWidth;
     this.renderContext.canvas.height = window.innerHeight;
@@ -98,12 +95,25 @@ export default class Rack {
     removeEventListener('mouseup', this.onMouseup);
   }
 
+  get nextAvailableSpace(): number {
+    return this.moduleSlots.reduce((currentMax, slot) => {
+      if (slot.position.x + slot.module.width >= currentMax) {
+        return slot.position.x + slot.module.width;
+      }
+      return currentMax;
+    }, 0);
+  }
+
   addModule(rackModule: RackModule): void {
-    this.modules.push(rackModule);
+    const position = {
+      x: this.nextAvailableSpace,
+      y: 0,
+    };
+    this.moduleSlots.push({module: rackModule, position});
   }
 
   getModuleIndex(rackModule: RackModule) {
-    return this.modules.findIndex(item => item === rackModule);
+    return this.moduleSlots.findIndex(item => item.module === rackModule);
   }
 
   getModulePosition(rackModule: RackModule): Vec2 {
@@ -112,11 +122,15 @@ export default class Rack {
   }
 
   getModuleByPosition(pos: Vec2): RackModule | null {
-    return this.modules.find((rackModule) => {
-      const modulePosition = this.getModulePosition(rackModule);
+    const moduleSlot = this.moduleSlots.find((moduleSlot) => {
+      const modulePosition = moduleSlot.position;
       return modulePosition.x <= pos.x
-        && modulePosition.x + rackModule.width >= pos.x;
-    }) || null;
+        && modulePosition.x + moduleSlot.module.width >= pos.x;
+    });
+    if (moduleSlot) {
+      return moduleSlot.module;
+    }
+    return null;
   }
 
   getModuleLocalPosition(rackModule: RackModule, position: Vec2): Vec2 {
@@ -185,13 +199,14 @@ export default class Rack {
   }
 
   renderModules(): void {
-    this.modules.forEach((rackModule) => {
+    let currentOffset = 0;
+    this.moduleSlots.forEach((moduleSlot) => {
       this.renderContext.save();
-      const modulePosition = this.getModulePosition(rackModule);
+      const modulePosition = moduleSlot.position;
       this.renderContext.translate(modulePosition.x, modulePosition.y);
       this.renderContext.fillStyle = "#222222";
-      this.renderContext.fillRect(0, 0, rackModule.width, 400);
-      rackModule.render(this.renderContext);
+      this.renderContext.fillRect(0, 0, moduleSlot.module.width, 400);
+      moduleSlot.module.render(this.renderContext);
       this.renderContext.restore();
     });
   }
