@@ -6,7 +6,7 @@ class EnvelopeGeneratorProcessor extends AudioWorkletProcessor {
     this.value = 0;
   }
 
-  static get parameterDescriptors () {
+  static get parameterDescriptors() {
     return [
       {
         name: 'a',
@@ -34,7 +34,6 @@ class EnvelopeGeneratorProcessor extends AudioWorkletProcessor {
         name: 'cutoffValue',
         defaultValue: 0.8,
         minValue: 1e-5,
-        automationRate: 'k-rate',
       },
     ]
   }
@@ -126,7 +125,7 @@ class EnvelopeGeneratorProcessor extends AudioWorkletProcessor {
   }
 
   setState(inputValue, parameters, sampleIndex, a, d, s) {
-    if (inputValue >= this.getParameterValue(parameters, 'cutoffVoltate', sampleIndex)) {
+    if (inputValue >= this.getParameterValue(parameters, 'cutoffValue', sampleIndex)) {
       this.setOnStage(a, d, s);
       return;
     }
