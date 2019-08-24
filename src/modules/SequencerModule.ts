@@ -20,6 +20,7 @@ export default class SequencerModule extends AbstractRackModule {
   constructor(
     context: AudioContext,
     stepCount: number = 16,
+    tickInterval: number = 200,
   ) {
     super();
 
@@ -29,7 +30,7 @@ export default class SequencerModule extends AbstractRackModule {
     this.currentIndex = 0;
     this.lowVoltage = 0;
     this.highVoltage = 1;
-    this.tickInterval = 200;
+    this.tickInterval = tickInterval;
 
     this.voltageNode = this.context.createConstantSource();
     this.voltageNode.offset.value = 0;
@@ -58,9 +59,26 @@ export default class SequencerModule extends AbstractRackModule {
   }
 
   getButtonPositionByIndex(index: number): Vec2 {
+    // if (this.buttonCount <= 16) {
+    //   return {
+    //     x: (this.width / 2) - (this.buttonSize / 2),
+    //     y: this.topOffset + (index * this.buttonInterval),
+    //   };
+    // }
+
+    const rowCount = Math.ceil(this.buttonCount / 16);
+    const rowNumber = index % rowCount;
+    const columnNumber = Math.floor(index / rowCount);
+
+    const xPosition = (this.width / 2)
+      - ((rowCount * this.buttonInterval) / 2)
+      + (rowNumber * this.buttonInterval);
+
+    const yPosition = this.topOffset + (columnNumber * this.buttonInterval);
+
     return {
-      x: (this.width / 2) - (this.buttonSize / 2),
-      y: this.topOffset + (index * this.buttonInterval),
+      x: xPosition,
+      y: yPosition,
     };
   }
 
