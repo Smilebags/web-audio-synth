@@ -7,6 +7,7 @@ import OscillatorModule from "./modules/OscillatorModule.js";
 import { subtract } from "./util.js";
 import Cable from "./Cable.js";
 import FilterModule from "./modules/FilterModule.js";
+import EnvelopeModule from "./modules/EnvelopeModule.js";
 
 export default class Rack {
   audioContext: AudioContext;
@@ -26,20 +27,17 @@ export default class Rack {
   constructor(audioContext: AudioContext, context: CanvasRenderingContext2D) {
     this.audioContext = audioContext;
     this.addModule(new OutputModule(this.audioContext));
+    this.addModule(new EnvelopeModule(this.audioContext));
     this.addModule(new GainModule(this.audioContext));
     this.addModule(new FilterModule(this.audioContext));
     this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
-    this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
-    this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
-    this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
-    this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
-    this.addModule(new GainModule(this.audioContext));
     this.addModule(new GainModule(this.audioContext));
     this.addModule(new GainModule(this.audioContext));
     this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
     this.addModule(new OscillatorModule(this.audioContext, 'sine', 57));
     this.addModule(new GainModule(this.audioContext));
-    this.addModule(new OscillatorModule(this.audioContext, 'sine', 0.2));
+    this.addModule(new OscillatorModule(this.audioContext, 'square', 0.2));
+    // this.addModule(new OscillatorModule(this.audioContext, 'sine', 0.2));
     this.renderContext = context;
     this.renderContext.canvas.width = window.innerWidth;
     this.renderContext.canvas.height = window.innerHeight;
