@@ -5,8 +5,8 @@ class EnvelopeGeneratorProcessor extends AudioWorkletProcessor {
       ...args,
       a: 0.01,
       d: 0.1,
-      s: 0.5,
-      r: 0.2,
+      s: 0.1,
+      r: 0.5,
       cutoffVoltage: 0.8,
     };
 
@@ -59,16 +59,25 @@ class EnvelopeGeneratorProcessor extends AudioWorkletProcessor {
     this.setState(inputValue);
     switch (this.stage) {
       case 'a':
-        this.value += this.attackChangeAmount;
+        this.value = Math.min(
+          this.value + this.attackChangeAmount,
+          1
+        );
         break;
       case 'd':
-        this.value -= this.decayChangeAmount;
+        this.value = Math.max(
+          this.value - this.decayChangeAmount,
+          this.s,
+        );
         break;
       case 's':
         this.value = this.s;
         break;
       case 'r':
-        this.value -= this.releaseChangeAmount;
+        this.value = Math.max(
+          this.value - this.releaseChangeAmount,
+          0,
+        );
         break;
       case 'off':
         this.value = 0;
