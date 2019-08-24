@@ -6,10 +6,6 @@ class VoltPerOctaveProcessor extends AudioWorkletProcessor {
         name: 'coarse',
         defaultValue: 0
       },
-      {
-        name: 'fine',
-        defaultValue: 0
-      },
     ];
   }
 
@@ -20,8 +16,7 @@ class VoltPerOctaveProcessor extends AudioWorkletProcessor {
     const inputChannel = input[0];
     for (let i = 0; i < outputChannel.length; i++) {
       const octaveOffset = 1;
-      const coarseValue = this.getInputValue(params.coarse);
-      const fineValue = this.getInputValue(params.fine);
+      const coarseValue = this.getParameterValue(params, 'coarse', i);
       const inChannelValue = this.getInputValue(inputChannel, i);
       const resultantVoltage = octaveOffset + inChannelValue + coarseValue;
       outputChannel[i] = (2 ** resultantVoltage);
@@ -39,6 +34,16 @@ class VoltPerOctaveProcessor extends AudioWorkletProcessor {
     }
 
     return input[index];
+  }
+
+  getParameterValue(parameters, parameterName, sampleIndex) {
+    if (!parameters[parameterName]) {
+      return 0;
+    }
+    if (parameters[parameterName].length === 1) {
+      return parameters[parameterName][0];
+    }
+    return parameters[parameterName][sampleIndex];
   }
 
 }

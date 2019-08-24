@@ -10,8 +10,10 @@ export default class OscillatorModule extends AbstractRackModule {
   name: string = 'Osc';
   private osc: OscillatorNode;
   private vo: AudioWorkletNode;
+  private voCoarseParam?: AudioParam;
+  private voltageOffset: number;
 
-  private initialFreq: number | null = null;
+  private initialVoltage: number | null = null;
   private mousedownPos: Vec2 | null = null;
   private mousemovePos: Vec2 | null = null;
 
@@ -20,13 +22,20 @@ export default class OscillatorModule extends AbstractRackModule {
 
     this.context = context;
     this.osc = this.context.createOscillator();
-    this.osc.frequency.value = startingFrequency;
+    this.osc.frequency.value = 0;
     this.osc.type = type;
     this.osc.start();
     this.vo = new AudioWorkletNode(this.context, 'volt-per-octave-processor');
     this.vo.connect(this.osc.frequency);
 
-    this.addPlug(this.vo, 'V/O In', 'in', 0);
+    this.voltageOffset = Math.log2(startingFrequency);
+
+    this.voCoarseParam = this.vo.parameters.get('coarse');
+    if (this.voCoarseParam) {
+      this.voCoarseParam.value = this.voltageOffset;
+      this.addPlug(this.voCoarseParam, 'V/O In', 'in', 0);
+    }
+
     this.addPlug(this.osc, 'Out', 'out', 2);
 
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
@@ -38,16 +47,21 @@ export default class OscillatorModule extends AbstractRackModule {
       return;
     }
     this.mousedownPos = mousedownEvent;
-    this.initialFreq = this.osc.frequency.value;
+    this.initialVoltage = this.voltageOffset;
   }
+
   handleMousemove(mousemoveEvent: Vec2): void {
     this.mousemovePos = mousemoveEvent;
-    if (!this.mousedownPos || !this.initialFreq) {
+    if (!this.mousedownPos || !this.initialVoltage) {
       return;
     }
     const relativeYPos = subtract(this.mousedownPos, this.mousemovePos).y;
-    this.osc.frequency.value = this.initialFreq + (relativeYPos * 2 );
+    this.voltageOffset = this.initialVoltage + (relativeYPos / 2**6 );
+    if (this.voCoarseParam) {
+      this.voCoarseParam.value = this.voltageOffset;
+    }   
   }
+
   isInFreqBox(pos: Vec2): boolean {
     return pos.y >= 200;
   }
