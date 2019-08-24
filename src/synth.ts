@@ -14,7 +14,7 @@ async function init() {
 
 async function registerProcessors(audioContext: AudioContext) {
   await Promise.all([
-    audioContext.audioWorklet.addModule('EnvelopeGeneratorProcessor.js'),
-    audioContext.audioWorklet.addModule('VoltPerOctaveProcessor.js'),
+    audioContext.audioWorklet.addModule('processors/EnvelopeGeneratorProcessor.js'),
+    audioContext.audioWorklet.addModule('processors/VoltPerOctaveProcessor.js'),
   ]);
 }
