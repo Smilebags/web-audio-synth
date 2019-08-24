@@ -2,7 +2,7 @@ import Plug from '../Plug.js';
 
 
 import AbstractRackModule from "./AbstractRackModule.js";
-import { Vec2 } from '../types.js';
+import { Vec2 } from '../types/Vec2.js';
 import { subtract } from '../util.js';
 
 export default class OscillatorModule extends AbstractRackModule {

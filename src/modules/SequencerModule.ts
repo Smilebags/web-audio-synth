@@ -1,6 +1,6 @@
 import Plug from "../Plug.js";
 import AbstractRackModule from "./AbstractRackModule.js";
-import { Vec2 } from "../types.js";
+import { Vec2 } from "../types/Vec2.js";
 
 export default class SequencerModule extends AbstractRackModule {
   width!: number;

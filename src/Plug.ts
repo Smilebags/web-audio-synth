@@ -1,5 +1,5 @@
-import { Vec2 } from "./types.js";
-import RackModule from "./RackModule.js";
+import { Vec2 } from "./types/Vec2.js";
+import RackModule from "./types/RackModule.js";
 
 export default class Plug {
   module: RackModule;
