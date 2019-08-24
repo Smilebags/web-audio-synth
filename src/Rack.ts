@@ -38,8 +38,9 @@ export default class Rack {
     this.addModule(new OscillatorModule(this.audioContext, 'sine', 57));
     this.addModule(new GainModule(this.audioContext));
     this.addModule(new OscillatorModule(this.audioContext, 'square', 0.2));
-    this.addModule(new SequencerModule(this.audioContext));
-    this.addModule(new SequencerModule(this.audioContext, 64, 100));
+    this.addModule(new SequencerModule(this.audioContext, 64, 500));
+    this.addModule(new SequencerModule(this.audioContext, 16, 125));
+    this.addModule(new SequencerModule(this.audioContext, 64, 125));
     // this.addModule(new OscillatorModule(this.audioContext, 'sine', 0.2));
     this.renderContext = context;
     this.renderContext.canvas.width = window.innerWidth;
