@@ -30,7 +30,7 @@ export default class Plug {
   }
   connect(plug: Plug) {
     // @ts-ignore
-    this.param.disconnect();
+    // this.param.disconnect();
     // @ts-ignore
     this.param.connect(plug.param);
   }
