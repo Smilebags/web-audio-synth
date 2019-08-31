@@ -17,9 +17,9 @@ export default class EnvelopeModule extends AbstractRackModule {
   constructor(
     context: AudioContext,
     a: number = 0.01,
-    d: number = 0.1,
-    s: number = 0.1,
-    r: number = 0.2,
+    d: number = 0.2,
+    s: number = 1,
+    r: number = 0.21,
   ) {
     super();
 
