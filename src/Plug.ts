@@ -29,8 +29,13 @@ export default class Plug {
     this.param.disconnect();
   }
   connect(plug: Plug) {
-    // @ts-ignore
-    // this.param.disconnect();
+    if (this.type === plug.type) {
+      throw 'You cannot connect two plugs of the same type';
+    }
+    if (this.type === 'in' && plug.type === 'out') {
+      plug.connect(this);
+      return;
+    }
     // @ts-ignore
     this.param.connect(plug.param);
   }
