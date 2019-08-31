@@ -9,6 +9,7 @@ import Cable from "./Cable.js";
 import FilterModule from "./modules/FilterModule.js";
 import EnvelopeModule from "./modules/EnvelopeModule.js";
 import SequencerModule from "./modules/SequencerModule.js";
+import KeyboardInputModule from "./modules/KeyboardInputModule.js";
 
 export default class Rack {
   audioContext: AudioContext;
@@ -29,7 +30,8 @@ export default class Rack {
     this.audioContext = audioContext;
     this.addModule(new OutputModule(this.audioContext));
     this.addModule(new EnvelopeModule(this.audioContext));
-    this.addModule(new GainModule(this.audioContext));
+    this.addModule(new KeyboardInputModule(this.audioContext));
+    this.addModule(new GainModule(this.audioContext, 0));
     this.addModule(new FilterModule(this.audioContext));
     this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
     this.addModule(new GainModule(this.audioContext));
