@@ -54,12 +54,12 @@ class EnvelopeGeneratorProcessor extends AudioWorkletProcessor {
     return (1 / this.decaySamples(decayValue, sustainValue));
   }
 
-  releaseSamples(releaseValue, sustainValue) {
-    return (releaseValue * this.samplingFrequency) / sustainValue;
+  releaseSamples(releaseValue) {
+    return (releaseValue * this.samplingFrequency);
   }
 
-  releaseChangeAmount(releaseValue, sustainValue) {
-    return (1 / this.releaseSamples(releaseValue, sustainValue));
+  releaseChangeAmount(releaseValue) {
+    return (1 / this.releaseSamples(releaseValue));
   }
 
   process(inputs, outputs, parameters) {
@@ -90,7 +90,7 @@ class EnvelopeGeneratorProcessor extends AudioWorkletProcessor {
   tick(inputValue, parameters, sampleIndex, a, d, s, r) {
     const attackChangeAmount = this.attackChangeAmount(a);
     const decayChangeAmount = this.decayChangeAmount(d, s);
-    const releaseChangeAmount = this.releaseChangeAmount(r, s);
+    const releaseChangeAmount = this.releaseChangeAmount(r);
     this.setState(inputValue, parameters, sampleIndex, a, d, s);
     switch (this.stage) {
       case 'a':
