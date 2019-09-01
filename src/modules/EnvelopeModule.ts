@@ -1,7 +1,7 @@
 import Plug from "../Plug.js";
 import AbstractRackModule from "./AbstractRackModule.js";
 import { Vec2 } from "../types/Vec2.js";
-import { subtract } from "../util.js";
+import { subtract, isSet } from "../util.js";
 
 export default class EnvelopeModule extends AbstractRackModule {
   width!: number;
@@ -59,6 +59,8 @@ export default class EnvelopeModule extends AbstractRackModule {
   handleMousedown(mousedownEvent: Vec2): void {
     const paramUnderMouse = this.getParamByPosition(mousedownEvent);
     if (!paramUnderMouse) {
+      this.mousedownPos = null;
+      this.paramMousedownValue = null;
       return;
     }
     this.mousedownPos = mousedownEvent;
@@ -66,32 +68,31 @@ export default class EnvelopeModule extends AbstractRackModule {
   }
   
   handleMousemove(mousemoveEvent: Vec2): void {
-    if (!this.mousedownPos || !this.paramMousedownValue) {
+    if (!this.mousedownPos || !isSet(this.paramMousedownValue)) {
       return;
     }
     const paramToUpdate = this.getParamByPosition(this.mousedownPos);
     if (!paramToUpdate) {
       return;
     }
-    const changeAmount = (mousemoveEvent.y - this.mousedownPos.y) / 100;
-    paramToUpdate.value = this.paramMousedownValue + changeAmount;
+    const changeAmount = (this.mousedownPos.y - mousemoveEvent.y) / 100;
+    paramToUpdate.value = Math.max(this.paramMousedownValue + changeAmount, 0);
   }
 
   getParamByPosition(position: Vec2): AudioParam | null | undefined {
-    if (position.y < 40) {
-
+    if (position.y < 70) {
       return null;
     }
-    if (position.y < 90) {
+    if (position.y < 120) {
       return this.envelopeAttackParam;
     }
-    if (position.y < 140) {
+    if (position.y < 170) {
       return this.envelopeDecayParam;
     }
-    if (position.y < 190) {
+    if (position.y < 220) {
       return this.envelopeSustainParam;
     }
-    if (position.y < 240) {
+    if (position.y < 270) {
       return this.envelopeReleaseParam;
     }
 
@@ -100,9 +101,16 @@ export default class EnvelopeModule extends AbstractRackModule {
 
   render(renderContext: CanvasRenderingContext2D): void {
     renderContext.save();
-    renderContext.fillStyle = '#ff0000';
-    renderContext.fillRect(0, 0, this.width, 70);
-    renderContext.fillRect(0, 120, this.width, 50);
+    renderContext.fillStyle = '#ffffff';
+    renderContext.font = "16px Arial";
+    const a = this.envelopeAttackParam && this.envelopeAttackParam.value || 0;
+    const d = this.envelopeDecayParam && this.envelopeDecayParam.value || 0;
+    const s = this.envelopeSustainParam && this.envelopeSustainParam.value || 0;
+    const r = this.envelopeReleaseParam && this.envelopeReleaseParam.value || 0;
+    renderContext.fillText(String(a.toFixed(2)), 5, 105);
+    renderContext.fillText(String(d.toFixed(2)), 5, 155);
+    renderContext.fillText(String(s.toFixed(2)), 5, 205);
+    renderContext.fillText(String(r.toFixed(2)), 5, 255);
     renderContext.restore();
     super.render(renderContext);
   }

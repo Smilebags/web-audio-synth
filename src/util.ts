@@ -17,3 +17,7 @@ export function add(pos1: Vec2, pos2: Vec2) {
     y: pos1.y + pos2.y,
   };
 }
+
+export function isSet(val: any): boolean {
+  return val !== undefined && val !== null;
+}

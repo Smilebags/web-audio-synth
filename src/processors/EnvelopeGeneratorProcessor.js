@@ -47,6 +47,9 @@ class EnvelopeGeneratorProcessor extends AudioWorkletProcessor {
   }
 
   decaySamples(decayValue, sustainValue) {
+    if (sustainValue === 1) {
+      return 0;
+    }
     return (decayValue * this.samplingFrequency) / (1 - sustainValue);
   }
 
