@@ -34,9 +34,9 @@ export default class Rack {
     this.addModule(new EnvelopeModule(this.audioContext, 0.3, 0.1, 1, 1));
     this.addModule(new FilterModule(this.audioContext));
     this.addModule(new GainModule(this.audioContext, 0));
-    this.addModule(new GainModule(this.audioContext));
-    this.addModule(new GainModule(this.audioContext));
-    this.addModule(new GainModule(this.audioContext));
+    this.addModule(new GainModule(this.audioContext, 0));
+    this.addModule(new GainModule(this.audioContext, 0));
+    this.addModule(new GainModule(this.audioContext, 0));
     this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
     this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
     this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
