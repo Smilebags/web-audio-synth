@@ -8,7 +8,9 @@ export default class FilterModule extends AbstractRackModule {
   context: AudioContext;
   plugs!: Plug[];
   name: string = 'Filter';
-  private biquad: BiquadFilterNode;
+  private in: GainNode;
+  private lowpass: BiquadFilterNode;
+  private highpass: BiquadFilterNode;
   private vo: AudioWorkletNode;
   private voltageOffset: number;
   private voCoarseParam?: AudioParam;
@@ -18,13 +20,18 @@ export default class FilterModule extends AbstractRackModule {
   private mousedownPos: Vec2 | null = null;
   private mousemovePos: Vec2 | null = null;
 
-  constructor(context: AudioContext, type: BiquadFilterType = 'lowpass', startingFrequency: number = 440) {
+  constructor(context: AudioContext, startingFrequency: number = 440) {
     super();
 
     this.context = context;
-    this.biquad = this.context.createBiquadFilter();
-    this.biquad.frequency.value = startingFrequency;
-    this.biquad.type = type;
+    this.in = this.context.createGain();
+    this.in.gain.value = 1;
+    this.lowpass = this.context.createBiquadFilter();
+    this.lowpass.frequency.value = startingFrequency;
+    this.lowpass.type = 'lowpass';
+    this.highpass = this.context.createBiquadFilter();
+    this.highpass.frequency.value = startingFrequency;
+    this.highpass.type = 'highpass';
     this.vo = new AudioWorkletNode(this.context, 'volt-per-octave-processor');
 
     this.voltageOffset = Math.log2(startingFrequency);
@@ -35,10 +42,14 @@ export default class FilterModule extends AbstractRackModule {
       this.addPlug(this.voCoarseParam, 'V/O In', 'in', 1);
     }
 
-    this.vo.connect(this.biquad.frequency);
+    this.in.connect(this.lowpass);
+    this.in.connect(this.highpass);
+    this.vo.connect(this.lowpass.frequency);
+    this.vo.connect(this.highpass.frequency);
 
-    this.addPlug(this.biquad, 'In', 'in', 0);
-    this.addPlug(this.biquad, 'Out', 'out', 2);
+    this.addPlug(this.in, 'In', 'in', 0);
+    this.addPlug(this.lowpass, 'Low', 'out', 2);
+    this.addPlug(this.highpass, 'High', 'out', 3);
 
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
     this.addEventListener('mousemove', (e: Vec2) => {this.handleMousemove(e)});
