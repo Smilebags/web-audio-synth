@@ -19,8 +19,13 @@ export default class SequencerModule extends AbstractRackModule {
 
   constructor(
     context: AudioContext,
-    stepCount: number = 16,
-    tickInterval: number = 200,
+    {
+      stepCount = 16,
+      tickInterval = 200,
+    } : {
+      stepCount?: number,
+      tickInterval?: number,
+    }
   ) {
     super();
 
@@ -118,5 +123,13 @@ export default class SequencerModule extends AbstractRackModule {
         this.buttonSize,
       );
     });
+  }
+
+  toParams(): any {
+    return {
+      type: this.type,
+      stepCount: this.states.length,
+      tickInterval: this.tickInterval,
+    }
   }
 }
