@@ -1,21 +1,20 @@
 import { Vec2 } from "./types/Vec2.js";
 import RackModule from "./types/RackModule.js";
 import Plug from "./Plug.js";
-import OutputModule from "./modules/OutputModule.js";
-import GainModule from "./modules/GainModule.js";
-import OscillatorModule from "./modules/OscillatorModule.js";
-import { subtract } from "./util.js";
+
+import { subtract, isSet } from "./util.js";
 import Cable from "./Cable.js";
-import FilterModule from "./modules/FilterModule.js";
-import EnvelopeModule from "./modules/EnvelopeModule.js";
-import SequencerModule from "./modules/SequencerModule.js";
-import KeyboardInputModule from "./modules/KeyboardInputModule.js";
+import RackModuleFactory from "./RackModuleFactory.js";
+
+
+interface ModuleSlot {
+  module: RackModule;
+  position: Vec2;
+};
 
 export default class Rack {
-  audioContext: AudioContext;
   cables: Cable[] = [];
-  moduleSlots: {module: RackModule, position: Vec2}[] = [];
-  renderContext: CanvasRenderingContext2D;
+  moduleSlots: ModuleSlot[] = [];
   mousedownPosition: Vec2 | null = null;
   mousedragPosition: Vec2 | null = null;
   mouseupPosition: Vec2 | null = null;
@@ -26,27 +25,39 @@ export default class Rack {
   onMouseup: (e: MouseEvent) => void;
   delegateModule: RackModule | null = null;
 
-  constructor(audioContext: AudioContext, context: CanvasRenderingContext2D) {
-    this.audioContext = audioContext;
-    this.addModule(new OutputModule(this.audioContext));
-    this.addModule(new KeyboardInputModule(this.audioContext));
-    this.addModule(new EnvelopeModule(this.audioContext, 0.01, 0.1, 0, 0.1));
-    this.addModule(new EnvelopeModule(this.audioContext, 0.3, 0.1, 1, 1));
-    this.addModule(new FilterModule(this.audioContext));
-    this.addModule(new GainModule(this.audioContext, 0));
-    this.addModule(new GainModule(this.audioContext, 0));
-    this.addModule(new GainModule(this.audioContext, 0));
-    this.addModule(new GainModule(this.audioContext, 0));
-    this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
-    this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
-    this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
-    this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
-    this.addModule(new OscillatorModule(this.audioContext, 'sine', 55));
-    this.addModule(new OscillatorModule(this.audioContext, 'sine', 0.14));
-    this.addModule(new SequencerModule(this.audioContext, 64, 500));
-    this.addModule(new SequencerModule(this.audioContext, 16, 125));
-    this.addModule(new SequencerModule(this.audioContext, 64, 125));
-    this.renderContext = context;
+  headerHeight: number = 20;
+
+  constructor(
+    public audioContext: AudioContext,
+    public renderContext: CanvasRenderingContext2D,
+    private rackModuleFactory: RackModuleFactory,
+  ) {
+    this.addModule(this.rackModuleFactory.createModule('Output', {}));
+    this.addModule(this.rackModuleFactory.createModule('Oscillator', undefined));
+    // this.addModule(new KeyboardInputModule(this.audioContext));
+    // this.addModule(new EnvelopeModule(this.audioContext, 0.01, 0.1, 0, 0.1));
+    // this.addModule(new EnvelopeModule(this.audioContext, 0.3, 0.1, 1, 1));
+    // this.addModule(new EnvelopeModule(this.audioContext, 0.3, 0.1, 1, 1));
+    // this.addModule(new FilterModule(this.audioContext));
+    // this.addModule(new GainModule(this.audioContext, 1));
+    // this.addModule(new GainModule(this.audioContext, 1));
+    // this.addModule(new GainModule(this.audioContext, 1));
+    // this.addModule(new DelayModule(this.audioContext));
+    // this.addModule(new GainModule(this.audioContext, 0));
+    // this.addModule(new OscillatorModule(this.audioContext, 'sine', 100));
+    // this.addModule(new OscillatorModule(this.audioContext, 'sine', 200));
+    // this.addModule(new OscillatorModule(this.audioContext, 'sine', 300));
+    // this.addModule(new OscillatorModule(this.audioContext, 'sine', 400));
+    // this.addModule(new OscillatorModule(this.audioContext, 'sine', 500));
+    // this.addModule(new OscillatorModule(this.audioContext, 'sine', 600));
+    // this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
+    // this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
+    // this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
+    // this.addModule(new OscillatorModule(this.audioContext, 'sine', 55));
+    // this.addModule(new OscillatorModule(this.audioContext, 'sine', 0.14));
+    // this.addModule(new SequencerModule(this.audioContext, 64, 500));
+    // this.addModule(new SequencerModule(this.audioContext, 16, 125));
+    // this.addModule(new SequencerModule(this.audioContext, 64, 125));
     this.renderContext.canvas.width = window.innerWidth;
     this.renderContext.canvas.height = window.innerHeight;
     this.render();
@@ -57,11 +68,42 @@ export default class Rack {
     addEventListener("mousedown", this.onMousedown);
   }
 
+  static fromPatchString(
+    audioContext: AudioContext,
+    context: CanvasRenderingContext2D,
+    rackModuleFactory: RackModuleFactory,
+    patchString: string,
+  ): Rack {
+    const rack = new Rack(audioContext, context, rackModuleFactory);
+    try {
+      const patch = JSON.parse(patchString);
+      if (!isSet(patch.moduleSlots) || !isSet(patch.cables)) {
+        throw 'Invalid patch string';
+      }
+      rack.loadModulesFromPatchObject(patch);
+    } catch (error) {
+      console.error(error);
+    }
+    return rack;
+  }
+
+  loadModulesFromPatchObject(patchObject: {moduleSlots: any[], cables: any}): void {
+    patchObject.moduleSlots.forEach((moduleSlot) => {
+      const moduleInstance = this.rackModuleFactory.createModule(moduleSlot.type, moduleSlot);
+      this.addModule(moduleInstance);
+    });
+  }
+
   handleMousedown(mousedownEvent: MouseEvent): void {
     const mousedownPosition = {
       x: mousedownEvent.clientX,
       y: mousedownEvent.clientY,
     };
+
+    if(mousedownPosition.y < this.headerHeight) {
+      this.handleHeaderClick(mousedownPosition);
+    }
+
     this.mousedownPlug = this.getPlugAtRackPosition(mousedownPosition);
 
     if(this.mousedownPlug) {
@@ -108,6 +150,25 @@ export default class Rack {
     removeEventListener('mouseup', this.onMouseup);
   }
 
+  handleHeaderClick(pos: Vec2): void {
+    if (pos.x < 20) {
+      this.logPatchString();
+      return;
+    }
+  }
+
+  logPatchString() {
+    const output: any = {};
+    output.moduleSlots = this.moduleSlots.map((moduleSlot) => {
+      return {
+        module: moduleSlot.module.toParams(),
+        position: moduleSlot.position,
+      }
+    });
+    output.cables = this.cables;
+    console.log(JSON.stringify(output, null, 2));
+  }
+
   get nextAvailableSpace(): number {
     return this.moduleSlots.reduce((currentMax, slot) => {
       if (slot.position.x + slot.module.width >= currentMax) {
@@ -120,7 +181,7 @@ export default class Rack {
   addModule(rackModule: RackModule): void {
     const position = {
       x: this.nextAvailableSpace,
-      y: 0,
+      y: this.headerHeight,
     };
     this.moduleSlots.push({module: rackModule, position});
   }
@@ -131,7 +192,7 @@ export default class Rack {
 
   getModulePosition(rackModule: RackModule): Vec2 {
     const moduleIndex = this.getModuleIndex(rackModule);
-    return {x: moduleIndex * 100, y: 0};
+    return {x: moduleIndex * 100, y: this.headerHeight};
   }
 
   getModuleByPosition(pos: Vec2): RackModule | null {
@@ -212,7 +273,6 @@ export default class Rack {
   }
 
   renderModules(): void {
-    let currentOffset = 0;
     this.moduleSlots.forEach((moduleSlot) => {
       this.renderContext.save();
       const modulePosition = moduleSlot.position;
