@@ -16,13 +16,19 @@ export default class OscillatorModule extends AbstractRackModule {
   private mousedownPos: Vec2 | null = null;
   private mousemovePos: Vec2 | null = null;
 
-  constructor(context: AudioContext, startingGain: number = 1) {
+  constructor(
+    context: AudioContext,
+    {
+      gain = 1,
+    } : {
+      gain?: number,
+    }) {
     super();
 
     this.context = context;
    
     this.gainNode = this.context.createGain();
-    this.gainNode.gain.value = startingGain;
+    this.gainNode.gain.value = gain;
     
     this.addPlug(this.gainNode, 'In', 'in');
     this.addPlug(this.gainNode.gain, 'VC', 'in');
@@ -48,5 +54,12 @@ export default class OscillatorModule extends AbstractRackModule {
   }
   isInVolumeBox(pos: Vec2): boolean {
     return pos.y >= 200;
+  }
+
+  toParams(): any {
+    return {
+      type: this.type,
+      gain: this.gainNode.gain.value,
+    }
   }
 }
