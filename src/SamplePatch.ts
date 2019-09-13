@@ -6,7 +6,7 @@ export default `{
       },
       "position": {
         "x": 0,
-        "y": 20
+        "y": 32
       }
     },
     {
@@ -17,7 +17,7 @@ export default `{
       },
       "position": {
         "x": 100,
-        "y": 20
+        "y": 32
       }
     },
     {
@@ -28,7 +28,7 @@ export default `{
       },
       "position": {
         "x": 200,
-        "y": 20
+        "y": 32
       }
     },
     {
@@ -38,7 +38,7 @@ export default `{
       },
       "position": {
         "x": 300,
-        "y": 20
+        "y": 32
       }
     },
     {
@@ -51,7 +51,7 @@ export default `{
       },
       "position": {
         "x": 400,
-        "y": 20
+        "y": 32
       }
     },
     {
@@ -61,7 +61,7 @@ export default `{
       },
       "position": {
         "x": 500,
-        "y": 20
+        "y": 32
       }
     },
     {
@@ -71,7 +71,7 @@ export default `{
       },
       "position": {
         "x": 600,
-        "y": 20
+        "y": 32
       }
     },
     {
@@ -83,7 +83,7 @@ export default `{
       },
       "position": {
         "x": 700,
-        "y": 20
+        "y": 32
       }
     }
   ]
