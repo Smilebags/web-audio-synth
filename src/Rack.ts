@@ -32,32 +32,6 @@ export default class Rack {
     public renderContext: CanvasRenderingContext2D,
     private rackModuleFactory: RackModuleFactory,
   ) {
-    this.addModule(this.rackModuleFactory.createModule('Output', {}));
-    this.addModule(this.rackModuleFactory.createModule('Oscillator', {voltageOffset: 6, oscType: 'square'}));
-    // this.addModule(new KeyboardInputModule(this.audioContext));
-    // this.addModule(new EnvelopeModule(this.audioContext, 0.01, 0.1, 0, 0.1));
-    // this.addModule(new EnvelopeModule(this.audioContext, 0.3, 0.1, 1, 1));
-    // this.addModule(new EnvelopeModule(this.audioContext, 0.3, 0.1, 1, 1));
-    // this.addModule(new FilterModule(this.audioContext));
-    // this.addModule(new GainModule(this.audioContext, 1));
-    // this.addModule(new GainModule(this.audioContext, 1));
-    // this.addModule(new GainModule(this.audioContext, 1));
-    // this.addModule(new DelayModule(this.audioContext));
-    // this.addModule(new GainModule(this.audioContext, 0));
-    // this.addModule(new OscillatorModule(this.audioContext, 'sine', 100));
-    // this.addModule(new OscillatorModule(this.audioContext, 'sine', 200));
-    // this.addModule(new OscillatorModule(this.audioContext, 'sine', 300));
-    // this.addModule(new OscillatorModule(this.audioContext, 'sine', 400));
-    // this.addModule(new OscillatorModule(this.audioContext, 'sine', 500));
-    // this.addModule(new OscillatorModule(this.audioContext, 'sine', 600));
-    // this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
-    // this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
-    // this.addModule(new OscillatorModule(this.audioContext, 'sawtooth', 110));
-    // this.addModule(new OscillatorModule(this.audioContext, 'sine', 55));
-    // this.addModule(new OscillatorModule(this.audioContext, 'sine', 0.14));
-    // this.addModule(new SequencerModule(this.audioContext, 64, 500));
-    // this.addModule(new SequencerModule(this.audioContext, 16, 125));
-    // this.addModule(new SequencerModule(this.audioContext, 64, 125));
     this.renderContext.canvas.width = window.innerWidth;
     this.renderContext.canvas.height = window.innerHeight;
     this.render();
@@ -89,8 +63,8 @@ export default class Rack {
 
   loadModulesFromPatchObject(patchObject: {moduleSlots: any[]}): void {
     patchObject.moduleSlots.forEach((moduleSlot) => {
-      const moduleInstance = this.rackModuleFactory.createModule(moduleSlot.type, moduleSlot);
-      this.addModule(moduleInstance);
+      const moduleInstance = this.rackModuleFactory.createModule(moduleSlot.module.type, moduleSlot.module);
+      this.addModule(moduleInstance, moduleSlot.position);
     });
   }
 
@@ -177,12 +151,12 @@ export default class Rack {
     }, 0);
   }
 
-  addModule(rackModule: RackModule): void {
-    const position = {
+  addModule(rackModule: RackModule, modulePosition?: Vec2): void {
+    const defaultPosition = {
       x: this.nextAvailableSpace,
       y: this.headerHeight,
     };
-    this.moduleSlots.push({module: rackModule, position});
+    this.moduleSlots.push({module: rackModule, position: modulePosition || defaultPosition});
   }
 
   getModuleIndex(rackModule: RackModule) {
