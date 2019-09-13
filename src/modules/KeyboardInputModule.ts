@@ -48,7 +48,7 @@ export default class KeyboardInputModule extends AbstractRackModule {
   width!: number;
   context: AudioContext;
   plugs!: Plug[];
-  type: string = 'Keyboard';
+  type: string = 'KeyboardInput';
 
   gate: ConstantSourceNode;
   vo: ConstantSourceNode;
@@ -60,7 +60,18 @@ export default class KeyboardInputModule extends AbstractRackModule {
   private mousedownPos: Vec2 | null = null;
   private mousemovePos: Vec2 | null = null;
 
-  constructor(context: AudioContext, isOn = true, octave = 0, gateHighVoltage = 1) {
+  constructor(
+    context: AudioContext,
+    {
+      isOn = true,
+      octave = 0,
+      gateHighVoltage = 1,
+    } : {
+      isOn?: boolean,
+      octave?: number,
+      gateHighVoltage?: number,
+    }
+  ) {
     super();
 
     this.context = context;
@@ -127,9 +138,16 @@ export default class KeyboardInputModule extends AbstractRackModule {
     this.vo.offset.value = VOLTMAP[previousKey] + this.octave;
   }
 
-  
-
   isOverPowerButton(pos: Vec2): boolean {
     return pos.y >= 200;
+  }
+
+  toParams(): any {
+    return {
+      type: this.type,
+      isOn: this.isOn,
+      octave: this.octave,
+      gateHighVoltage: this.gateHighVoltage,
+    };
   }
 }
