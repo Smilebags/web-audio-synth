@@ -5,6 +5,8 @@ import Plug from "./Plug.js";
 import { subtract, isSet } from "./util.js";
 import Cable from "./Cable.js";
 import RackModuleFactory from "./RackModuleFactory.js";
+import HeaderButton from "./types/HeaderButton.js";
+import OscillatorButton from "./headerButtons/OscillatorButton.js";
 
 
 interface ModuleSlot {
@@ -25,16 +27,19 @@ export default class Rack {
   onMouseup: (e: MouseEvent) => void;
   delegateModule: RackModule | null = null;
 
-  headerHeight: number = 20;
+  headerHeight: number = 32;
+  headerButtons: HeaderButton[] = [];
 
   constructor(
     public audioContext: AudioContext,
     public renderContext: CanvasRenderingContext2D,
-    private rackModuleFactory: RackModuleFactory,
+    public rackModuleFactory: RackModuleFactory,
   ) {
     this.renderContext.canvas.width = window.innerWidth;
     this.renderContext.canvas.height = window.innerHeight;
     this.render();
+
+    this.headerButtons.push(new OscillatorButton(this));
 
     this.onMousedown = (e) => this.handleMousedown(e);
     this.onMousemove = (e) => this.handleMousemove(e);
@@ -125,9 +130,14 @@ export default class Rack {
   }
 
   handleHeaderClick(pos: Vec2): void {
-    if (pos.x < 20) {
-      this.logPatchString();
-      return;
+    let currentButtonStart = 0;
+    for (let i = 0; i < this.headerButtons.length; i++) {
+      const headerButton = this.headerButtons[i];
+      if (pos.x < headerButton.width + currentButtonStart) {
+        headerButton.handlePress();
+        return;
+      }
+      currentButtonStart += headerButton.width;
     }
   }
 
@@ -230,6 +240,17 @@ export default class Rack {
   }
 
   render(): void {
+    this.renderBackground();
+    this.renderHeader();
+    this.renderModules();
+    this.renderCables();
+    this.renderDraggingCable();
+    requestAnimationFrame(() => {
+      this.render();
+    });
+  }
+
+  renderBackground(): void {
     this.renderContext.fillStyle = "#333333";
     this.renderContext.fillRect(
       0,
@@ -237,11 +258,16 @@ export default class Rack {
       this.renderContext.canvas.width,
       this.renderContext.canvas.height,
     );
-    this.renderModules();
-    this.renderCables();
-    this.renderDraggingCable();
-    requestAnimationFrame(() => {
-      this.render();
+  }
+
+  renderHeader(): void {
+    let currentOffset = 0;
+    this.headerButtons.forEach((button) => {
+      this.renderContext.save();
+      this.renderContext.translate(currentOffset, 0);
+      button.render(this.renderContext);
+      this.renderContext.restore();
+      currentOffset += button.width;
     });
   }
 
