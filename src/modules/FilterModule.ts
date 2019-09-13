@@ -20,21 +20,28 @@ export default class FilterModule extends AbstractRackModule {
   private mousedownPos: Vec2 | null = null;
   private mousemovePos: Vec2 | null = null;
 
-  constructor(context: AudioContext, startingFrequency: number = 440) {
+  constructor(
+    context: AudioContext, 
+    {
+      voltageOffset = Math.log2(440),
+    } : {
+      voltageOffset?: number,
+    },
+  ) {
     super();
 
     this.context = context;
     this.in = this.context.createGain();
     this.in.gain.value = 1;
     this.lowpass = this.context.createBiquadFilter();
-    this.lowpass.frequency.value = startingFrequency;
+    this.lowpass.frequency.value = 0;
     this.lowpass.type = 'lowpass';
     this.highpass = this.context.createBiquadFilter();
-    this.highpass.frequency.value = startingFrequency;
+    this.highpass.frequency.value = 0;
     this.highpass.type = 'highpass';
     this.vo = new AudioWorkletNode(this.context, 'volt-per-octave-processor');
-
-    this.voltageOffset = Math.log2(startingFrequency);
+    
+    this.voltageOffset = voltageOffset;
 
     this.voCoarseParam = this.vo.parameters.get('coarse');
     if (this.voCoarseParam) {
@@ -77,5 +84,12 @@ export default class FilterModule extends AbstractRackModule {
 
   isInFreqBox(pos: Vec2): boolean {
     return pos.y >= 200;
+  }
+
+  toParams(): any {
+    return {
+      type: this.type,
+      voltageOffset: this.voltageOffset,
+    }
   }
 }
