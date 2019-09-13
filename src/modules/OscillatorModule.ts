@@ -25,7 +25,7 @@ export default class OscillatorModule extends AbstractRackModule {
     }: {
       oscType?: OscillatorType,
       voltageOffset?: number,
-    } = {}) {
+    }) {
     super();
 
     this.context = context;
