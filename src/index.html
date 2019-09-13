@@ -15,13 +15,44 @@
 
     canvas {
       display: block;
+      position: absolute;
+      z-index: -1;
+      top: 0;
+      left: 0;
       width: 100vw;
       height: 100vh;
+    }
+
+    .options {
+      display: grid;
+      height: calc(100vh - 32px);
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 16px;
+      padding: 16px;
+    }
+
+    .options.hidden {
+      display: none;
+    }
+
+    .options > * {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #333333;
+      color: white;
+      font-size: 32px;
+      font-weight: 800;
+      text-transform: uppercase;
     }
   </style>
 </head>
 
 <body>
+  <div class="options">
+    <div class="load-from-clipboard">Load from clipboard</div>
+    <div class="start-default">Start default</div>
+  </div>
   <canvas class="rack">
   </canvas>
   <script src="/synth.js" type="module"></script>

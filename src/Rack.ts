@@ -7,6 +7,7 @@ import Cable from "./Cable.js";
 import RackModuleFactory from "./RackModuleFactory.js";
 import HeaderButton from "./types/HeaderButton.js";
 import OscillatorButton from "./headerButtons/OscillatorButton.js";
+import SaveToClipboardButton from "./headerButtons/SaveToClipboardButton.js";
 
 
 interface ModuleSlot {
@@ -40,6 +41,7 @@ export default class Rack {
     this.render();
 
     this.headerButtons.push(new OscillatorButton(this));
+    this.headerButtons.push(new SaveToClipboardButton(this));
 
     this.onMousedown = (e) => this.handleMousedown(e);
     this.onMousemove = (e) => this.handleMousemove(e);
@@ -141,7 +143,7 @@ export default class Rack {
     }
   }
 
-  logPatchString() {
+  getPatchString(): string {
     const output: any = {};
     output.moduleSlots = this.moduleSlots.map((moduleSlot) => {
       return {
@@ -149,7 +151,7 @@ export default class Rack {
         position: moduleSlot.position,
       }
     });
-    console.log(JSON.stringify(output, null, 2));
+    return JSON.stringify(output);
   }
 
   get nextAvailableSpace(): number {
