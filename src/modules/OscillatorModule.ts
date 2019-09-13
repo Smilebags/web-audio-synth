@@ -7,7 +7,7 @@ export default class OscillatorModule extends AbstractRackModule {
   width!: number;
   context: AudioContext;
   plugs!: Plug[];
-  type: string = 'Osc';
+  type: string = 'Oscillator';
   private osc: OscillatorNode;
   private vo: AudioWorkletNode;
   private voCoarseParam?: AudioParam;
