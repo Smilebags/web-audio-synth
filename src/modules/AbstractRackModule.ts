@@ -80,10 +80,5 @@ export default abstract class AbstractRackModule implements RackModule {
     this.eventListeners[eventName].push(callback);
   }
 
-  toParams(): Object {
-    return {
-      type: this.type,
-      width: this.width,
-    };
-  }
+  abstract toParams(): Object;
 }

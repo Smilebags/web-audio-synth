@@ -33,7 +33,7 @@ export default class Rack {
     private rackModuleFactory: RackModuleFactory,
   ) {
     this.addModule(this.rackModuleFactory.createModule('Output', {}));
-    this.addModule(this.rackModuleFactory.createModule('Oscillator', undefined));
+    this.addModule(this.rackModuleFactory.createModule('Oscillator', {voltageOffset: 6, oscType: 'square'}));
     // this.addModule(new KeyboardInputModule(this.audioContext));
     // this.addModule(new EnvelopeModule(this.audioContext, 0.01, 0.1, 0, 0.1));
     // this.addModule(new EnvelopeModule(this.audioContext, 0.3, 0.1, 1, 1));
@@ -77,7 +77,7 @@ export default class Rack {
     const rack = new Rack(audioContext, context, rackModuleFactory);
     try {
       const patch = JSON.parse(patchString);
-      if (!isSet(patch.moduleSlots) || !isSet(patch.cables)) {
+      if (!isSet(patch.moduleSlots)) {
         throw 'Invalid patch string';
       }
       rack.loadModulesFromPatchObject(patch);
@@ -87,7 +87,7 @@ export default class Rack {
     return rack;
   }
 
-  loadModulesFromPatchObject(patchObject: {moduleSlots: any[], cables: any}): void {
+  loadModulesFromPatchObject(patchObject: {moduleSlots: any[]}): void {
     patchObject.moduleSlots.forEach((moduleSlot) => {
       const moduleInstance = this.rackModuleFactory.createModule(moduleSlot.type, moduleSlot);
       this.addModule(moduleInstance);
@@ -165,7 +165,6 @@ export default class Rack {
         position: moduleSlot.position,
       }
     });
-    output.cables = this.cables;
     console.log(JSON.stringify(output, null, 2));
   }
 
