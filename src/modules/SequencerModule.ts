@@ -6,7 +6,7 @@ export default class SequencerModule extends AbstractRackModule {
   width!: number;
   context: AudioContext;
   plugs!: Plug[];
-  name: string = 'Sequencer';
+  type: string = 'Sequencer';
   private states: boolean[];
   private currentIndex: number;
   private lowVoltage: number;

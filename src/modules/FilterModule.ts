@@ -7,7 +7,7 @@ export default class FilterModule extends AbstractRackModule {
   width!: number;
   context: AudioContext;
   plugs!: Plug[];
-  name: string = 'Filter';
+  type: string = 'Filter';
   private in: GainNode;
   private lowpass: BiquadFilterNode;
   private highpass: BiquadFilterNode;

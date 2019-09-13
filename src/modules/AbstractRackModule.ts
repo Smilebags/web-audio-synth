@@ -6,7 +6,7 @@ import { Vec2 } from "../types/Vec2.js";
 export default abstract class AbstractRackModule implements RackModule {
   width: number = 100;
   plugs: Plug[] = [];
-  abstract name: string;
+  abstract type: string;
   private eventListeners: {[key: string]: Function[]} = {};
 
   getPlugAtPosition(pos: Vec2): Plug | null {
@@ -37,7 +37,7 @@ export default abstract class AbstractRackModule implements RackModule {
     renderContext.textAlign = "center";
     renderContext.fillStyle = '#ffffff';
     renderContext.font = "16px Arial";
-    renderContext.fillText(this.name, this.width / 2, 20);
+    renderContext.fillText(this.type, this.width / 2, 20);
 
     renderContext.font = "12px Arial";
     this.plugs.forEach((plug, index) => {
@@ -78,5 +78,12 @@ export default abstract class AbstractRackModule implements RackModule {
       this.eventListeners[eventName] = [];
     }
     this.eventListeners[eventName].push(callback);
+  }
+
+  toParams(): Object {
+    return {
+      type: this.type,
+      width: this.width,
+    };
   }
 }

@@ -9,7 +9,7 @@ export default class OscillatorModule extends AbstractRackModule {
   width!: number;
   context: AudioContext;
   plugs!: Plug[];
-  name: string = 'Gain';
+  type: string = 'Gain';
   private gainNode: GainNode;
 
   private initialGain: number | null = null;

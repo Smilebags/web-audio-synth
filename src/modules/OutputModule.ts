@@ -5,7 +5,7 @@ export default class OutputModule extends AbstractRackModule {
   width!: number;
   context: AudioContext;
   plugs!: Plug[];
-  name: string = 'System Out';
+  type: string = 'System Out';
   constructor(context: AudioContext) {
     super();
     this.context = context;

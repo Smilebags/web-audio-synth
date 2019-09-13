@@ -48,7 +48,7 @@ export default class KeyboardInputModule extends AbstractRackModule {
   width!: number;
   context: AudioContext;
   plugs!: Plug[];
-  name: string = 'Keyboard';
+  type: string = 'Keyboard';
 
   gate: ConstantSourceNode;
   vo: ConstantSourceNode;

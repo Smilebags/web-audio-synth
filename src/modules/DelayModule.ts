@@ -7,7 +7,7 @@ export default class DelayModule extends AbstractRackModule {
   width!: number;
   context: AudioContext;
   plugs!: Plug[];
-  name: string = 'Delay';
+  type: string = 'Delay';
   private delay: DelayNode;
   private initialDelay = 0;
   private mousedownPos: Vec2 | null = null;

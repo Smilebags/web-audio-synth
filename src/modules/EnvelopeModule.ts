@@ -7,7 +7,7 @@ export default class EnvelopeModule extends AbstractRackModule {
   width!: number;
   context: AudioContext;
   plugs!: Plug[];
-  name: string = 'Envelope';
+  type: string = 'Envelope';
   private envelope: AudioWorkletNode;
   private envelopeAttackParam?: AudioParam;
   private envelopeDecayParam?: AudioParam;
