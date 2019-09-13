@@ -17,18 +17,26 @@ export default class OscillatorModule extends AbstractRackModule {
   private mousedownPos: Vec2 | null = null;
   private mousemovePos: Vec2 | null = null;
 
-  constructor(context: AudioContext, type: OscillatorType = 'sine', startingFrequency: number = 440) {
+  constructor(
+    context: AudioContext,
+    {
+      oscType = 'sine',
+      voltageOffset = Math.log2(440),
+    }: {
+      oscType?: OscillatorType,
+      voltageOffset?: number,
+    } = {}) {
     super();
 
     this.context = context;
     this.osc = this.context.createOscillator();
     this.osc.frequency.value = 0;
-    this.osc.type = type;
+    this.osc.type = oscType;
     this.osc.start();
     this.vo = new AudioWorkletNode(this.context, 'volt-per-octave-processor');
     this.vo.connect(this.osc.frequency);
 
-    this.voltageOffset = Math.log2(startingFrequency);
+    this.voltageOffset = voltageOffset;
 
     this.voCoarseParam = this.vo.parameters.get('coarse');
     if (this.voCoarseParam) {
@@ -64,5 +72,13 @@ export default class OscillatorModule extends AbstractRackModule {
 
   isInFreqBox(pos: Vec2): boolean {
     return pos.y >= 200;
+  }
+
+  toParams(): any {
+    return {
+      type: this.type,
+      oscType: this.osc.type,
+      voltageOffset: this.voltageOffset,
+    };
   }
 }
