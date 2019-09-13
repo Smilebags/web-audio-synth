@@ -9,45 +9,47 @@ export default class EnvelopeModule extends AbstractRackModule {
   plugs!: Plug[];
   type: string = 'Envelope';
   private envelope: AudioWorkletNode;
-  private envelopeAttackParam?: AudioParam;
-  private envelopeDecayParam?: AudioParam;
-  private envelopeSustainParam?: AudioParam;
-  private envelopeReleaseParam?: AudioParam;
+  private envelopeAttackParam: AudioParam;
+  private envelopeDecayParam: AudioParam;
+  private envelopeSustainParam: AudioParam;
+  private envelopeReleaseParam: AudioParam;
   private mousedownPos: Vec2 | null = null;
   private paramMousedownValue: number | null = null;
 
   constructor(
     context: AudioContext,
-    a: number = 0.01,
-    d: number = 0.2,
-    s: number = 1,
-    r: number = 0.21,
+    {
+      a = 0.01,
+      d = 0.2,
+      s = 1,
+      r = 0.2,
+    } : {
+      a?: number,
+      d?: number,
+      s?: number,
+      r?: number,
+    }
   ) {
     super();
 
     this.context = context;
     this.envelope = new AudioWorkletNode(this.context, 'envelope-generator-processor');
 
-    this.envelopeAttackParam = this.envelope.parameters.get('a');
-    if (this.envelopeAttackParam) {
-      this.envelopeAttackParam.value = a;
-      this.addPlug(this.envelopeAttackParam, 'A', 'in', 1);
-    }
-    this.envelopeDecayParam = this.envelope.parameters.get('d');
-    if (this.envelopeDecayParam) {
-      this.envelopeDecayParam.value = d;
-      this.addPlug(this.envelopeDecayParam, 'D', 'in', 2);
-    }
-    this.envelopeSustainParam = this.envelope.parameters.get('s');
-    if (this.envelopeSustainParam) {
-      this.envelopeSustainParam.value = s;
-      this.addPlug(this.envelopeSustainParam, 'S', 'in', 3);
-    }
-    this.envelopeReleaseParam = this.envelope.parameters.get('r');
-    if (this.envelopeReleaseParam) {
-      this.envelopeReleaseParam.value = r;
-      this.addPlug(this.envelopeReleaseParam, 'R', 'in', 4);
-    }
+    this.envelopeAttackParam = this.envelope.parameters.get('a')!;
+    this.envelopeAttackParam.value = a;
+    this.addPlug(this.envelopeAttackParam, 'A', 'in', 1);
+
+    this.envelopeDecayParam = this.envelope.parameters.get('d')!;
+    this.envelopeDecayParam.value = d;
+    this.addPlug(this.envelopeDecayParam, 'D', 'in', 2);
+
+    this.envelopeSustainParam = this.envelope.parameters.get('s')!;
+    this.envelopeSustainParam.value = s;
+    this.addPlug(this.envelopeSustainParam, 'S', 'in', 3);
+
+    this.envelopeReleaseParam = this.envelope.parameters.get('r')!;
+    this.envelopeReleaseParam.value = r;
+    this.addPlug(this.envelopeReleaseParam, 'R', 'in', 4);
     
     this.addPlug(this.envelope, 'Trigger', 'in', 0);
     this.addPlug(this.envelope, 'Out', 'out', 5);
@@ -68,7 +70,7 @@ export default class EnvelopeModule extends AbstractRackModule {
   }
   
   handleMousemove(mousemoveEvent: Vec2): void {
-    if (!this.mousedownPos || !isSet(this.paramMousedownValue)) {
+    if (!this.mousedownPos) {
       return;
     }
     const paramToUpdate = this.getParamByPosition(this.mousedownPos);
@@ -76,6 +78,9 @@ export default class EnvelopeModule extends AbstractRackModule {
       return;
     }
     const changeAmount = (this.mousedownPos.y - mousemoveEvent.y) / 100;
+    if (this.paramMousedownValue === null || this.paramMousedownValue === undefined) {
+      return;
+    }
     paramToUpdate.value = Math.max(this.paramMousedownValue + changeAmount, 0);
   }
 
@@ -113,5 +118,15 @@ export default class EnvelopeModule extends AbstractRackModule {
     renderContext.fillText(String(r.toFixed(2)), 5, 255);
     renderContext.restore();
     super.render(renderContext);
+  }
+
+  toParams(): any {
+    return {
+      type: this.type,
+      a: this.envelopeAttackParam.value,
+      d: this.envelopeDecayParam.value,
+      s: this.envelopeSustainParam.value,
+      r: this.envelopeReleaseParam.value,
+    }
   }
 }
