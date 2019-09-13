@@ -13,7 +13,13 @@ export default class DelayModule extends AbstractRackModule {
   private mousedownPos: Vec2 | null = null;
   private mousemovePos: Vec2 | null = null;
 
-  constructor(context: AudioContext, startingDelay: number = 0.2) {
+  constructor(
+    context: AudioContext,
+    {
+      startingDelay = 0.2
+    }: {
+      startingDelay?: number
+    }) {
     super();
 
     this.context = context;
@@ -47,5 +53,12 @@ export default class DelayModule extends AbstractRackModule {
 
   isInFreqBox(pos: Vec2): boolean {
     return pos.y >= 200;
+  }
+
+  toParams(): any {
+    return {
+      type: this.type,
+      startingDelay: this.delay.delayTime.value,
+    };
   }
 }
