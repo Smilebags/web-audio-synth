@@ -23,7 +23,7 @@ export default `{
     {
       "module": {
         "type": "Oscillator",
-        "oscType": "sine",
+        "oscType": "sawtooth",
         "voltageOffset": 8.78135971352466
       },
       "position": {
