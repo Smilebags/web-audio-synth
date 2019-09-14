@@ -7,6 +7,7 @@ import DelayModule from "./modules/DelayModule.js";
 import OutputModule from "./modules/OutputModule.js";
 import GainModule from "./modules/GainModule.js";
 import OscillatorModule from "./modules/OscillatorModule.js";
+import ReverbModule from "./modules/ReverbModule.js";
 
 export type RackModuleType = 'Filter'
   | 'Envelope'
@@ -15,7 +16,8 @@ export type RackModuleType = 'Filter'
   | 'Delay'
   | 'Output'
   | 'Gain'
-  | 'Oscillator';
+  | 'Oscillator'
+  | 'Reverb';
 
 export default class RackModuleFactory {
 
@@ -39,6 +41,8 @@ export default class RackModuleFactory {
         return new GainModule(this.audioContext, params);
       case 'Oscillator':
         return new OscillatorModule(this.audioContext, params);
+      case 'Reverb':
+        return new ReverbModule(this.audioContext, params);
     }
   }
 }

@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "cp src/index.html dist && npx tsc -w",
+    "dev": "cp src/index.html dist && cp src/ElvedenHallMarbleHall.m4a dist && npx tsc -w",
     "serve": "ws -d dist"
   },
   "repository": {

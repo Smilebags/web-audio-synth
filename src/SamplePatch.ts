@@ -67,10 +67,40 @@ export default `{
     {
       "module": {
         "type": "Gain",
-        "gain": 1
+        "gain": 0.1
       },
       "position": {
         "x": 600,
+        "y": 32
+      }
+    },
+    {
+      "module": {
+        "type": "Gain",
+        "gain": 0.1
+      },
+      "position": {
+        "x": 700,
+        "y": 32
+      }
+    },
+    {
+      "module": {
+        "type": "Gain",
+        "gain": 0
+      },
+      "position": {
+        "x": 800,
+        "y": 32
+      }
+    },
+    {
+      "module": {
+        "type": "Gain",
+        "gain": 0
+      },
+      "position": {
+        "x": 900,
         "y": 32
       }
     },
@@ -82,7 +112,16 @@ export default `{
         "gateHighVoltage": 1
       },
       "position": {
-        "x": 700,
+        "x": 1000,
+        "y": 32
+      }
+    },
+    {
+      "module": {
+        "type": "Reverb"
+      },
+      "position": {
+        "x": 1100,
         "y": 32
       }
     }
