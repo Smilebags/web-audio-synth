@@ -3,7 +3,7 @@ import Plug from '../Plug.js';
 
 import AbstractRackModule from "./AbstractRackModule.js";
 import { Vec2 } from '../types/Vec2.js';
-import { subtract } from '../util.js';
+import { subtract, isSet } from '../util.js';
 
 export default class OscillatorModule extends AbstractRackModule {
   width!: number;
@@ -29,6 +29,14 @@ export default class OscillatorModule extends AbstractRackModule {
    
     this.gainNode = this.context.createGain();
     this.gainNode.gain.value = gain;
+
+    this.addLabel({
+      getText: () => {
+        const gain = this.gainNode.gain.value;
+        return String(gain.toFixed(2));
+      },
+      position: {x: 5, y: 105},
+    });
     
     this.addPlug(this.gainNode, 'In', 'in');
     this.addPlug(this.gainNode.gain, 'VC', 'in');
@@ -46,7 +54,7 @@ export default class OscillatorModule extends AbstractRackModule {
   }
   handleMousemove(mousemoveEvent: Vec2): void {
     this.mousemovePos = mousemoveEvent;
-    if (!this.mousedownPos || !this.initialGain) {
+    if (!this.mousedownPos || this.initialGain === null) {
       return;
     }
     const relativeYPos = subtract(this.mousedownPos, this.mousemovePos).y;

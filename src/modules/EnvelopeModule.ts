@@ -54,6 +54,35 @@ export default class EnvelopeModule extends AbstractRackModule {
     this.addPlug(this.envelope, 'Trigger', 'in', 0);
     this.addPlug(this.envelope, 'Out', 'out', 5);
 
+    this.addLabel({
+      getText: () => {
+        const a = this.envelopeAttackParam && this.envelopeAttackParam.value || 0;
+        return String(a.toFixed(2));
+      },
+      position: {x: 5, y: 105},
+    });
+    this.addLabel({
+      getText: () => {
+        const d = this.envelopeDecayParam && this.envelopeDecayParam.value || 0;
+        return String(d.toFixed(2));
+      },
+      position: {x: 5, y: 155},
+    });
+    this.addLabel({
+      getText: () => {
+        const s = this.envelopeSustainParam && this.envelopeSustainParam.value || 0;
+        return String(s.toFixed(2));
+      },
+      position: {x: 5, y: 205},
+    });
+    this.addLabel({
+      getText: () => {
+        const r = this.envelopeReleaseParam && this.envelopeReleaseParam.value || 0;
+        return String(r.toFixed(2));
+      },
+      position: {x: 5, y: 255},
+    });
+
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
     this.addEventListener('mousemove', (e: Vec2) => {this.handleMousemove(e)});
   }
@@ -102,22 +131,6 @@ export default class EnvelopeModule extends AbstractRackModule {
     }
 
     return null;
-  }
-
-  render(renderContext: CanvasRenderingContext2D): void {
-    renderContext.save();
-    renderContext.fillStyle = '#ffffff';
-    renderContext.font = "16px Arial";
-    const a = this.envelopeAttackParam && this.envelopeAttackParam.value || 0;
-    const d = this.envelopeDecayParam && this.envelopeDecayParam.value || 0;
-    const s = this.envelopeSustainParam && this.envelopeSustainParam.value || 0;
-    const r = this.envelopeReleaseParam && this.envelopeReleaseParam.value || 0;
-    renderContext.fillText(String(a.toFixed(2)), 5, 105);
-    renderContext.fillText(String(d.toFixed(2)), 5, 155);
-    renderContext.fillText(String(s.toFixed(2)), 5, 205);
-    renderContext.fillText(String(r.toFixed(2)), 5, 255);
-    renderContext.restore();
-    super.render(renderContext);
   }
 
   toParams(): any {
