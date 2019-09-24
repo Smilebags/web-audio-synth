@@ -83,16 +83,17 @@ export default class Rack {
 
     if(mousedownPosition.y < this.headerHeight) {
       this.handleHeaderClick(mousedownPosition);
+      return;
     }
 
-    this.mousedownPlug = this.getPlugAtRackPosition(mousedownPosition);
-
-    if(this.mousedownPlug) {
-      this.mousedownPosition = mousedownPosition;
-    }
-    this.delegateMousedown(mousedownPosition);
+    this.mousedownPosition = mousedownPosition;
     addEventListener("mousemove", this.onMousemove);
     addEventListener("mouseup", this.onMouseup);
+    
+    this.mousedownPlug = this.getPlugAtRackPosition(mousedownPosition);
+    if (!this.mousedownPlug) {
+      this.delegateMousedown(mousedownPosition);
+    }
   }
 
   handleMousemove(mousemoveEvent: MouseEvent): void {
@@ -100,7 +101,9 @@ export default class Rack {
       x: mousemoveEvent.clientX,
       y: mousemoveEvent.clientY,
     };
-    this.delegateMousemove(this.mousedragPosition);
+    if(!this.mousedownPlug) {
+      this.delegateMousemove(this.mousedragPosition);
+    }
   }
 
   handleMouseup(mouseupEvent: MouseEvent): void {
@@ -108,23 +111,32 @@ export default class Rack {
       x: mouseupEvent.clientX,
       y: mouseupEvent.clientY,
     };
+    
+    if(!this.mousedownPlug) {
+      this.delegateMouseup(this.mouseupPosition);
+      this.cleanUpMouseState();
+      return;
+    }
+    
     this.mouseupPlug = this.getPlugAtRackPosition(this.mouseupPosition);
 
-    if (this.mousedownPlug && this.mousedownPlug === this.mouseupPlug) {
+    if (this.mousedownPlug === this.mouseupPlug) {
       const cable = this.getCableByPlug(this.mousedownPlug);
       if (cable) {
         this.removeCable(cable);
       }
-    } else if (
-      this.mousedownPlug
-      && this.mouseupPlug
-      && this.mousedownPlug !== this.mouseupPlug
-    ) {
+    }
+    
+    if (this.mouseupPlug && this.mousedownPlug !== this.mouseupPlug) {
       this.patch(this.mousedownPlug, this.mouseupPlug);
     }
 
-    this.delegateMouseup(this.mouseupPosition);
+    this.cleanUpMouseState();
     
+
+  }
+
+  cleanUpMouseState(): void {
     this.mousedownPosition = null;
     this.mousedragPosition = null;
     this.mouseupPosition = null;
@@ -314,7 +326,10 @@ export default class Rack {
   }
 
   renderDraggingCable() {
-    if(!this.mousedownPosition || !this.mousedragPosition) {
+    if(
+      !this.mousedownPlug
+      || !this.mousedownPosition
+      || !this.mousedragPosition) {
       return;
     }
     this.renderContext.strokeStyle = "#ff0000";
