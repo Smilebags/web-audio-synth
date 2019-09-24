@@ -51,7 +51,7 @@ export default class OscillatorModule extends AbstractRackModule {
         }
         return displayFreq(2 ** this.voCoarseParam.value);
       },
-      position: {x: 30, y: 105},
+      position: {x: this.width/2, y: 355},
       align: 'center',
     })
 
@@ -63,6 +63,10 @@ export default class OscillatorModule extends AbstractRackModule {
   }
 
   handleMousedown(mousedownEvent: Vec2): void {
+    if (this.isInModeSelectRegion(mousedownEvent)) {
+      this.handleModeSelect(mousedownEvent);
+      return;
+    }
     if (!this.isInFreqBox(mousedownEvent)) {
       return;
     }
@@ -88,8 +92,67 @@ export default class OscillatorModule extends AbstractRackModule {
     this.initialVoltage = null;
   }
 
+  isInModeSelectRegion(pos: Vec2): boolean {
+    return pos.y > 200 && pos.y < 300;
+  }
+
+  handleModeSelect(pos: Vec2): void {
+    if (pos.y < 200 || pos.y > 300) {
+      return;
+    }
+    if (pos.y < 225) {
+      this.osc.type = 'sine';
+      return;
+    }
+    if (pos.y < 250) {
+      this.osc.type = 'triangle';
+      return;
+    }
+    if (pos.y < 275) {
+      this.osc.type = 'sawtooth';
+      return;
+    }
+    this.osc.type = 'square';
+  }
+
   isInFreqBox(pos: Vec2): boolean {
     return pos.y >= 300;
+  }
+
+  render(renderContext: CanvasRenderingContext2D): void {
+    this.renderModeButtons(renderContext);
+    this.renderPitchWheel(renderContext);
+    super.render(renderContext);
+  }
+
+  renderModeButtons(renderContext: CanvasRenderingContext2D): void {
+    const padding = 5;
+    renderContext.save();
+    renderContext.fillStyle = '#aa6633';
+    renderContext.fillRect(padding, 200+padding, this.width-(2*padding), 25-padding);
+    renderContext.fillRect(padding, 225+padding, this.width-(2*padding), 25-padding);
+    renderContext.fillRect(padding, 250+padding, this.width-(2*padding), 25-padding);
+    renderContext.fillRect(padding, 275+padding, this.width-(2*padding), 25-padding);
+    renderContext.restore();
+  }
+
+  renderPitchWheel(renderContext: CanvasRenderingContext2D): void {
+    renderContext.save();
+    renderContext.fillStyle = '#303030';
+    renderContext.beginPath();
+    renderContext.arc(this.width/2, 350, 40, 0, 2 * Math.PI);
+    renderContext.fill();
+    renderContext.strokeStyle = '#404040';
+    renderContext.lineWidth = 4;
+    renderContext.beginPath();
+    renderContext.moveTo(this.width/2, 350);
+    const offset = {
+      x: Math.sin(this.voltageOffset) * 40,
+      y: Math.cos(this.voltageOffset) * 40,
+    };
+    renderContext.lineTo((this.width/2) + offset.x, 350 - offset.y);
+    renderContext.stroke();
+    renderContext.restore();
   }
 
   toParams(): any {

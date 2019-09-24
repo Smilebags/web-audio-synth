@@ -78,7 +78,7 @@ export default abstract class AbstractRackModule implements RackModule {
     this.labels.forEach((label) => {
       const text = label.getText();
       renderContext.save();
-      renderContext.textAlign = "left";
+      renderContext.textAlign = label.align;
       renderContext.fillStyle = '#ffffff';
       renderContext.font = "16px Arial";
       renderContext.fillText(text, label.position.x, label.position.y);
