@@ -11,9 +11,10 @@ export default `{
     },
     {
       "module": {
-        "type": "Oscillator",
-        "oscType": "sine",
-        "voltageOffset": 6.78135971352466
+        "type": "KeyboardInput",
+        "isOn": true,
+        "octave": 0,
+        "gateHighVoltage": 1
       },
       "position": {
         "x": 100,
@@ -22,12 +23,30 @@ export default `{
     },
     {
       "module": {
-        "type": "Oscillator",
-        "oscType": "sawtooth",
-        "voltageOffset": 8.78135971352466
+        "type": "Sequencer",
+        "stepCount": 64
       },
       "position": {
         "x": 200,
+        "y": 32
+      }
+    },
+    {
+      "module": {
+        "type": "Reverb"
+      },
+      "position": {
+        "x": 300,
+        "y": 32
+      }
+    },
+    {
+      "module": {
+        "type": "Filter",
+        "voltageOffset": 8.78135971352466
+      },
+      "position": {
+        "x": 400,
         "y": 32
       }
     },
@@ -37,7 +56,7 @@ export default `{
         "startingDelay": 0.20000000298023224
       },
       "position": {
-        "x": 300,
+        "x": 500,
         "y": 32
       }
     },
@@ -50,34 +69,15 @@ export default `{
         "r": 0.20000000298023224
       },
       "position": {
-        "x": 400,
-        "y": 32
-      }
-    },
-    {
-      "module": {
-        "type": "Filter",
-        "voltageOffset": 8.78135971352466
-      },
-      "position": {
-        "x": 500,
-        "y": 32
-      }
-    },
-    {
-      "module": {
-        "type": "Gain",
-        "gain": 0.1
-      },
-      "position": {
         "x": 600,
         "y": 32
       }
     },
     {
       "module": {
-        "type": "Gain",
-        "gain": 0.1
+        "type": "Oscillator",
+        "oscType": "sawtooth",
+        "voltageOffset": 8.78135971352466
       },
       "position": {
         "x": 700,
@@ -91,37 +91,6 @@ export default `{
       },
       "position": {
         "x": 800,
-        "y": 32
-      }
-    },
-    {
-      "module": {
-        "type": "Gain",
-        "gain": 0
-      },
-      "position": {
-        "x": 900,
-        "y": 32
-      }
-    },
-    {
-      "module": {
-        "type": "KeyboardInput",
-        "isOn": true,
-        "octave": 0,
-        "gateHighVoltage": 1
-      },
-      "position": {
-        "x": 1000,
-        "y": 32
-      }
-    },
-    {
-      "module": {
-        "type": "Reverb"
-      },
-      "position": {
-        "x": 1100,
         "y": 32
       }
     }
