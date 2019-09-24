@@ -3,9 +3,15 @@ import Plug from "../Plug.js";
 import { distance } from "../util.js";
 import { Vec2 } from "../types/Vec2.js";
 
+interface Label {
+  getText: () => string;
+  position: Vec2;
+};
+
 export default abstract class AbstractRackModule implements RackModule {
   width: number = 100;
   plugs: Plug[] = [];
+  labels: Label[] = [];
   abstract type: string;
   private eventListeners: {[key: string]: Function[]} = {};
 
@@ -33,6 +39,11 @@ export default abstract class AbstractRackModule implements RackModule {
     }
     this.plugs.push(new Plug(this, param, position, name, type));
   }
+
+  protected addLabel(label: Label): void {
+    this.labels.push(label);
+  }
+
   render(renderContext: CanvasRenderingContext2D): void {
     renderContext.textAlign = "center";
     renderContext.fillStyle = '#ffffff';
@@ -52,6 +63,16 @@ export default abstract class AbstractRackModule implements RackModule {
       renderContext.fillStyle = plug.type === 'in' ? '#101010' : '#181818';
       renderContext.arc(plug.position.x, plug.position.y, plug.radius, 0, 2 * Math.PI);
       renderContext.fill();
+    });
+
+    this.labels.forEach((label) => {
+      const text = label.getText();
+      renderContext.save();
+      renderContext.textAlign = "left";
+      renderContext.fillStyle = '#ffffff';
+      renderContext.font = "16px Arial";
+      renderContext.fillText(text, label.position.x, label.position.y);
+      renderContext.restore();
     });
   }
 
