@@ -1,7 +1,7 @@
 import Plug from "../Plug.js";
 import AbstractRackModule from "./AbstractRackModule.js";
 import { Vec2 } from "../types/Vec2.js";
-import { subtract } from "../util.js";
+import { subtract, displayFreq } from "../util.js";
 
 export default class OscillatorModule extends AbstractRackModule {
   width!: number;
@@ -43,6 +43,17 @@ export default class OscillatorModule extends AbstractRackModule {
       this.voCoarseParam.value = this.voltageOffset;
       this.addPlug(this.voCoarseParam, 'V/O In', 'in', 0);
     }
+
+    this.addLabel({
+      getText: () => {
+        if (!this.voCoarseParam) {
+          return '0';
+        }
+        return displayFreq(2 ** this.voCoarseParam.value);
+      },
+      position: {x: 30, y: 105},
+      align: 'center',
+    })
 
     this.addPlug(this.osc, 'Out', 'out', 2);
 

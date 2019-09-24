@@ -6,6 +6,7 @@ import { Vec2 } from "../types/Vec2.js";
 interface Label {
   getText: () => string;
   position: Vec2;
+  align: CanvasTextAlign;
 };
 
 export default abstract class AbstractRackModule implements RackModule {
@@ -40,8 +41,16 @@ export default abstract class AbstractRackModule implements RackModule {
     this.plugs.push(new Plug(this, param, position, name, type));
   }
 
-  protected addLabel(label: Label): void {
-    this.labels.push(label);
+  protected addLabel(label: Partial<Label>): void {
+    const defaultLabel: Label = {
+      getText: () => '',
+      position: {x: 0, y: 0},
+      align: 'left',
+    };
+    this.labels.push({
+      ...defaultLabel,
+      ...label,
+    });
   }
 
   render(renderContext: CanvasRenderingContext2D): void {

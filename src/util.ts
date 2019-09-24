@@ -42,3 +42,19 @@ export async function loadImage(url: string, timeout: number = 10000): Promise<H
     img.src = url;
   });
 }
+
+export function displayFreq(freq: number): string {
+  if (freq < 10) {
+    return freq.toFixed(4);
+  }
+  if (freq < 100) {
+    return freq.toFixed(3);
+  }
+  if (freq < 1000) {
+    return freq.toFixed(2);
+  }
+  if (freq < 10000) {
+    return `${(freq/1000).toFixed(3)}k`;
+  }
+  return `${(freq/1000).toFixed(2)}k`;
+}
