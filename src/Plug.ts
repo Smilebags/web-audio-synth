@@ -24,9 +24,9 @@ export default class Plug {
     this.type = type;
   }
 
-  disconnect() {
+  disconnect(plug: Plug) {
     // @ts-ignore
-    this.param.disconnect();
+    this.param.disconnect(plug.param);
   }
   connect(plug: Plug) {
     if (this.type === plug.type) {

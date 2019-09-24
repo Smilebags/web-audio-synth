@@ -12,15 +12,21 @@ function getRandomColor() {
 }
 export default class Cable {
   color: string;
+  isConnected: boolean = true;
   constructor(
     public rack: Rack,
-    private plug1: Plug,
-    private plug2: Plug,
+    public plug1: Plug,
+    public plug2: Plug,
     private cableSlack = 30,
   ) {
     this.color = getRandomColor();
+    this.plug1.connect(this.plug2);
   }
+
   render(renderContext: CanvasRenderingContext2D): void {
+    if (!this.isConnected) {
+      return;
+    }
     const plug1ModulePos = this.rack.getModulePosition(this.plug1.module);
     const plug1RackPos = add(plug1ModulePos, this.plug1.position);
     const plug2ModulePos = this.rack.getModulePosition(this.plug2.module);
@@ -43,5 +49,10 @@ export default class Cable {
       plug2RackPos.y,
     );
     renderContext.stroke();
+  }
+
+  remove() {
+    this.plug1.disconnect(this.plug2);
+    this.isConnected = false;
   }
 }

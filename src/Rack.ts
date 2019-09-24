@@ -88,10 +88,7 @@ export default class Rack {
     this.mousedownPlug = this.getPlugAtRackPosition(mousedownPosition);
 
     if(this.mousedownPlug) {
-      this.mousedownPosition = {
-        x: mousedownEvent.clientX,
-        y: mousedownEvent.clientY,
-      };
+      this.mousedownPosition = mousedownPosition;
     }
     this.delegateMousedown(mousedownPosition);
     addEventListener("mousemove", this.onMousemove);
@@ -112,7 +109,13 @@ export default class Rack {
       y: mouseupEvent.clientY,
     };
     this.mouseupPlug = this.getPlugAtRackPosition(this.mouseupPosition);
-    if (
+
+    if (this.mousedownPlug && this.mousedownPlug === this.mouseupPlug) {
+      const cable = this.getCableByPlug(this.mousedownPlug);
+      if (cable) {
+        this.removeCable(cable);
+      }
+    } else if (
       this.mousedownPlug
       && this.mouseupPlug
       && this.mousedownPlug !== this.mouseupPlug
@@ -211,8 +214,29 @@ export default class Rack {
   }
 
   patch(outPlug: Plug, inPlug: Plug): void {
-    outPlug.connect(inPlug);
-    this.cables.push(new Cable(this, outPlug, inPlug));
+    this.cables.unshift(new Cable(this, outPlug, inPlug));
+  }
+
+  getCableByPlug(plug: Plug): Cable | null {
+    return this.cables.find((cable) => {
+      return cable.plug1 === plug || cable.plug2 === plug;
+    }) || null;
+  }
+  
+  getCableByPlugs(plug1: Plug, plug2: Plug): Cable | null {
+    return this.cables.find((cable) => {
+      return (cable.plug1 === plug1 && cable.plug2 === plug2)
+        || (cable.plug1 === plug2 && cable.plug2 === plug1);
+    }) || null;
+  }
+
+  removeCable(cable: Cable): void {
+    cable.remove();
+    const index = this.cables.indexOf(cable);
+    if (index === -1) {
+      return;
+    }
+    this.cables.splice(index, 1);
   }
 
   delegateMousedown(rackPosition: Vec2): void {
