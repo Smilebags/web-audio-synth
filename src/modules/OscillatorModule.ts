@@ -59,6 +59,7 @@ export default class OscillatorModule extends AbstractRackModule {
 
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
     this.addEventListener('mousemove', (e: Vec2) => {this.handleMousemove(e)});
+    this.addEventListener('mouseup', (e: Vec2) => {this.handleMouseup()});
   }
 
   handleMousedown(mousedownEvent: Vec2): void {
@@ -68,7 +69,7 @@ export default class OscillatorModule extends AbstractRackModule {
     this.mousedownPos = mousedownEvent;
     this.initialVoltage = this.voltageOffset;
   }
-
+  
   handleMousemove(mousemoveEvent: Vec2): void {
     this.mousemovePos = mousemoveEvent;
     if (!this.mousedownPos || !this.initialVoltage) {
@@ -81,8 +82,14 @@ export default class OscillatorModule extends AbstractRackModule {
     }   
   }
 
+  handleMouseup(): void {
+    this.mousemovePos = null;
+    this.mousedownPos = null;
+    this.initialVoltage = null;
+  }
+
   isInFreqBox(pos: Vec2): boolean {
-    return pos.y >= 200;
+    return pos.y >= 300;
   }
 
   toParams(): any {
