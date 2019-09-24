@@ -14,6 +14,7 @@ export default abstract class AbstractRackModule implements RackModule {
   plugs: Plug[] = [];
   labels: Label[] = [];
   abstract type: string;
+  name: string | null = null;
   private eventListeners: {[key: string]: Function[]} = {};
 
   getPlugAtPosition(pos: Vec2): Plug | null {
@@ -57,7 +58,7 @@ export default abstract class AbstractRackModule implements RackModule {
     renderContext.textAlign = "center";
     renderContext.fillStyle = '#ffffff';
     renderContext.font = "16px Arial";
-    renderContext.fillText(this.type, this.width / 2, 20);
+    renderContext.fillText(this.name || this.type, this.width / 2, 20);
 
     renderContext.font = "12px Arial";
     this.plugs.forEach((plug, index) => {
