@@ -11,13 +11,22 @@ export default `{
     },
     {
       "module": {
+        "type": "Recorder"
+      },
+      "position": {
+        "x": 100,
+        "y": 32
+      }
+    },
+    {
+      "module": {
         "type": "KeyboardInput",
         "isOn": true,
         "octave": 0,
         "gateHighVoltage": 1
       },
       "position": {
-        "x": 100,
+        "x": 200,
         "y": 32
       }
     },
@@ -27,7 +36,7 @@ export default `{
         "stepCount": 64
       },
       "position": {
-        "x": 200,
+        "x": 300,
         "y": 32
       }
     },
@@ -36,7 +45,7 @@ export default `{
         "type": "Reverb"
       },
       "position": {
-        "x": 300,
+        "x": 400,
         "y": 32
       }
     },
@@ -46,7 +55,7 @@ export default `{
         "voltageOffset": 8.78135971352466
       },
       "position": {
-        "x": 400,
+        "x": 500,
         "y": 32
       }
     },
@@ -56,7 +65,7 @@ export default `{
         "startingDelay": 0.20000000298023224
       },
       "position": {
-        "x": 500,
+        "x": 600,
         "y": 32
       }
     },
@@ -69,7 +78,7 @@ export default `{
         "r": 0.20000000298023224
       },
       "position": {
-        "x": 600,
+        "x": 700,
         "y": 32
       }
     },
@@ -80,7 +89,7 @@ export default `{
         "voltageOffset": 8.78135971352466
       },
       "position": {
-        "x": 700,
+        "x": 800,
         "y": 32
       }
     },
@@ -90,7 +99,7 @@ export default `{
         "gain": 0
       },
       "position": {
-        "x": 800,
+        "x": 900,
         "y": 32
       }
     }
