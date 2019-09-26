@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "cp src/index.html dist && cp src/ElvedenHallMarbleHall.m4a dist && npx tsc -w",
-    "serve": "ws -d dist"
+    "build": "cp src/index.html dist && cp src/ElvedenHallMarbleHall.m4a dist && npx tsc",
+    "serve": "ws -d dist",
+    "deploy": "git checkout pages && npm run build && git subtree push --prefix dist origin gh-pages"
   },
   "repository": {
     "type": "git",
