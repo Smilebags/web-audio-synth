@@ -1,0 +1,25 @@
+export default class Plug {
+    constructor(rackModule, param, position, name = null, type = 'in', radius = 10) {
+        this.module = rackModule;
+        this.param = param;
+        this.position = position;
+        this.name = name;
+        this.radius = radius;
+        this.type = type;
+    }
+    disconnect(plug) {
+        // @ts-ignore
+        this.param.disconnect(plug.param);
+    }
+    connect(plug) {
+        if (this.type === plug.type) {
+            throw 'You cannot connect two plugs of the same type';
+        }
+        if (this.type === 'in' && plug.type === 'out') {
+            plug.connect(this);
+            return;
+        }
+        // @ts-ignore
+        this.param.connect(plug.param);
+    }
+}
