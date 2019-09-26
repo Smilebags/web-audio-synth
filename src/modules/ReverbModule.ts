@@ -23,7 +23,7 @@ export default class ReverbModule extends AbstractRackModule {
   constructor(
     context: AudioContext,
     {
-      impulseResponseUrl = '/ElvedenHallMarbleHall.m4a'
+      impulseResponseUrl = 'ElvedenHallMarbleHall.m4a'
     }: {
       impulseResponseUrl?: string,
 
