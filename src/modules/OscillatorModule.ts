@@ -55,7 +55,7 @@ export default class OscillatorModule extends AbstractRackModule {
       align: 'center',
     })
 
-    this.addPlug(this.osc, 'Out', 'out', 2);
+    this.addPlug(this.osc, 'Out', 'out', 1);
 
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
     this.addEventListener('mousemove', (e: Vec2) => {this.handleMousemove(e)});
@@ -93,26 +93,28 @@ export default class OscillatorModule extends AbstractRackModule {
   }
 
   isInModeSelectRegion(pos: Vec2): boolean {
-    return pos.y > 200 && pos.y < 300;
+    return pos.y > 125 && pos.y < 280;
   }
 
   handleModeSelect(pos: Vec2): void {
-    if (pos.y < 200 || pos.y > 300) {
+    if (pos.y < 125 || pos.y > 280) {
       return;
     }
-    if (pos.y < 225) {
+    if (pos.y >= 125 && pos.y <= 160) {
       this.osc.type = 'sine';
       return;
     }
-    if (pos.y < 250) {
+    if (pos.y >= 165 && pos.y <= 200) {
       this.osc.type = 'triangle';
       return;
     }
-    if (pos.y < 275) {
+    if (pos.y >= 205 && pos.y <= 240) {
       this.osc.type = 'sawtooth';
       return;
     }
-    this.osc.type = 'square';
+    if (pos.y >= 245 && pos.y <= 280) {
+      this.osc.type = 'square';
+    }
   }
 
   isInFreqBox(pos: Vec2): boolean {
@@ -127,13 +129,34 @@ export default class OscillatorModule extends AbstractRackModule {
 
   renderModeButtons(renderContext: CanvasRenderingContext2D): void {
     const padding = 5;
-    renderContext.save();
-    renderContext.fillStyle = '#aa6633';
-    renderContext.fillRect(padding, 200+padding, this.width-(2*padding), 25-padding);
-    renderContext.fillRect(padding, 225+padding, this.width-(2*padding), 25-padding);
-    renderContext.fillRect(padding, 250+padding, this.width-(2*padding), 25-padding);
-    renderContext.fillRect(padding, 275+padding, this.width-(2*padding), 25-padding);
-    renderContext.restore();
+    this.renderButton(
+      renderContext,
+      {x: padding, y: 120+padding},
+      {x: this.width-(2*padding), y: 40-padding},
+      'Sine',
+      this.osc.type === 'sine'
+    );
+    this.renderButton(
+      renderContext,
+      {x: padding, y: 160+padding},
+      {x: this.width-(2*padding), y: 40-padding},
+      'Tri',
+      this.osc.type === 'triangle'
+    );
+    this.renderButton(
+      renderContext,
+      {x: padding, y: 200+padding},
+      {x: this.width-(2*padding), y: 40-padding},
+      'Saw',
+      this.osc.type === 'sawtooth'
+    );
+    this.renderButton(
+      renderContext,
+      {x: padding, y: 240+padding},
+      {x: this.width-(2*padding), y: 40-padding},
+      'Square',
+      this.osc.type === 'square'
+    );
   }
 
   renderPitchWheel(renderContext: CanvasRenderingContext2D): void {
