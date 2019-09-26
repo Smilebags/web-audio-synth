@@ -17,17 +17,48 @@ export default class RecorderModule extends AbstractRackModule {
     this.input = this.context.createMediaStreamDestination();
     // @ts-ignore
     this.mediaRecorder = new MediaRecorder(this.input.stream);
-    this.startRecording();
+    this.mediaRecorder.onstop  = () => {}; 
     this.mediaRecorder.ondataavailable = (event: any) => {
       this.recorderBuffer.push(event.data);
     };
-    this.mediaRecorder.onstop  = () => this.downloadFile();
 
-    this.addPlug(this.input, 'Record', 'in');
-    this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown()});
+    this.addPlug(this.input, 'In', 'in');
+    this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
   }
-  handleMousedown() {
-    this.mediaRecorder.stop();
+
+  handleMousedown(pos: Vec2) {
+    if(pos.y > 300) {
+      this.handleSaveClick();
+      return;
+    }
+    if(pos.y > 200) {
+      this.handleStartStopClick();
+      return;
+    }
+  }
+
+  handleStartStopClick() {
+    if(this.mediaRecorder.state === 'recording') {
+      this.stopRecording(false);
+      return;
+    }
+    this.startRecording();
+  }
+
+  handleSaveClick() {
+    this.stopRecording(true);  
+  }
+
+  stopRecording(save: boolean) {
+    if(save) {
+      this.mediaRecorder.onstop  = () => this.downloadFile();    
+    }
+    if(this.mediaRecorder.state === 'recording') {
+      this.mediaRecorder.stop();
+    }
+    setTimeout(() => {
+      this.mediaRecorder.onstop  = () => {}; 
+    }, 0);
   }
 
   downloadFile() {
@@ -48,12 +79,29 @@ export default class RecorderModule extends AbstractRackModule {
     dlNode.href = URL.createObjectURL(blob);
     dlNode.download = filename;
     dlNode.click();
-    this.startRecording();
   }
 
   startRecording() {
     this.recorderBuffer.length = 0;
     this.mediaRecorder.start();
+  }
+
+  render(renderContext: CanvasRenderingContext2D): void {
+    super.render(renderContext);
+    this.renderButton(
+      renderContext,
+      {x: 5, y: 205},
+      {x: 90, y: 90},
+      this.mediaRecorder.state === 'recording' ? 'Stop' : 'Start',
+      this.mediaRecorder.state === 'recording',
+    );
+    this.renderButton(
+      renderContext,
+      {x: 5, y: 305},
+      {x: 90, y: 90},
+      'Save',
+      this.mediaRecorder.state === 'recording',
+    );
   }
 
   toParams(): any {
