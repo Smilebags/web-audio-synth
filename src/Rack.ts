@@ -9,6 +9,7 @@ import HeaderButton from "./types/HeaderButton.js";
 import OscillatorButton from "./headerButtons/OscillatorButton.js";
 import SaveToClipboardButton from "./headerButtons/SaveToClipboardButton.js";
 import GainButton from "./headerButtons/GainButton.js";
+import EnvelopeButton from "./headerButtons/EnvelopeButton.js";
 
 
 interface ModuleSlot {
@@ -44,6 +45,7 @@ export default class Rack {
     this.headerButtons.push(new SaveToClipboardButton(this));
     this.headerButtons.push(new OscillatorButton(this));
     this.headerButtons.push(new GainButton(this));
+    this.headerButtons.push(new EnvelopeButton(this));
 
     this.onMousedown = (e) => this.handleMousedown(e);
     this.onMousemove = (e) => this.handleMousemove(e);
