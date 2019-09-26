@@ -75,6 +75,46 @@ export default abstract class AbstractRackModule implements RackModule {
     renderContext.restore();
   }
 
+  renderDial(
+    renderContext: CanvasRenderingContext2D,
+    pos: Vec2,
+    radius: number,
+    angle: number,
+    text: string
+  ): void {
+    renderContext.save();
+    renderContext.fillStyle = '#303030';
+    renderContext.beginPath();
+    renderContext.arc(pos.x, pos.y, radius, 0, 2 * Math.PI);
+    renderContext.fill();
+    renderContext.strokeStyle = '#404040';
+    renderContext.lineWidth = radius / 10;
+    renderContext.beginPath();
+    renderContext.moveTo(pos.x, 350);
+    const offset = {
+      x: Math.sin(angle) * 40,
+      y: Math.cos(angle) * 40,
+    };
+    renderContext.lineTo((pos.x) + offset.x, 350 - offset.y);
+    renderContext.stroke();
+    this.renderLabel(renderContext, {
+      getText: () => text,
+      position: { x: pos.x, y: pos.y + 5 },
+      align: 'center',
+    });
+    renderContext.restore();
+  }
+
+  renderLabel(renderContext: CanvasRenderingContext2D, label: Label) {
+    const text = label.getText();
+    renderContext.save();
+    renderContext.textAlign = label.align;
+    renderContext.fillStyle = '#ffffff';
+    renderContext.font = "16px Arial";
+    renderContext.fillText(text, label.position.x, label.position.y);
+    renderContext.restore();
+  }
+
   render(renderContext: CanvasRenderingContext2D): void {
     renderContext.textAlign = "center";
     renderContext.fillStyle = '#ffffff';
@@ -97,13 +137,7 @@ export default abstract class AbstractRackModule implements RackModule {
     });
 
     this.labels.forEach((label) => {
-      const text = label.getText();
-      renderContext.save();
-      renderContext.textAlign = label.align;
-      renderContext.fillStyle = '#ffffff';
-      renderContext.font = "16px Arial";
-      renderContext.fillText(text, label.position.x, label.position.y);
-      renderContext.restore();
+      this.renderLabel(renderContext, label);
     });
   }
 

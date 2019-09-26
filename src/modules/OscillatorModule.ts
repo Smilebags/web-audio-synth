@@ -44,17 +44,6 @@ export default class OscillatorModule extends AbstractRackModule {
       this.addPlug(this.voCoarseParam, 'V/O In', 'in', 0);
     }
 
-    this.addLabel({
-      getText: () => {
-        if (!this.voCoarseParam) {
-          return '0';
-        }
-        return displayFreq(2 ** this.voCoarseParam.value);
-      },
-      position: {x: this.width/2, y: 355},
-      align: 'center',
-    })
-
     this.addPlug(this.osc, 'Out', 'out', 1);
 
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
@@ -80,7 +69,7 @@ export default class OscillatorModule extends AbstractRackModule {
       return;
     }
     const relativeYPos = subtract(this.mousedownPos, this.mousemovePos).y;
-    this.voltageOffset = this.initialVoltage + (relativeYPos / 2**6 );
+    this.voltageOffset = this.initialVoltage + (relativeYPos / 2**8 );
     if (this.voCoarseParam) {
       this.voCoarseParam.value = this.voltageOffset;
     }   
@@ -123,7 +112,16 @@ export default class OscillatorModule extends AbstractRackModule {
 
   render(renderContext: CanvasRenderingContext2D): void {
     this.renderModeButtons(renderContext);
-    this.renderPitchWheel(renderContext);
+    const text = this.voCoarseParam
+      ? displayFreq(2 ** this.voCoarseParam.value)
+      : '0';
+    this.renderDial(
+      renderContext,
+      {x:this.width/2, y: 350},
+      40,
+      this.voltageOffset,
+      text,
+    );
     super.render(renderContext);
   }
 
@@ -159,24 +157,24 @@ export default class OscillatorModule extends AbstractRackModule {
     );
   }
 
-  renderPitchWheel(renderContext: CanvasRenderingContext2D): void {
-    renderContext.save();
-    renderContext.fillStyle = '#303030';
-    renderContext.beginPath();
-    renderContext.arc(this.width/2, 350, 40, 0, 2 * Math.PI);
-    renderContext.fill();
-    renderContext.strokeStyle = '#404040';
-    renderContext.lineWidth = 4;
-    renderContext.beginPath();
-    renderContext.moveTo(this.width/2, 350);
-    const offset = {
-      x: Math.sin(this.voltageOffset) * 40,
-      y: Math.cos(this.voltageOffset) * 40,
-    };
-    renderContext.lineTo((this.width/2) + offset.x, 350 - offset.y);
-    renderContext.stroke();
-    renderContext.restore();
-  }
+  // renderWheel(renderContext: CanvasRenderingContext2D): void {
+  //   renderContext.save();
+  //   renderContext.fillStyle = '#303030';
+  //   renderContext.beginPath();
+  //   renderContext.arc(this.width/2, 350, 40, 0, 2 * Math.PI);
+  //   renderContext.fill();
+  //   renderContext.strokeStyle = '#404040';
+  //   renderContext.lineWidth = 4;
+  //   renderContext.beginPath();
+  //   renderContext.moveTo(this.width/2, 350);
+  //   const offset = {
+  //     x: Math.sin(this.voltageOffset) * 40,
+  //     y: Math.cos(this.voltageOffset) * 40,
+  //   };
+  //   renderContext.lineTo((this.width/2) + offset.x, 350 - offset.y);
+  //   renderContext.stroke();
+  //   renderContext.restore();
+  // }
 
   toParams(): any {
     return {
