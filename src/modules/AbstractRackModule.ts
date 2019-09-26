@@ -54,6 +54,27 @@ export default abstract class AbstractRackModule implements RackModule {
     });
   }
 
+  renderButton(
+    renderContext: CanvasRenderingContext2D,
+    position: Vec2,
+    size: Vec2,
+    text: string,
+    enabled: boolean,
+  ): void {
+    renderContext.save();
+    renderContext.fillStyle = enabled ? '#d08030' : '#504030';
+    renderContext.fillRect(position.x, position.y, size.x, size.y);
+    renderContext.textAlign = 'center';
+    renderContext.fillStyle = '#ffffffc0';
+    renderContext.font = "14px Arial";
+    renderContext.fillText(
+      text,
+      position.x + (0.5 * size.x),
+      position.y + (0.5 * size.y) + 7,
+    );
+    renderContext.restore();
+  }
+
   render(renderContext: CanvasRenderingContext2D): void {
     renderContext.textAlign = "center";
     renderContext.fillStyle = '#ffffff';
