@@ -63,5 +63,6 @@ async function registerProcessors(audioContext: AudioContext) {
   await Promise.all([
     audioContext.audioWorklet.addModule('processors/EnvelopeGeneratorProcessor.js'),
     audioContext.audioWorklet.addModule('processors/VoltPerOctaveProcessor.js'),
+    audioContext.audioWorklet.addModule('processors/ThresholdTriggerProcessor.js'),
   ]);
 }

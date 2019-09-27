@@ -16,6 +16,11 @@ export default class SequencerModule extends AbstractRackModule {
   private buttonSize: number = 16;
   private topOffset: number = 30;
   private buttonInterval: number = 18;
+  // private resetTrigger: AudioWorkletNode;
+  private stepTrigger: AudioWorkletNode;
+  private buffer = 0.01;
+  private subTickCount = 0;
+  // private noOp: GainNode;
 
   constructor(
     context: AudioContext,
@@ -37,6 +42,40 @@ export default class SequencerModule extends AbstractRackModule {
     this.highVoltage = 1;
     this.tickInterval = tickInterval;
 
+    // this.resetTrigger = new AudioWorkletNode(this.context, 'threshold-trigger-processor');
+    // this.resetTrigger.port.start();
+    // this.resetTrigger.port.addEventListener('message', (i: any) => {
+    //   if(i.currentTime <= this.context.currentTime) {
+    //     this.reset();
+    //     return;
+    //   }
+    //   setTimeout(
+    //     () => {
+    //       this.reset();
+    //     },
+    //     (i.currentTime - this.context.currentTime) * 1000,
+    //   );
+    // });
+    // this.resetTrigger.connect(this.context.destination);
+    
+    this.stepTrigger = new AudioWorkletNode(this.context, 'threshold-trigger-processor');
+    this.stepTrigger.port.start();
+    this.stepTrigger.port.addEventListener('message', (e: any) => {
+      
+      if(e.data.currentTime <= this.context.currentTime + this.buffer) {
+        this.subTick();
+        return;
+      }
+      setTimeout(
+        () => {
+          this.subTick();
+        },
+        (e.data.currentTime - (this.context.currentTime + this.buffer)) * 1000,
+      );
+    });
+
+    this.stepTrigger.connect(this.context.destination);
+
     this.voltageNode = this.context.createConstantSource();
     this.voltageNode.offset.value = 0;
     this.voltageNode.start();
@@ -46,10 +85,13 @@ export default class SequencerModule extends AbstractRackModule {
     }
     
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
-    setInterval(() => this.tick(), this.tickInterval);
 
+    this.addPlug(this.stepTrigger, 'Step', 'in', 6);
+    this.addPlug(this.voltageNode, 'Out', 'out', 7);
+  }
 
-    this.addPlug(this.voltageNode, 'Out', 'out', 6);
+  reset() {
+    this.currentIndex = 0;
   }
 
   handleMousedown(mousedownPosition: Vec2): void {
@@ -95,6 +137,15 @@ export default class SequencerModule extends AbstractRackModule {
         && buttonPos.y < pos.y
         && (buttonPos.y + this.buttonSize) > pos.y;
     });
+  }
+
+  subTick() {
+    if(this.subTickCount < 16) {
+      this.subTickCount += 1;
+      return;
+    }
+    this.subTickCount = 0;
+    this.tick();
   }
 
   tick() {
