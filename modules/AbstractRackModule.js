@@ -42,6 +42,48 @@ export default class AbstractRackModule {
             ...label,
         });
     }
+    renderButton(renderContext, position, size, text, enabled) {
+        renderContext.save();
+        renderContext.fillStyle = enabled ? '#d08030' : '#504030';
+        renderContext.fillRect(position.x, position.y, size.x, size.y);
+        renderContext.textAlign = 'center';
+        renderContext.fillStyle = '#ffffffc0';
+        renderContext.font = "14px Arial";
+        renderContext.fillText(text, position.x + (0.5 * size.x), position.y + (0.5 * size.y) + 7);
+        renderContext.restore();
+    }
+    renderDial(renderContext, pos, radius, angle, text) {
+        renderContext.save();
+        renderContext.fillStyle = '#303030';
+        renderContext.beginPath();
+        renderContext.arc(pos.x, pos.y, radius, 0, 2 * Math.PI);
+        renderContext.fill();
+        renderContext.strokeStyle = '#404040';
+        renderContext.lineWidth = radius / 10;
+        renderContext.beginPath();
+        renderContext.moveTo(pos.x, 350);
+        const offset = {
+            x: Math.sin(angle) * 40,
+            y: Math.cos(angle) * 40,
+        };
+        renderContext.lineTo((pos.x) + offset.x, 350 - offset.y);
+        renderContext.stroke();
+        this.renderLabel(renderContext, {
+            getText: () => text,
+            position: { x: pos.x, y: pos.y + 5 },
+            align: 'center',
+        });
+        renderContext.restore();
+    }
+    renderLabel(renderContext, label) {
+        const text = label.getText();
+        renderContext.save();
+        renderContext.textAlign = label.align;
+        renderContext.fillStyle = '#ffffff';
+        renderContext.font = "16px Arial";
+        renderContext.fillText(text, label.position.x, label.position.y);
+        renderContext.restore();
+    }
     render(renderContext) {
         renderContext.textAlign = "center";
         renderContext.fillStyle = '#ffffff';
@@ -57,13 +99,7 @@ export default class AbstractRackModule {
             renderContext.fill();
         });
         this.labels.forEach((label) => {
-            const text = label.getText();
-            renderContext.save();
-            renderContext.textAlign = label.align;
-            renderContext.fillStyle = '#ffffff';
-            renderContext.font = "16px Arial";
-            renderContext.fillText(text, label.position.x, label.position.y);
-            renderContext.restore();
+            this.renderLabel(renderContext, label);
         });
     }
     emit(eventName, eventValue) {

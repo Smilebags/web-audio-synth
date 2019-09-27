@@ -20,17 +20,7 @@ export default class OscillatorModule extends AbstractRackModule {
             this.voCoarseParam.value = this.voltageOffset;
             this.addPlug(this.voCoarseParam, 'V/O In', 'in', 0);
         }
-        this.addLabel({
-            getText: () => {
-                if (!this.voCoarseParam) {
-                    return '0';
-                }
-                return displayFreq(2 ** this.voCoarseParam.value);
-            },
-            position: { x: this.width / 2, y: 355 },
-            align: 'center',
-        });
-        this.addPlug(this.osc, 'Out', 'out', 2);
+        this.addPlug(this.osc, 'Out', 'out', 1);
         this.addEventListener('mousedown', (e) => { this.handleMousedown(e); });
         this.addEventListener('mousemove', (e) => { this.handleMousemove(e); });
         this.addEventListener('mouseup', (e) => { this.handleMouseup(); });
@@ -52,7 +42,7 @@ export default class OscillatorModule extends AbstractRackModule {
             return;
         }
         const relativeYPos = subtract(this.mousedownPos, this.mousemovePos).y;
-        this.voltageOffset = this.initialVoltage + (relativeYPos / 2 ** 6);
+        this.voltageOffset = this.initialVoltage + (relativeYPos / 2 ** 8);
         if (this.voCoarseParam) {
             this.voCoarseParam.value = this.voltageOffset;
         }
@@ -63,62 +53,64 @@ export default class OscillatorModule extends AbstractRackModule {
         this.initialVoltage = null;
     }
     isInModeSelectRegion(pos) {
-        return pos.y > 200 && pos.y < 300;
+        return pos.y > 125 && pos.y < 280;
     }
     handleModeSelect(pos) {
-        if (pos.y < 200 || pos.y > 300) {
+        if (pos.y < 125 || pos.y > 280) {
             return;
         }
-        if (pos.y < 225) {
+        if (pos.y >= 125 && pos.y <= 160) {
             this.osc.type = 'sine';
             return;
         }
-        if (pos.y < 250) {
+        if (pos.y >= 165 && pos.y <= 200) {
             this.osc.type = 'triangle';
             return;
         }
-        if (pos.y < 275) {
+        if (pos.y >= 205 && pos.y <= 240) {
             this.osc.type = 'sawtooth';
             return;
         }
-        this.osc.type = 'square';
+        if (pos.y >= 245 && pos.y <= 280) {
+            this.osc.type = 'square';
+        }
     }
     isInFreqBox(pos) {
         return pos.y >= 300;
     }
     render(renderContext) {
         this.renderModeButtons(renderContext);
-        this.renderPitchWheel(renderContext);
+        const text = this.voCoarseParam
+            ? displayFreq(2 ** this.voCoarseParam.value)
+            : '0';
+        this.renderDial(renderContext, { x: this.width / 2, y: 350 }, 40, this.voltageOffset, text);
         super.render(renderContext);
     }
     renderModeButtons(renderContext) {
         const padding = 5;
-        renderContext.save();
-        renderContext.fillStyle = '#aa6633';
-        renderContext.fillRect(padding, 200 + padding, this.width - (2 * padding), 25 - padding);
-        renderContext.fillRect(padding, 225 + padding, this.width - (2 * padding), 25 - padding);
-        renderContext.fillRect(padding, 250 + padding, this.width - (2 * padding), 25 - padding);
-        renderContext.fillRect(padding, 275 + padding, this.width - (2 * padding), 25 - padding);
-        renderContext.restore();
+        this.renderButton(renderContext, { x: padding, y: 120 + padding }, { x: this.width - (2 * padding), y: 40 - padding }, 'Sine', this.osc.type === 'sine');
+        this.renderButton(renderContext, { x: padding, y: 160 + padding }, { x: this.width - (2 * padding), y: 40 - padding }, 'Tri', this.osc.type === 'triangle');
+        this.renderButton(renderContext, { x: padding, y: 200 + padding }, { x: this.width - (2 * padding), y: 40 - padding }, 'Saw', this.osc.type === 'sawtooth');
+        this.renderButton(renderContext, { x: padding, y: 240 + padding }, { x: this.width - (2 * padding), y: 40 - padding }, 'Square', this.osc.type === 'square');
     }
-    renderPitchWheel(renderContext) {
-        renderContext.save();
-        renderContext.fillStyle = '#303030';
-        renderContext.beginPath();
-        renderContext.arc(this.width / 2, 350, 40, 0, 2 * Math.PI);
-        renderContext.fill();
-        renderContext.strokeStyle = '#404040';
-        renderContext.lineWidth = 4;
-        renderContext.beginPath();
-        renderContext.moveTo(this.width / 2, 350);
-        const offset = {
-            x: Math.sin(this.voltageOffset) * 40,
-            y: Math.cos(this.voltageOffset) * 40,
-        };
-        renderContext.lineTo((this.width / 2) + offset.x, 350 - offset.y);
-        renderContext.stroke();
-        renderContext.restore();
-    }
+    // renderWheel(renderContext: CanvasRenderingContext2D): void {
+    //   renderContext.save();
+    //   renderContext.fillStyle = '#303030';
+    //   renderContext.beginPath();
+    //   renderContext.arc(this.width/2, 350, 40, 0, 2 * Math.PI);
+    //   renderContext.fill();
+    //   renderContext.strokeStyle = '#404040';
+    //   renderContext.lineWidth = 4;
+    //   renderContext.beginPath();
+    //   renderContext.moveTo(this.width/2, 350);
+    //   const offset = {
+    //     x: Math.sin(this.voltageOffset) * 40,
+    //     y: Math.cos(this.voltageOffset) * 40,
+    //   };
+    //   renderContext.lineTo((this.width/2) + offset.x, 350 - offset.y);
+    //   renderContext.stroke();
+    //   renderContext.restore();
+    // }
     toParams() {
         return {
             type: this.type,
