@@ -11,7 +11,7 @@ export default class SequencerButton implements HeaderButton {
     context.restore();
   }
   handlePress() {
-    const newGain = this.rack.rackModuleFactory.createModule('Sequencer', {});
+    const newGain = this.rack.rackModuleFactory.createModule('StepSequencer', {});
     this.rack.addModule(newGain);
   }
 }

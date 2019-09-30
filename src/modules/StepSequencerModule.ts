@@ -2,11 +2,12 @@ import Plug from "../Plug.js";
 import AbstractRackModule from "./AbstractRackModule.js";
 import { Vec2 } from "../types/Vec2.js";
 
-export default class SequencerModule extends AbstractRackModule {
+export default class StepSequencerModule extends AbstractRackModule {
   width!: number;
   context: AudioContext;
   plugs!: Plug[];
-  type: string = 'Sequencer';
+  type: string = 'StepSequencer';
+  name: string = 'Step Seq.';
   private buttonSize: number = 16;
   private topOffset: number = 30;
   private buttonInterval: number = 18;

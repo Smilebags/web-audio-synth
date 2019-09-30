@@ -32,7 +32,7 @@ export default `{
     },
     {
       "module": {
-        "type": "Sequencer",
+        "type": "StepSequencer",
         "stepCount": 64
       },
       "position": {
