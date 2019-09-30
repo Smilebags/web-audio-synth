@@ -1,10 +1,27 @@
 class SequencerProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
-    this.cooldown = 0;
+    this.isHigh = false;
+    this.threshold = 0.1;
     this.currentStep = 0;
     this.currentSubtick = 0;
-    this.levels = [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
+    this.levels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    this.port.onmessage = (message) => this.handleMessage(message);
+  }
+
+  handleMessage(message) {
+    switch(message.data.type) {
+      case 'setLevels':
+        this.setLevels(message.data.payload);
+        break;
+      default:
+        break;
+    }
+  }
+
+  setLevels(levels) {
+    this.levels = levels;
   }
 
   subtick() {
@@ -22,6 +39,10 @@ class SequencerProcessor extends AudioWorkletProcessor {
 
   tick() {
     this.currentStep = (this.currentStep + 1) % this.levels.length;
+    this.port.postMessage({
+      type: 'setActiveTick',
+      payload: this.currentStep,
+    });
   }
 
   process(inputs, outputs, parameters) {
@@ -31,13 +52,15 @@ class SequencerProcessor extends AudioWorkletProcessor {
     const inputChannel = input[0];
     
     for (let i = 0; i < outputChannel.length; i++) {
-      const currentIsOver = inputChannel[i] >= this.getParameterValue(parameters, 'cutoffValue', i);
-      if(currentIsOver && !this.previousWasOver && this.cooldown === 0) {
-        this.subtick();
-        this.cooldown = 2 ** 6;
+      const cutoff = this.getParameterValue(parameters, 'cutoffValue', i);
+      if (this.isHigh === true) {
+        this.isHigh = inputChannel[i] >= cutoff - this.threshold;
+      } else {
+        this.isHigh = inputChannel[i] >= cutoff + this.threshold;
+        if(this.isHigh) {
+          this.subtick();
+        }
       }
-      this.previousWasOver = currentIsOver;
-      this.cooldown = Math.max(this.cooldown - 1, 0);
       outputChannel[i] = this.outputValue;
     }
 
@@ -58,7 +81,7 @@ class SequencerProcessor extends AudioWorkletProcessor {
     return [
       {
         name: 'cutoffValue',
-        defaultValue: 0.8,
+        defaultValue: 0.5,
         minValue: 1e-5,
       },
     ]

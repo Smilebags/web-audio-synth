@@ -11,15 +11,17 @@ export default class SequencerModule extends AbstractRackModule {
   private topOffset: number = 30;
   private buttonInterval: number = 18;
 
+  private levels: boolean[];
+  private currentIndex: number = 0;
+
   private sequencerProcessor: AudioWorkletNode;
+  private noopGain: GainNode;
 
   constructor(
     context: AudioContext,
     {
-      stepCount = 16,
       tickInterval = 200,
     } : {
-      stepCount?: number,
       tickInterval?: number,
     }
   ) {
@@ -27,77 +29,113 @@ export default class SequencerModule extends AbstractRackModule {
 
     this.context = context;
     
-    this.sequencerProcessor = new AudioWorkletNode(this.context, 'sequencer-processor');
+    this.noopGain = this.context.createGain();
+    this.noopGain.gain.value = 0;
+    this.noopGain.connect(this.context.destination);
     
+    this.sequencerProcessor = new AudioWorkletNode(this.context, 'sequencer-processor');
+    this.sequencerProcessor.port.onmessage = (message: any) => this.handleSequencerProcessorMessage(message);
+    this.sequencerProcessor.connect(this.noopGain);
 
-    // this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
+    this.levels = [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+    ];
+
+    this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
 
     this.addPlug(this.sequencerProcessor, 'Step', 'in', 6);
     this.addPlug(this.sequencerProcessor, 'Out', 'out', 7);
   }
 
-  // handleMousedown(mousedownPosition: Vec2): void {
-  //   const selectedButtonIndex = this.getCollidedButtonIndex(mousedownPosition);
-  //   if (selectedButtonIndex !== -1) {
-  //     this.states[selectedButtonIndex] = !this.states[selectedButtonIndex];
-  //   }
-  // }
+  handleMousedown(mousedownPosition: Vec2): void {
+    const selectedButtonIndex = this.getCollidedButtonIndex(mousedownPosition);
+    if (selectedButtonIndex !== -1) {
+      this.toggleButton(selectedButtonIndex);
+      
+    }
+  }
 
-  // get buttonCount() {
-  //   return this.states.length;
-  // }
+  handleSequencerProcessorMessage(message: {data: {type: string, payload: any}}) {
+    switch (message.data.type) {
+      case 'setActiveTick':
+        this.handleSetActiveTick(message.data.payload);
+        break;
+      default:
+        break;
+    }
+  }
 
-  // getButtonPositionByIndex(index: number): Vec2 {
-  //   // if (this.buttonCount <= 16) {
-  //   //   return {
-  //   //     x: (this.width / 2) - (this.buttonSize / 2),
-  //   //     y: this.topOffset + (index * this.buttonInterval),
-  //   //   };
-  //   // }
+  handleSetActiveTick(index: number): void {
+    this.currentIndex = index;
+  }
 
-  //   const rowCount = Math.ceil(this.buttonCount / 16);
-  //   const rowNumber = index % rowCount;
-  //   const columnNumber = Math.floor(index / rowCount);
+  toggleButton(index: number): void {
+    this.levels[index] = !this.levels[index];
+    this.sequencerProcessor.port.postMessage({type: 'setLevels', payload: this.levels});
+  }
 
-  //   const xPosition = (this.width / 2)
-  //     - ((rowCount * this.buttonInterval) / 2)
-  //     + (rowNumber * this.buttonInterval);
+  get buttonCount() {
+    return this.levels.length;
+  }
 
-  //   const yPosition = this.topOffset + (columnNumber * this.buttonInterval);
+  getButtonPositionByIndex(index: number): Vec2 {
+    const rowCount = Math.ceil(this.buttonCount / 8);
+    const rowNumber = index % rowCount;
+    const columnNumber = Math.floor(index / rowCount);
 
-  //   return {
-  //     x: xPosition,
-  //     y: yPosition,
-  //   };
-  // }
+    const xPosition = (this.width / 2)
+      - ((rowCount * this.buttonInterval) / 2)
+      + (rowNumber * this.buttonInterval);
 
-  // getCollidedButtonIndex(pos: Vec2): number {
-  //   return this.states.findIndex((state, index) => {
-  //     const buttonPos = this.getButtonPositionByIndex(index);
-  //     return buttonPos.x < pos.x
-  //       && (buttonPos.x + this.buttonSize) > pos.x
-  //       && buttonPos.y < pos.y
-  //       && (buttonPos.y + this.buttonSize) > pos.y;
-  //   });
-  // }
+    const yPosition = this.topOffset + (columnNumber * this.buttonInterval);
 
+    return {
+      x: xPosition,
+      y: yPosition,
+    };
+  }
+
+  getCollidedButtonIndex(pos: Vec2): number {
+    return this.levels.findIndex((state, index) => {
+      const buttonPos = this.getButtonPositionByIndex(index);
+      return buttonPos.x < pos.x
+        && (buttonPos.x + this.buttonSize) > pos.x
+        && buttonPos.y < pos.y
+        && (buttonPos.y + this.buttonSize) > pos.y;
+    });
+  }
 
   render(renderContext: CanvasRenderingContext2D): void {
     super.render(renderContext);
 
-    // this.states.forEach((state, index) => {
-    //   renderContext.fillStyle = state ? '#A04040' : '#444040';
-    //   if (this.currentIndex === index) {
-    //     renderContext.fillStyle = state ? '#F04040' : '#A04040';
-    //   }
-    //   const buttonPos = this.getButtonPositionByIndex(index);
-    //   renderContext.fillRect(
-    //     buttonPos.x,
-    //     buttonPos.y,
-    //     this.buttonSize,
-    //     this.buttonSize,
-    //   );
-    // });
+    this.levels.forEach((state, index) => {
+      renderContext.fillStyle = state ? '#A04040' : '#444040';
+      if (this.currentIndex === index) {
+        renderContext.fillStyle = state ? '#F04040' : '#A04040';
+      }
+      const buttonPos = this.getButtonPositionByIndex(index);
+      renderContext.fillRect(
+        buttonPos.x,
+        buttonPos.y,
+        this.buttonSize,
+        this.buttonSize,
+      );
+    });
   }
 
   toParams(): any {
