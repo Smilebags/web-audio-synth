@@ -64,5 +64,6 @@ async function registerProcessors(audioContext: AudioContext) {
     audioContext.audioWorklet.addModule('processors/EnvelopeGeneratorProcessor.js'),
     audioContext.audioWorklet.addModule('processors/VoltPerOctaveProcessor.js'),
     audioContext.audioWorklet.addModule('processors/SequencerProcessor.js'),
+    audioContext.audioWorklet.addModule('processors/VoltageQuantizerProcessor.js'),
   ]);
 }

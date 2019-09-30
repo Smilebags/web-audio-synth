@@ -10,6 +10,7 @@ import GainModule from "./modules/GainModule.js";
 import OscillatorModule from "./modules/OscillatorModule.js";
 import ReverbModule from "./modules/ReverbModule.js";
 import RecorderModule from "./modules/RecorderModule.js";
+import VoltageQuantizerModule from "./modules/VoltageQuantizerModule.js";
 
 export type RackModuleType = 'Filter'
   | 'Envelope'
@@ -21,6 +22,7 @@ export type RackModuleType = 'Filter'
   | 'Gain'
   | 'Oscillator'
   | 'Recorder'
+  | 'VoltageQuantizer'
   | 'Reverb';
 
 export default class RackModuleFactory {
@@ -49,6 +51,8 @@ export default class RackModuleFactory {
         return new OscillatorModule(this.audioContext, params);
       case 'Recorder':
         return new RecorderModule(this.audioContext);
+      case 'VoltageQuantizer':
+        return new VoltageQuantizerModule(this.audioContext);
       case 'Reverb':
         return new ReverbModule(this.audioContext, params);
     }

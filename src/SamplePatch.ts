@@ -102,6 +102,15 @@ export default `{
         "x": 900,
         "y": 32
       }
+    },
+    {
+      "module": {
+        "type": "VoltageQuantizer"
+      },
+      "position": {
+        "x": 1000,
+        "y": 32
+      }
     }
   ]
 }`;
