@@ -2,6 +2,7 @@ class SequencerProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
     this.isHigh = false;
+    this.isResetHigh = false;
     this.threshold = 0.1;
     this.currentStep = 0;
     this.currentSubtick = 0;
@@ -45,6 +46,15 @@ class SequencerProcessor extends AudioWorkletProcessor {
     });
   }
 
+  reset() {
+    this.currentStep = 0;
+    this.currentSubtick = 0;
+    this.port.postMessage({
+      type: 'setActiveTick',
+      payload: 0,
+    });
+  }
+
   process(inputs, outputs, parameters) {
     const output = outputs[0];
     const outputChannel = output[0];
@@ -52,15 +62,29 @@ class SequencerProcessor extends AudioWorkletProcessor {
     const inputChannel = input[0];
     
     for (let i = 0; i < outputChannel.length; i++) {
+      const inputValue = inputChannel[i];
+      // determine tick
       const cutoff = this.getParameterValue(parameters, 'cutoffValue', i);
       if (this.isHigh === true) {
-        this.isHigh = inputChannel[i] >= cutoff - this.threshold;
+        this.isHigh = inputValue >= cutoff - this.threshold;
       } else {
-        this.isHigh = inputChannel[i] >= cutoff + this.threshold;
+        this.isHigh = inputValue >= cutoff + this.threshold;
         if(this.isHigh) {
           this.subtick();
         }
       }
+
+      // do reset
+      const resetValue = this.getParameterValue(parameters, 'resetTrigger', i);
+      if (this.isResetHigh === true) {
+        this.isResetHigh = resetValue >= cutoff - this.threshold;
+      } else {
+        this.isResetHigh = resetValue >= cutoff + this.threshold;
+        if(this.isResetHigh) {
+          this.reset();
+        }
+      }
+      // set output
       outputChannel[i] = this.outputValue;
     }
 
@@ -83,6 +107,10 @@ class SequencerProcessor extends AudioWorkletProcessor {
         name: 'cutoffValue',
         defaultValue: 0.5,
         minValue: 1e-5,
+      },
+      {
+        name: 'resetTrigger',
+        defaultValue: 0,
       },
     ]
   }
