@@ -56,6 +56,8 @@ export default class VoltageSequencer extends AbstractRackModule {
     ];
 
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
+    this.addEventListener('mousemove', (mousemovePos: Vec2) => this.handleMousemove(mousemovePos));
+    this.addEventListener('mouseup', (mouseupPos: Vec2) => this.handleMouseup(mouseupPos));
 
     this.addPlug(this.sequencerProcessor, 'Step', 'in', 4);
     const resetTriggerParam = this.sequencerProcessor.parameters.get('resetTrigger');
@@ -74,9 +76,6 @@ export default class VoltageSequencer extends AbstractRackModule {
     this.mousedownPos = mousedownPosition;
     this.mousedownDialIndex = selectedDialIndex;
     this.mousedownDialInitialValue = this.levels[selectedDialIndex];
-
-    this.addEventListener('mousemove', (mousemovePos: Vec2) => this.handleMousemove(mousemovePos));
-    this.addEventListener('mouseup', (mouseupPos: Vec2) => this.handleMouseup(mouseupPos));
   }
 
   handleMousemove(pos: Vec2): void {
