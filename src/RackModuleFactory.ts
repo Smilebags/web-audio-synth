@@ -2,6 +2,7 @@ import RackModule from "./types/RackModule.js";
 import FilterModule from "./modules/FilterModule.js";
 import EnvelopeModule from "./modules/EnvelopeModule.js";
 import StepSequencerModule from "./modules/StepSequencerModule.js";
+import VoltageSequencerModule from "./modules/VoltageSequencerModule.js";
 import KeyboardInputModule from "./modules/KeyboardInputModule.js";
 import DelayModule from "./modules/DelayModule.js";
 import OutputModule from "./modules/OutputModule.js";
@@ -13,6 +14,7 @@ import RecorderModule from "./modules/RecorderModule.js";
 export type RackModuleType = 'Filter'
   | 'Envelope'
   | 'StepSequencer'
+  | 'VoltageSequencer'
   | 'KeyboardInput'
   | 'Delay'
   | 'Output'
@@ -33,6 +35,8 @@ export default class RackModuleFactory {
         return new EnvelopeModule(this.audioContext, params);
       case 'StepSequencer':
         return new StepSequencerModule(this.audioContext, params);
+      case 'VoltageSequencer':
+        return new VoltageSequencerModule(this.audioContext);
       case 'KeyboardInput':
         return new KeyboardInputModule(this.audioContext, params);
       case 'Delay':

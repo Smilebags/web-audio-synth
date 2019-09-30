@@ -58,3 +58,7 @@ export function displayFreq(freq: number): string {
   }
   return `${(freq/1000).toFixed(2)}k`;
 }
+
+export function clamp(value: number, low: number = 0, high: number = 1) {
+  return Math.max(Math.min(value, high), low);
+}

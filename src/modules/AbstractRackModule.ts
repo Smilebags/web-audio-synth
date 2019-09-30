@@ -1,6 +1,6 @@
 import RackModule from "../types/RackModule.js";
 import Plug from "../Plug.js";
-import { distance } from "../util.js";
+import { distance, clamp } from "../util.js";
 import { Vec2 } from "../types/Vec2.js";
 
 interface Label {
@@ -90,18 +90,37 @@ export default abstract class AbstractRackModule implements RackModule {
     renderContext.strokeStyle = '#404040';
     renderContext.lineWidth = radius / 10;
     renderContext.beginPath();
-    renderContext.moveTo(pos.x, 350);
+    renderContext.moveTo(pos.x, pos.y);
     const offset = {
-      x: Math.sin(angle) * 40,
-      y: Math.cos(angle) * 40,
+      x: Math.sin(angle) * radius,
+      y: Math.cos(angle) * radius,
     };
-    renderContext.lineTo((pos.x) + offset.x, 350 - offset.y);
+    renderContext.lineTo((pos.x) + offset.x, pos.y - offset.y);
     renderContext.stroke();
     this.renderLabel(renderContext, {
       getText: () => text,
       position: { x: pos.x, y: pos.y + 5 },
       align: 'center',
     });
+    renderContext.restore();
+  }
+
+  renderLed(
+    renderContext: CanvasRenderingContext2D,
+    pos: Vec2,
+    radius: number,
+    level: number,
+  ): void {
+    renderContext.save();
+    renderContext.fillStyle = '#301210';
+    renderContext.beginPath();
+    renderContext.arc(pos.x, pos.y, radius, 0, 2 * Math.PI);
+    renderContext.fill();
+    renderContext.fillStyle = '#b01510';
+    renderContext.globalAlpha = clamp(level);
+    renderContext.beginPath();
+    renderContext.arc(pos.x, pos.y, radius, 0, 2 * Math.PI);
+    renderContext.fill();
     renderContext.restore();
   }
 
