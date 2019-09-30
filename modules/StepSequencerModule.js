@@ -1,8 +1,9 @@
 import AbstractRackModule from "./AbstractRackModule.js";
-export default class SequencerModule extends AbstractRackModule {
+export default class StepSequencerModule extends AbstractRackModule {
     constructor(context, { tickInterval = 200, }) {
         super();
-        this.type = 'Sequencer';
+        this.type = 'StepSequencer';
+        this.name = 'Step Seq.';
         this.buttonSize = 16;
         this.topOffset = 30;
         this.buttonInterval = 18;
