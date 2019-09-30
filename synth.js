@@ -48,5 +48,6 @@ async function registerProcessors(audioContext) {
     await Promise.all([
         audioContext.audioWorklet.addModule('processors/EnvelopeGeneratorProcessor.js'),
         audioContext.audioWorklet.addModule('processors/VoltPerOctaveProcessor.js'),
+        audioContext.audioWorklet.addModule('processors/SequencerProcessor.js'),
     ]);
 }

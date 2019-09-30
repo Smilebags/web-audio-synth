@@ -1,44 +1,72 @@
 import AbstractRackModule from "./AbstractRackModule.js";
 export default class SequencerModule extends AbstractRackModule {
-    constructor(context, { stepCount = 16, tickInterval = 200, }) {
+    constructor(context, { tickInterval = 200, }) {
         super();
         this.type = 'Sequencer';
         this.buttonSize = 16;
         this.topOffset = 30;
         this.buttonInterval = 18;
-        this.context = context;
-        this.states = [];
         this.currentIndex = 0;
-        this.lowVoltage = 0;
-        this.highVoltage = 1;
-        this.tickInterval = tickInterval;
-        this.voltageNode = this.context.createConstantSource();
-        this.voltageNode.offset.value = 0;
-        this.voltageNode.start();
-        for (let i = 0; i < stepCount; i++) {
-            this.states.push(false);
-        }
+        this.context = context;
+        this.noopGain = this.context.createGain();
+        this.noopGain.gain.value = 0;
+        this.noopGain.connect(this.context.destination);
+        this.sequencerProcessor = new AudioWorkletNode(this.context, 'sequencer-processor');
+        this.sequencerProcessor.port.onmessage = (message) => this.handleSequencerProcessorMessage(message);
+        this.sequencerProcessor.connect(this.noopGain);
+        this.levels = [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+        ];
         this.addEventListener('mousedown', (e) => { this.handleMousedown(e); });
-        setInterval(() => this.tick(), this.tickInterval);
-        this.addPlug(this.voltageNode, 'Out', 'out', 6);
+        this.addPlug(this.sequencerProcessor, 'Step', 'in', 4);
+        const resetTriggerParam = this.sequencerProcessor.parameters.get('resetTrigger');
+        if (resetTriggerParam) {
+            this.addPlug(resetTriggerParam, 'Reset', 'in', 5);
+        }
+        this.addPlug(this.sequencerProcessor, 'Out', 'out', 6);
     }
     handleMousedown(mousedownPosition) {
         const selectedButtonIndex = this.getCollidedButtonIndex(mousedownPosition);
         if (selectedButtonIndex !== -1) {
-            this.states[selectedButtonIndex] = !this.states[selectedButtonIndex];
+            this.toggleButton(selectedButtonIndex);
         }
     }
+    handleSequencerProcessorMessage(message) {
+        switch (message.data.type) {
+            case 'setActiveTick':
+                this.handleSetActiveTick(message.data.payload);
+                break;
+            default:
+                break;
+        }
+    }
+    handleSetActiveTick(index) {
+        this.currentIndex = index;
+    }
+    toggleButton(index) {
+        this.levels[index] = !this.levels[index];
+        this.sequencerProcessor.port.postMessage({ type: 'setLevels', payload: this.levels });
+    }
     get buttonCount() {
-        return this.states.length;
+        return this.levels.length;
     }
     getButtonPositionByIndex(index) {
-        // if (this.buttonCount <= 16) {
-        //   return {
-        //     x: (this.width / 2) - (this.buttonSize / 2),
-        //     y: this.topOffset + (index * this.buttonInterval),
-        //   };
-        // }
-        const rowCount = Math.ceil(this.buttonCount / 16);
+        const rowCount = Math.ceil(this.buttonCount / 8);
         const rowNumber = index % rowCount;
         const columnNumber = Math.floor(index / rowCount);
         const xPosition = (this.width / 2)
@@ -51,7 +79,7 @@ export default class SequencerModule extends AbstractRackModule {
         };
     }
     getCollidedButtonIndex(pos) {
-        return this.states.findIndex((state, index) => {
+        return this.levels.findIndex((state, index) => {
             const buttonPos = this.getButtonPositionByIndex(index);
             return buttonPos.x < pos.x
                 && (buttonPos.x + this.buttonSize) > pos.x
@@ -59,18 +87,9 @@ export default class SequencerModule extends AbstractRackModule {
                 && (buttonPos.y + this.buttonSize) > pos.y;
         });
     }
-    tick() {
-        this.currentIndex = (this.currentIndex + 1) % this.buttonCount;
-        if (this.states[this.currentIndex]) {
-            this.voltageNode.offset.value = this.highVoltage;
-        }
-        else {
-            this.voltageNode.offset.value = this.lowVoltage;
-        }
-    }
     render(renderContext) {
         super.render(renderContext);
-        this.states.forEach((state, index) => {
+        this.levels.forEach((state, index) => {
             renderContext.fillStyle = state ? '#A04040' : '#444040';
             if (this.currentIndex === index) {
                 renderContext.fillStyle = state ? '#F04040' : '#A04040';
@@ -82,8 +101,6 @@ export default class SequencerModule extends AbstractRackModule {
     toParams() {
         return {
             type: this.type,
-            stepCount: this.states.length,
-            tickInterval: this.tickInterval,
         };
     }
 }
