@@ -31,7 +31,7 @@ export default class Rack {
   onMouseup: (e: MouseEvent) => void;
   delegateModule: RackModule | null = null;
 
-  private xScrollPosition = -137;
+  private xScrollPosition = 0;
 
   headerHeight: number = 32;
   headerButtons: HeaderButton[] = [];
@@ -57,6 +57,7 @@ export default class Rack {
     this.onMouseup = (e) => this.handleMouseup(e);
     addEventListener('mousedown', this.onMousedown);
     addEventListener('resize', () => this.resetWindowSize());
+    addEventListener('wheel', (e) => this.handleWheel(e), {passive: false, capture: true});
 
     this.render();
 
@@ -84,6 +85,17 @@ export default class Rack {
   resetWindowSize() {
     this.renderContext.canvas.width = window.innerWidth;
     this.renderContext.canvas.height = window.innerHeight;
+  }
+
+  handleWheel(e: WheelEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.setScrollPosition(this.xScrollPosition + e.deltaX);
+    return false;
+  }
+
+  setScrollPosition(pos: number) {
+    this.xScrollPosition = Math.max(pos, 0);
   }
 
   loadModulesFromPatchObject(patchObject: {moduleSlots: any[]}): void {
