@@ -36,9 +36,6 @@ export default class Rack {
   headerHeight: number = 32;
   headerButtons: HeaderButton[] = [];
 
-  private columnWidth = 50;
-  private rowHeight = 400;
-
   constructor(
     public audioContext: AudioContext,
     public renderContext: CanvasRenderingContext2D,
