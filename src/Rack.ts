@@ -245,8 +245,12 @@ export default class Rack {
   }
 
   patch(outPlug: Plug, inPlug: Plug): void {
-    const newCable = new Cable(this, outPlug, inPlug);
-    this.cables.unshift(newCable);
+    try {
+      const newCable = new Cable(this, outPlug, inPlug);
+      this.cables.unshift(newCable);
+    } catch (error) {
+      this.cleanUpMouseState();
+    }
   }
 
   getCableByPlug(plug: Plug): Cable | null {
