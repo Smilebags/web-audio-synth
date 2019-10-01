@@ -21,9 +21,9 @@ export default class Cable {
         if (!this.isConnected) {
             return;
         }
-        const plug1ModulePos = this.rack.getModulePosition(this.plug1.module);
+        const plug1ModulePos = this.rack.getModuleRackPosition(this.plug1.module);
         const plug1RackPos = add(plug1ModulePos, this.plug1.position);
-        const plug2ModulePos = this.rack.getModulePosition(this.plug2.module);
+        const plug2ModulePos = this.rack.getModuleRackPosition(this.plug2.module);
         const plug2RackPos = add(plug2ModulePos, this.plug2.position);
         const cableLength = distance(plug1RackPos, plug2RackPos);
         const cableSlack = cableLength * (this.cableSlack / 100);

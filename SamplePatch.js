@@ -6,7 +6,7 @@ export default `{
       },
       "position": {
         "x": 0,
-        "y": 32
+        "y": 0
       }
     },
     {
@@ -15,7 +15,7 @@ export default `{
       },
       "position": {
         "x": 100,
-        "y": 32
+        "y": 0
       }
     },
     {
@@ -27,7 +27,7 @@ export default `{
       },
       "position": {
         "x": 200,
-        "y": 32
+        "y": 0
       }
     },
     {
@@ -37,7 +37,7 @@ export default `{
       },
       "position": {
         "x": 300,
-        "y": 32
+        "y": 0
       }
     },
     {
@@ -46,7 +46,7 @@ export default `{
       },
       "position": {
         "x": 400,
-        "y": 32
+        "y": 0
       }
     },
     {
@@ -56,7 +56,7 @@ export default `{
       },
       "position": {
         "x": 500,
-        "y": 32
+        "y": 0
       }
     },
     {
@@ -66,7 +66,7 @@ export default `{
       },
       "position": {
         "x": 600,
-        "y": 32
+        "y": 0
       }
     },
     {
@@ -79,7 +79,7 @@ export default `{
       },
       "position": {
         "x": 700,
-        "y": 32
+        "y": 0
       }
     },
     {
@@ -90,7 +90,7 @@ export default `{
       },
       "position": {
         "x": 800,
-        "y": 32
+        "y": 0
       }
     },
     {
@@ -100,7 +100,7 @@ export default `{
       },
       "position": {
         "x": 900,
-        "y": 32
+        "y": 0
       }
     },
     {
@@ -109,7 +109,7 @@ export default `{
       },
       "position": {
         "x": 1000,
-        "y": 32
+        "y": 0
       }
     }
   ]

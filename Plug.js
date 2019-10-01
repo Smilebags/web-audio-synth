@@ -14,6 +14,7 @@ export default class Plug {
     connect(plug) {
         if (this.type === plug.type) {
             alert('You cannot connect two plugs of the same type');
+            throw 'You cannot connect two plugs of the same type';
             return;
         }
         if (this.type === 'in' && plug.type === 'out') {

@@ -1,4 +1,4 @@
-import { subtract, isSet } from "./util.js";
+import { subtract, isSet, add } from "./util.js";
 import Cable from "./Cable.js";
 import OscillatorButton from "./headerButtons/OscillatorButton.js";
 import SaveToClipboardButton from "./headerButtons/SaveToClipboardButton.js";
@@ -13,17 +13,16 @@ export default class Rack {
         this.rackModuleFactory = rackModuleFactory;
         this.cables = [];
         this.moduleSlots = [];
-        this.mousedownPosition = null;
-        this.mousedragPosition = null;
-        this.mouseupPosition = null;
+        this.rackMousedownPosition = null;
+        this.rackMousemovePosition = null;
+        this.rackMouseupPosition = null;
         this.mousedownPlug = null;
         this.mouseupPlug = null;
         this.delegateModule = null;
+        this.xScrollPosition = 0;
         this.headerHeight = 32;
         this.headerButtons = [];
-        this.renderContext.canvas.width = window.innerWidth;
-        this.renderContext.canvas.height = window.innerHeight;
-        this.render();
+        this.resetWindowSize();
         this.headerButtons.push(new SaveToClipboardButton(this));
         this.headerButtons.push(new OscillatorButton(this));
         this.headerButtons.push(new GainButton(this));
@@ -32,7 +31,10 @@ export default class Rack {
         this.onMousedown = (e) => this.handleMousedown(e);
         this.onMousemove = (e) => this.handleMousemove(e);
         this.onMouseup = (e) => this.handleMouseup(e);
-        addEventListener("mousedown", this.onMousedown);
+        addEventListener('mousedown', this.onMousedown);
+        addEventListener('resize', () => this.resetWindowSize());
+        addEventListener('wheel', (e) => this.handleWheel(e), { passive: false, capture: true });
+        this.render();
     }
     static fromPatchString(audioContext, context, rackModuleFactory, patchString) {
         const rack = new Rack(audioContext, context, rackModuleFactory);
@@ -47,6 +49,19 @@ export default class Rack {
             console.error(error);
         }
         return rack;
+    }
+    resetWindowSize() {
+        this.renderContext.canvas.width = window.innerWidth;
+        this.renderContext.canvas.height = window.innerHeight;
+    }
+    handleWheel(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.setScrollPosition(this.xScrollPosition + e.deltaX);
+        return false;
+    }
+    setScrollPosition(pos) {
+        this.xScrollPosition = Math.max(pos, 0);
     }
     loadModulesFromPatchObject(patchObject) {
         patchObject.moduleSlots.forEach((moduleSlot) => {
@@ -63,34 +78,34 @@ export default class Rack {
             this.handleHeaderClick(mousedownPosition);
             return;
         }
-        this.mousedownPosition = mousedownPosition;
+        this.rackMousedownPosition = this.toRackFromWorldPosition(mousedownPosition);
         addEventListener("mousemove", this.onMousemove);
         addEventListener("mouseup", this.onMouseup);
-        this.mousedownPlug = this.getPlugAtRackPosition(mousedownPosition);
+        this.mousedownPlug = this.getPlugAtRackPosition(this.rackMousedownPosition);
         if (!this.mousedownPlug) {
-            this.delegateMousedown(mousedownPosition);
+            this.delegateMousedown(this.rackMousedownPosition);
         }
     }
     handleMousemove(mousemoveEvent) {
-        this.mousedragPosition = {
+        this.rackMousemovePosition = this.toRackFromWorldPosition({
             x: mousemoveEvent.clientX,
             y: mousemoveEvent.clientY,
-        };
+        });
         if (!this.mousedownPlug) {
-            this.delegateMousemove(this.mousedragPosition);
+            this.delegateMousemove(this.rackMousemovePosition);
         }
     }
     handleMouseup(mouseupEvent) {
-        this.mouseupPosition = {
+        this.rackMouseupPosition = this.toRackFromWorldPosition({
             x: mouseupEvent.clientX,
             y: mouseupEvent.clientY,
-        };
+        });
         if (!this.mousedownPlug) {
-            this.delegateMouseup(this.mouseupPosition);
+            this.delegateMouseup(this.rackMouseupPosition);
             this.cleanUpMouseState();
             return;
         }
-        this.mouseupPlug = this.getPlugAtRackPosition(this.mouseupPosition);
+        this.mouseupPlug = this.getPlugAtRackPosition(this.rackMouseupPosition);
         if (this.mousedownPlug === this.mouseupPlug) {
             const cable = this.getCableByPlug(this.mousedownPlug);
             if (cable) {
@@ -103,9 +118,9 @@ export default class Rack {
         this.cleanUpMouseState();
     }
     cleanUpMouseState() {
-        this.mousedownPosition = null;
-        this.mousedragPosition = null;
-        this.mouseupPosition = null;
+        this.rackMousedownPosition = null;
+        this.rackMousemovePosition = null;
+        this.rackMouseupPosition = null;
         this.mousedownPlug = null;
         this.mouseupPlug = null;
         removeEventListener('mousemove', this.onMousemove);
@@ -140,21 +155,27 @@ export default class Rack {
             return currentMax;
         }, 0);
     }
+    toRackFromWorldPosition(worldPos) {
+        return subtract(worldPos, { x: -this.xScrollPosition, y: this.headerHeight });
+    }
+    fromRackToWorldPosition(rackPos) {
+        return add(rackPos, { x: -this.xScrollPosition, y: this.headerHeight });
+    }
     addModule(rackModule, modulePosition) {
         const defaultPosition = {
             x: this.nextAvailableSpace,
-            y: this.headerHeight,
+            y: 0,
         };
         this.moduleSlots.push({ module: rackModule, position: modulePosition || defaultPosition });
     }
     getModuleIndex(rackModule) {
         return this.moduleSlots.findIndex(item => item.module === rackModule);
     }
-    getModulePosition(rackModule) {
+    getModuleRackPosition(rackModule) {
         const moduleIndex = this.getModuleIndex(rackModule);
-        return { x: moduleIndex * 100, y: this.headerHeight };
+        return { x: moduleIndex * 100, y: 0 };
     }
-    getModuleByPosition(pos) {
+    getModuleByRackPosition(pos) {
         const moduleSlot = this.moduleSlots.find((moduleSlot) => {
             const modulePosition = moduleSlot.position;
             return modulePosition.x <= pos.x
@@ -165,21 +186,27 @@ export default class Rack {
         }
         return null;
     }
-    getModuleLocalPosition(rackModule, position) {
-        const modulePosition = this.getModulePosition(rackModule);
+    toModuleFromRackPosition(rackModule, position) {
+        const modulePosition = this.getModuleRackPosition(rackModule);
         return subtract(position, modulePosition);
     }
     getPlugAtRackPosition(pos) {
-        const selectedModule = this.getModuleByPosition(pos);
+        const selectedModule = this.getModuleByRackPosition(pos);
         if (!selectedModule) {
             return null;
         }
-        const moduleRelativePosition = subtract(pos, this.getModulePosition(selectedModule));
+        const moduleRelativePosition = this.toModuleFromRackPosition(selectedModule, pos);
         const selectedPlug = selectedModule.getPlugAtPosition(moduleRelativePosition);
         return selectedPlug;
     }
     patch(outPlug, inPlug) {
-        this.cables.unshift(new Cable(this, outPlug, inPlug));
+        try {
+            const newCable = new Cable(this, outPlug, inPlug);
+            this.cables.unshift(newCable);
+        }
+        catch (error) {
+            this.cleanUpMouseState();
+        }
     }
     getCableByPlug(plug) {
         return this.cables.find((cable) => {
@@ -201,34 +228,37 @@ export default class Rack {
         this.cables.splice(index, 1);
     }
     delegateMousedown(rackPosition) {
-        const rackModule = this.getModuleByPosition(rackPosition);
+        const rackModule = this.getModuleByRackPosition(rackPosition);
         this.delegateModule = rackModule;
         if (!rackModule) {
             return;
         }
-        const localPosition = this.getModuleLocalPosition(rackModule, rackPosition);
+        const localPosition = this.toModuleFromRackPosition(rackModule, rackPosition);
         rackModule.onMousedown(localPosition);
     }
     delegateMousemove(rackPosition) {
         if (!this.delegateModule) {
             return;
         }
-        const localPosition = this.getModuleLocalPosition(this.delegateModule, rackPosition);
+        const localPosition = this.toModuleFromRackPosition(this.delegateModule, rackPosition);
         this.delegateModule.onMousemove(localPosition);
     }
     delegateMouseup(rackPosition) {
         if (!this.delegateModule) {
             return;
         }
-        const localPosition = this.getModuleLocalPosition(this.delegateModule, rackPosition);
+        const localPosition = this.toModuleFromRackPosition(this.delegateModule, rackPosition);
         this.delegateModule.onMouseup(localPosition);
     }
     render() {
         this.renderBackground();
         this.renderHeader();
+        this.renderContext.save();
+        this.renderContext.translate(-this.xScrollPosition, this.headerHeight);
         this.renderModules();
         this.renderCables();
         this.renderDraggingCable();
+        this.renderContext.restore();
         requestAnimationFrame(() => {
             this.render();
         });
@@ -263,15 +293,15 @@ export default class Rack {
     }
     renderDraggingCable() {
         if (!this.mousedownPlug
-            || !this.mousedownPosition
-            || !this.mousedragPosition) {
+            || !this.rackMousedownPosition
+            || !this.rackMousemovePosition) {
             return;
         }
         this.renderContext.strokeStyle = "#ff0000";
         this.renderContext.lineWidth = 4;
         this.renderContext.beginPath();
-        this.renderContext.moveTo(this.mousedownPosition.x, this.mousedownPosition.y);
-        this.renderContext.lineTo(this.mousedragPosition.x, this.mousedragPosition.y);
+        this.renderContext.moveTo(this.rackMousedownPosition.x, this.rackMousedownPosition.y);
+        this.renderContext.lineTo(this.rackMousemovePosition.x, this.rackMousemovePosition.y);
         this.renderContext.stroke();
     }
 }
