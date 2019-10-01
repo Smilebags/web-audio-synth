@@ -44,9 +44,7 @@ export default class Rack {
     public renderContext: CanvasRenderingContext2D,
     public rackModuleFactory: RackModuleFactory,
   ) {
-    this.renderContext.canvas.width = window.innerWidth;
-    this.renderContext.canvas.height = window.innerHeight;
-    this.render();
+    this.resetWindowSize();
 
     this.headerButtons.push(new SaveToClipboardButton(this));
     this.headerButtons.push(new OscillatorButton(this));
@@ -57,7 +55,11 @@ export default class Rack {
     this.onMousedown = (e) => this.handleMousedown(e);
     this.onMousemove = (e) => this.handleMousemove(e);
     this.onMouseup = (e) => this.handleMouseup(e);
-    addEventListener("mousedown", this.onMousedown);
+    addEventListener('mousedown', this.onMousedown);
+    addEventListener('resize', () => this.resetWindowSize());
+
+    this.render();
+
   }
 
   static fromPatchString(
@@ -77,6 +79,11 @@ export default class Rack {
       console.error(error);
     }
     return rack;
+  }
+
+  resetWindowSize() {
+    this.renderContext.canvas.width = window.innerWidth;
+    this.renderContext.canvas.height = window.innerHeight;
   }
 
   loadModulesFromPatchObject(patchObject: {moduleSlots: any[]}): void {
