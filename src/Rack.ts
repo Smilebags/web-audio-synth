@@ -2,7 +2,7 @@ import { Vec2 } from "./types/Vec2.js";
 import RackModule from "./types/RackModule.js";
 import Plug from "./Plug.js";
 
-import { subtract, isSet } from "./util.js";
+import { subtract, isSet, add } from "./util.js";
 import Cable from "./Cable.js";
 import RackModuleFactory from "./RackModuleFactory.js";
 import HeaderButton from "./types/HeaderButton.js";
@@ -21,15 +21,17 @@ interface ModuleSlot {
 export default class Rack {
   cables: Cable[] = [];
   moduleSlots: ModuleSlot[] = [];
-  mousedownPosition: Vec2 | null = null;
-  mousedragPosition: Vec2 | null = null;
-  mouseupPosition: Vec2 | null = null;
+  rackMousedownPosition: Vec2 | null = null;
+  rackMousemovePosition: Vec2 | null = null;
+  rackMouseupPosition: Vec2 | null = null;
   mousedownPlug: Plug | null = null;
   mouseupPlug: Plug | null = null;
   onMousedown: (e: MouseEvent) => void;
   onMousemove: (e: MouseEvent) => void;
   onMouseup: (e: MouseEvent) => void;
   delegateModule: RackModule | null = null;
+
+  private xScrollPosition = -137;
 
   headerHeight: number = 32;
   headerButtons: HeaderButton[] = [];
@@ -95,39 +97,39 @@ export default class Rack {
       return;
     }
 
-    this.mousedownPosition = mousedownPosition;
+    this.rackMousedownPosition = this.toRackFromWorldPosition(mousedownPosition);
     addEventListener("mousemove", this.onMousemove);
     addEventListener("mouseup", this.onMouseup);
     
-    this.mousedownPlug = this.getPlugAtRackPosition(mousedownPosition);
+    this.mousedownPlug = this.getPlugAtRackPosition(this.rackMousedownPosition);
     if (!this.mousedownPlug) {
-      this.delegateMousedown(mousedownPosition);
+      this.delegateMousedown(this.rackMousedownPosition);
     }
   }
 
   handleMousemove(mousemoveEvent: MouseEvent): void {
-    this.mousedragPosition = {
+    this.rackMousemovePosition = this.toRackFromWorldPosition({
       x: mousemoveEvent.clientX,
       y: mousemoveEvent.clientY,
-    };
+    });
     if(!this.mousedownPlug) {
-      this.delegateMousemove(this.mousedragPosition);
+      this.delegateMousemove(this.rackMousemovePosition);
     }
   }
 
   handleMouseup(mouseupEvent: MouseEvent): void {
-    this.mouseupPosition = {
+    this.rackMouseupPosition = this.toRackFromWorldPosition({
       x: mouseupEvent.clientX,
       y: mouseupEvent.clientY,
-    };
+    });
     
     if(!this.mousedownPlug) {
-      this.delegateMouseup(this.mouseupPosition);
+      this.delegateMouseup(this.rackMouseupPosition);
       this.cleanUpMouseState();
       return;
     }
     
-    this.mouseupPlug = this.getPlugAtRackPosition(this.mouseupPosition);
+    this.mouseupPlug = this.getPlugAtRackPosition(this.rackMouseupPosition);
 
     if (this.mousedownPlug === this.mouseupPlug) {
       const cable = this.getCableByPlug(this.mousedownPlug);
@@ -146,9 +148,9 @@ export default class Rack {
   }
 
   cleanUpMouseState(): void {
-    this.mousedownPosition = null;
-    this.mousedragPosition = null;
-    this.mouseupPosition = null;
+    this.rackMousedownPosition = null;
+    this.rackMousemovePosition = null;
+    this.rackMouseupPosition = null;
     this.mousedownPlug = null;
     this.mouseupPlug = null;
     removeEventListener('mousemove', this.onMousemove);
@@ -187,10 +189,18 @@ export default class Rack {
     }, 0);
   }
 
+  toRackFromWorldPosition(worldPos: Vec2): Vec2 {
+    return subtract(worldPos, {x: -this.xScrollPosition, y: this.headerHeight});
+  }
+
+  fromRackToWorldPosition(rackPos: Vec2): Vec2 {
+    return add(rackPos, {x: -this.xScrollPosition, y: this.headerHeight});
+  }
+
   addModule(rackModule: RackModule, modulePosition?: Vec2): void {
     const defaultPosition = {
       x: this.nextAvailableSpace,
-      y: this.headerHeight,
+      y: 0,
     };
     this.moduleSlots.push({module: rackModule, position: modulePosition || defaultPosition});
   }
@@ -199,12 +209,12 @@ export default class Rack {
     return this.moduleSlots.findIndex(item => item.module === rackModule);
   }
 
-  getModulePosition(rackModule: RackModule): Vec2 {
+  getModuleRackPosition(rackModule: RackModule): Vec2 {
     const moduleIndex = this.getModuleIndex(rackModule);
-    return {x: moduleIndex * 100, y: this.headerHeight};
+    return {x: moduleIndex * 100, y: 0};
   }
 
-  getModuleByPosition(pos: Vec2): RackModule | null {
+  getModuleByRackPosition(pos: Vec2): RackModule | null {
     const moduleSlot = this.moduleSlots.find((moduleSlot) => {
       const modulePosition = moduleSlot.position;
       return modulePosition.x <= pos.x
@@ -216,26 +226,27 @@ export default class Rack {
     return null;
   }
 
-  getModuleLocalPosition(rackModule: RackModule, position: Vec2): Vec2 {
-    const modulePosition = this.getModulePosition(rackModule);
+  toModuleFromRackPosition(rackModule: RackModule, position: Vec2): Vec2 {
+    const modulePosition = this.getModuleRackPosition(rackModule);
     return subtract(position, modulePosition);
   }
 
   getPlugAtRackPosition(pos: Vec2): Plug | null {
-    const selectedModule = this.getModuleByPosition(pos);
+    const selectedModule = this.getModuleByRackPosition(pos);
     if (!selectedModule) {
       return null;
     }
-    const moduleRelativePosition = subtract(
+    const moduleRelativePosition = this.toModuleFromRackPosition(
+      selectedModule,
       pos,
-      this.getModulePosition(selectedModule),
     );
     const selectedPlug = selectedModule.getPlugAtPosition(moduleRelativePosition);
     return selectedPlug;
   }
 
   patch(outPlug: Plug, inPlug: Plug): void {
-    this.cables.unshift(new Cable(this, outPlug, inPlug));
+    const newCable = new Cable(this, outPlug, inPlug);
+    this.cables.unshift(newCable);
   }
 
   getCableByPlug(plug: Plug): Cable | null {
@@ -261,12 +272,12 @@ export default class Rack {
   }
 
   delegateMousedown(rackPosition: Vec2): void {
-    const rackModule = this.getModuleByPosition(rackPosition);
+    const rackModule = this.getModuleByRackPosition(rackPosition);
     this.delegateModule = rackModule;
     if (!rackModule) {
       return;
     }
-    const localPosition = this.getModuleLocalPosition(rackModule, rackPosition);
+    const localPosition = this.toModuleFromRackPosition(rackModule, rackPosition);
     rackModule.onMousedown(localPosition);
   }
 
@@ -274,7 +285,7 @@ export default class Rack {
     if (!this.delegateModule) {
       return;
     }
-    const localPosition = this.getModuleLocalPosition(this.delegateModule, rackPosition);
+    const localPosition = this.toModuleFromRackPosition(this.delegateModule, rackPosition);
     this.delegateModule.onMousemove(localPosition);
   }
 
@@ -282,7 +293,7 @@ export default class Rack {
     if (!this.delegateModule) {
       return;
     }
-    const localPosition = this.getModuleLocalPosition(this.delegateModule, rackPosition);
+    const localPosition = this.toModuleFromRackPosition(this.delegateModule, rackPosition);
     this.delegateModule.onMouseup(localPosition);
   }
 
@@ -290,11 +301,11 @@ export default class Rack {
     this.renderBackground();
     this.renderHeader();
     this.renderContext.save();
-    this.renderContext.translate(0, this.headerHeight);
+    this.renderContext.translate(-this.xScrollPosition, this.headerHeight);
     this.renderModules();
-    this.renderContext.restore();
     this.renderCables();
     this.renderDraggingCable();
+    this.renderContext.restore();
     requestAnimationFrame(() => {
       this.render();
     });
@@ -340,20 +351,20 @@ export default class Rack {
   renderDraggingCable() {
     if(
       !this.mousedownPlug
-      || !this.mousedownPosition
-      || !this.mousedragPosition) {
+      || !this.rackMousedownPosition
+      || !this.rackMousemovePosition) {
       return;
     }
     this.renderContext.strokeStyle = "#ff0000";
     this.renderContext.lineWidth = 4;
     this.renderContext.beginPath();
     this.renderContext.moveTo(
-      this.mousedownPosition.x,
-      this.mousedownPosition.y,
+      this.rackMousedownPosition.x,
+      this.rackMousedownPosition.y,
     );
     this.renderContext.lineTo(
-      this.mousedragPosition.x,
-      this.mousedragPosition.y,
+      this.rackMousemovePosition.x,
+      this.rackMousemovePosition.y,
     );
     this.renderContext.stroke();
   }
