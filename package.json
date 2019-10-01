@@ -8,7 +8,7 @@
     "dev": "cp src/index.html dist && cp src/ElvedenHallMarbleHall.m4a dist && npx tsc -w",
     "build": "cp src/index.html dist && cp src/ElvedenHallMarbleHall.m4a dist && npx tsc",
     "serve": "ws -d dist",
-    "deploy": "git checkout gh-pages && npm run build && git subtree push --prefix dist origin gh-pages"
+    "deploy": "git checkout gh-pages && git merge master && npm run build && git subtree push --prefix dist origin gh-pages && git checkout master"
   },
   "repository": {
     "type": "git",
