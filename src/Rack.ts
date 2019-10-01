@@ -34,6 +34,9 @@ export default class Rack {
   headerHeight: number = 32;
   headerButtons: HeaderButton[] = [];
 
+  private columnWidth = 50;
+  private rowHeight = 400;
+
   constructor(
     public audioContext: AudioContext,
     public renderContext: CanvasRenderingContext2D,
@@ -286,7 +289,10 @@ export default class Rack {
   render(): void {
     this.renderBackground();
     this.renderHeader();
+    this.renderContext.save();
+    this.renderContext.translate(0, this.headerHeight);
     this.renderModules();
+    this.renderContext.restore();
     this.renderCables();
     this.renderDraggingCable();
     requestAnimationFrame(() => {
