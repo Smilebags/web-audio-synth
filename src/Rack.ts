@@ -18,26 +18,28 @@ interface ModuleSlot {
 export default class Rack {
   cables: Cable[] = [];
   moduleSlots: ModuleSlot[] = [];
-  rackMousedownPosition: Vec2 | null = null;
-  rackMousemovePosition: Vec2 | null = null;
-  rackMouseupPosition: Vec2 | null = null;
-  mousedownPlug: Plug | null = null;
-  mouseupPlug: Plug | null = null;
-  onMousedown: (e: MouseEvent) => void;
-  onMousemove: (e: MouseEvent) => void;
-  onMouseup: (e: MouseEvent) => void;
-  delegateModule: RackModule | null = null;
+  private rackMousedownPosition: Vec2 | null = null;
+  private rackMousemovePosition: Vec2 | null = null;
+  private rackMouseupPosition: Vec2 | null = null;
+  private mousedownPlug: Plug | null = null;
+  private mouseupPlug: Plug | null = null;
+  private onMousedown: (e: MouseEvent) => void;
+  private onMousemove: (e: MouseEvent) => void;
+  private onMouseup: (e: MouseEvent) => void;
+  private delegateModule: RackModule | null = null;
 
   private xScrollPosition = 0;
+  private dpr: number;
 
-  headerHeight: number = 32;
-  headerButtons: HeaderButton[] = [];
+  private headerHeight: number = 32;
+  private headerButtons: HeaderButton[] = [];
 
   constructor(
     public audioContext: AudioContext,
     public renderContext: CanvasRenderingContext2D,
     public rackModuleFactory: RackModuleFactory,
   ) {
+    this.dpr = window.devicePixelRatio || 1;
     this.resetWindowSize();
 
     this.headerButtons.push(new SaveToClipboardButton(this));
@@ -82,8 +84,8 @@ export default class Rack {
   }
 
   resetWindowSize() {
-    this.renderContext.canvas.width = window.innerWidth;
-    this.renderContext.canvas.height = window.innerHeight;
+    this.renderContext.canvas.width = window.innerWidth * this.dpr;
+    this.renderContext.canvas.height = window.innerHeight * this.dpr;
   }
 
   handleWheel(e: WheelEvent) {
@@ -328,6 +330,8 @@ export default class Rack {
   }
 
   render(): void {
+    this.renderContext.save();
+    this.renderContext.scale(this.dpr, this.dpr);
     this.renderBackground();
     this.renderHeader();
     this.renderContext.save();
@@ -335,6 +339,7 @@ export default class Rack {
     this.renderModules();
     this.renderCables();
     this.renderDraggingCable();
+    this.renderContext.restore();
     this.renderContext.restore();
     requestAnimationFrame(() => {
       this.render();
