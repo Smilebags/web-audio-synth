@@ -7,6 +7,5 @@ export type RackModuleType = 'Filter'
   | 'Output'
   | 'Gain'
   | 'Oscillator'
-  | 'Recorder'
   | 'VoltageQuantizer'
   | 'Reverb';
