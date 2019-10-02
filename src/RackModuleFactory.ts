@@ -11,19 +11,9 @@ import OscillatorModule from "./modules/OscillatorModule.js";
 import ReverbModule from "./modules/ReverbModule.js";
 import RecorderModule from "./modules/RecorderModule.js";
 import VoltageQuantizerModule from "./modules/VoltageQuantizerModule.js";
+import { RackModuleType } from "./types/RackModuleType.js";
 
-export type RackModuleType = 'Filter'
-  | 'Envelope'
-  | 'StepSequencer'
-  | 'VoltageSequencer'
-  | 'KeyboardInput'
-  | 'Delay'
-  | 'Output'
-  | 'Gain'
-  | 'Oscillator'
-  | 'Recorder'
-  | 'VoltageQuantizer'
-  | 'Reverb';
+
 
 export default class RackModuleFactory {
 

@@ -6,11 +6,8 @@ import { subtract, isSet, add } from "./util.js";
 import Cable from "./Cable.js";
 import RackModuleFactory from "./RackModuleFactory.js";
 import HeaderButton from "./types/HeaderButton.js";
-import OscillatorButton from "./headerButtons/OscillatorButton.js";
 import SaveToClipboardButton from "./headerButtons/SaveToClipboardButton.js";
-import GainButton from "./headerButtons/GainButton.js";
-import EnvelopeButton from "./headerButtons/EnvelopeButton.js";
-import SequencerButton from "./headerButtons/SequencerButton.js";
+import HeaderButtonFactory from "./headerButtons/HeaderButtonFactory.js";
 
 
 interface ModuleSlot {
@@ -44,10 +41,15 @@ export default class Rack {
     this.resetWindowSize();
 
     this.headerButtons.push(new SaveToClipboardButton(this));
-    this.headerButtons.push(new OscillatorButton(this));
-    this.headerButtons.push(new GainButton(this));
-    this.headerButtons.push(new EnvelopeButton(this));
-    this.headerButtons.push(new SequencerButton(this));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Oscillator', '#0099FF'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Gain', '#00FF99'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Envelope', '#9900FF'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'VoltageSequencer', '#99FF00'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Filter', '#FF0099'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Delay', '#FF9900'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Reverb', '#0099FF'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'StepSequencer', '#00FF99'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'VoltageQuantizer', '#9900FF'));
 
     this.onMousedown = (e) => this.handleMousedown(e);
     this.onMousemove = (e) => this.handleMousemove(e);
