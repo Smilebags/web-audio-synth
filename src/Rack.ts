@@ -228,8 +228,16 @@ export default class Rack {
   }
 
   getModuleRackPosition(rackModule: RackModule): Vec2 {
-    const moduleIndex = this.getModuleIndex(rackModule);
-    return {x: moduleIndex * 100, y: 0};
+    const moduleSlot = this.getModuleSlotByModule(rackModule);
+    if (!moduleSlot) {
+      throw 'No module slot found';
+    }
+    return moduleSlot.position;
+  }
+
+  getModuleSlotByModule(rackModule: RackModule): ModuleSlot | null {
+    const slot = this.moduleSlots.find(slot => slot.module === rackModule);
+    return slot || null;
   }
 
   getModuleByRackPosition(pos: Vec2): RackModule | null {
