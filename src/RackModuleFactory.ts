@@ -11,6 +11,7 @@ import OscillatorModule from "./modules/OscillatorModule.js";
 import ReverbModule from "./modules/ReverbModule.js";
 import VoltageQuantizerModule from "./modules/VoltageQuantizerModule.js";
 import { RackModuleType } from "./types/RackModuleType.js";
+import MidiInputModule from "./modules/MidiInputModule.js";
 
 
 
@@ -30,6 +31,8 @@ export default class RackModuleFactory {
         return new VoltageSequencerModule(this.audioContext);
       case 'KeyboardInput':
         return new KeyboardInputModule(this.audioContext, params);
+      case 'MidiInput':
+        return new MidiInputModule(this.audioContext, params);
       case 'Delay':
         return new DelayModule(this.audioContext, params);
       case 'Output':

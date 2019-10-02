@@ -52,6 +52,7 @@ export default class Rack {
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Reverb', '#0099FF'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'StepSequencer', '#00FF99'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'VoltageQuantizer', '#9900FF'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'MidiInput', '#99FF00'));
 
     this.onMousedown = (e) => this.handleMousedown(e);
     this.onMousemove = (e) => this.handleMousemove(e);
