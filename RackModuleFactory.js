@@ -8,8 +8,9 @@ import OutputModule from "./modules/OutputModule.js";
 import GainModule from "./modules/GainModule.js";
 import OscillatorModule from "./modules/OscillatorModule.js";
 import ReverbModule from "./modules/ReverbModule.js";
-import RecorderModule from "./modules/RecorderModule.js";
 import VoltageQuantizerModule from "./modules/VoltageQuantizerModule.js";
+import MidiInputModule from "./modules/MidiInputModule.js";
+import MidiCCInputModule from "./modules/MidiCCInputModule.js";
 export default class RackModuleFactory {
     constructor(audioContext) {
         this.audioContext = audioContext;
@@ -26,6 +27,10 @@ export default class RackModuleFactory {
                 return new VoltageSequencerModule(this.audioContext);
             case 'KeyboardInput':
                 return new KeyboardInputModule(this.audioContext, params);
+            case 'MidiInput':
+                return new MidiInputModule(this.audioContext, params);
+            case 'MidiCCInput':
+                return new MidiCCInputModule(this.audioContext);
             case 'Delay':
                 return new DelayModule(this.audioContext, params);
             case 'Output':
@@ -34,8 +39,6 @@ export default class RackModuleFactory {
                 return new GainModule(this.audioContext, params);
             case 'Oscillator':
                 return new OscillatorModule(this.audioContext, params);
-            case 'Recorder':
-                return new RecorderModule(this.audioContext);
             case 'VoltageQuantizer':
                 return new VoltageQuantizerModule(this.audioContext);
             case 'Reverb':

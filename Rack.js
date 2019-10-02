@@ -1,10 +1,7 @@
 import { subtract, isSet, add } from "./util.js";
 import Cable from "./Cable.js";
-import OscillatorButton from "./headerButtons/OscillatorButton.js";
 import SaveToClipboardButton from "./headerButtons/SaveToClipboardButton.js";
-import GainButton from "./headerButtons/GainButton.js";
-import EnvelopeButton from "./headerButtons/EnvelopeButton.js";
-import SequencerButton from "./headerButtons/SequencerButton.js";
+import HeaderButtonFactory from "./headerButtons/HeaderButtonFactory.js";
 ;
 export default class Rack {
     constructor(audioContext, renderContext, rackModuleFactory) {
@@ -22,12 +19,20 @@ export default class Rack {
         this.xScrollPosition = 0;
         this.headerHeight = 32;
         this.headerButtons = [];
+        this.dpr = window.devicePixelRatio || 1;
         this.resetWindowSize();
         this.headerButtons.push(new SaveToClipboardButton(this));
-        this.headerButtons.push(new OscillatorButton(this));
-        this.headerButtons.push(new GainButton(this));
-        this.headerButtons.push(new EnvelopeButton(this));
-        this.headerButtons.push(new SequencerButton(this));
+        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Oscillator', '#0099FF'));
+        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Gain', '#00FF99'));
+        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Envelope', '#9900FF'));
+        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'VoltageSequencer', '#99FF00'));
+        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Filter', '#FF0099'));
+        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Delay', '#FF9900'));
+        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Reverb', '#0099FF'));
+        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'StepSequencer', '#00FF99'));
+        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'VoltageQuantizer', '#9900FF'));
+        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'MidiInput', '#99FF00'));
+        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'MidiCCInput', '#FF0099'));
         this.onMousedown = (e) => this.handleMousedown(e);
         this.onMousemove = (e) => this.handleMousemove(e);
         this.onMouseup = (e) => this.handleMouseup(e);
@@ -51,8 +56,8 @@ export default class Rack {
         return rack;
     }
     resetWindowSize() {
-        this.renderContext.canvas.width = window.innerWidth;
-        this.renderContext.canvas.height = window.innerHeight;
+        this.renderContext.canvas.width = window.innerWidth * this.dpr;
+        this.renderContext.canvas.height = window.innerHeight * this.dpr;
     }
     handleWheel(e) {
         e.preventDefault();
@@ -172,8 +177,15 @@ export default class Rack {
         return this.moduleSlots.findIndex(item => item.module === rackModule);
     }
     getModuleRackPosition(rackModule) {
-        const moduleIndex = this.getModuleIndex(rackModule);
-        return { x: moduleIndex * 100, y: 0 };
+        const moduleSlot = this.getModuleSlotByModule(rackModule);
+        if (!moduleSlot) {
+            throw 'No module slot found';
+        }
+        return moduleSlot.position;
+    }
+    getModuleSlotByModule(rackModule) {
+        const slot = this.moduleSlots.find(slot => slot.module === rackModule);
+        return slot || null;
     }
     getModuleByRackPosition(pos) {
         const moduleSlot = this.moduleSlots.find((moduleSlot) => {
@@ -251,6 +263,8 @@ export default class Rack {
         this.delegateModule.onMouseup(localPosition);
     }
     render() {
+        this.renderContext.save();
+        this.renderContext.scale(this.dpr, this.dpr);
         this.renderBackground();
         this.renderHeader();
         this.renderContext.save();
@@ -258,6 +272,7 @@ export default class Rack {
         this.renderModules();
         this.renderCables();
         this.renderDraggingCable();
+        this.renderContext.restore();
         this.renderContext.restore();
         requestAnimationFrame(() => {
             this.render();
