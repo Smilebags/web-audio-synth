@@ -12,6 +12,7 @@ import ReverbModule from "./modules/ReverbModule.js";
 import VoltageQuantizerModule from "./modules/VoltageQuantizerModule.js";
 import { RackModuleType } from "./types/RackModuleType.js";
 import MidiInputModule from "./modules/MidiInputModule.js";
+import MidiCCInputModule from "./modules/MidiCCInputModule.js";
 
 
 
@@ -33,6 +34,8 @@ export default class RackModuleFactory {
         return new KeyboardInputModule(this.audioContext, params);
       case 'MidiInput':
         return new MidiInputModule(this.audioContext, params);
+      case 'MidiCCInput':
+        return new MidiCCInputModule(this.audioContext);
       case 'Delay':
         return new DelayModule(this.audioContext, params);
       case 'Output':
