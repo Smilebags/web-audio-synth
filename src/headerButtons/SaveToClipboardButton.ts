@@ -16,6 +16,7 @@ export default class SaveToClipboardButton implements HeaderButton {
   }
   handlePress() {
     const patchString = this.rack.getPatchString();
+    // @ts-ignore
     navigator.clipboard.writeText(patchString);
     console.log('Saved to clipboard');
     alert('Saved to clipboard');

@@ -28,6 +28,7 @@ async function loadFromClipboard() {
   const rackContext = rackEl.getContext('2d')!;
   const rackModuleFactory = new RackModuleFactory(audioContext);
 
+  // @ts-ignore
   const patchString = await navigator.clipboard.readText();
 
   Rack.fromPatchString(audioContext, rackContext,rackModuleFactory, patchString);
