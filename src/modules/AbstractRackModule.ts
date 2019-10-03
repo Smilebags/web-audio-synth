@@ -33,13 +33,30 @@ export default abstract class AbstractRackModule implements RackModule {
     this.emit('mouseup', position);
   }
 
-  protected addPlug(param: AudioNode | AudioParam, name: string, type: 'in' | 'out', order: number | null = null): void {
-    const slot = order !== null ? order : this.plugs.length;
+  protected addPlug(
+    param: AudioNode | AudioParam, 
+    name: string,
+    type: 'in' | 'out',
+    order: number | null = null,
+    positioning: 'left' | 'center' | 'right' = 'center',
+  ): void {
+    const slot = order !== null ? order : this.firstAvailablePlugSlot;
+    let positioningOffset = 0;
+    if (positioning !== 'center') {
+      const offsetAmount = this.width / 6;
+      positioningOffset += positioning === 'left' ? -offsetAmount : offsetAmount;
+    }
+    const xPosition = (this.width / 2) + positioningOffset;
+    const yPosition = (slot * 50) + 50;
     const position = {
-      x: this.width / 2,
-      y: (slot * 50) + 50,
+      x: xPosition,
+      y: yPosition,
     }
     this.plugs.push(new Plug(this, param, position, name, type));
+  }
+
+  get firstAvailablePlugSlot() {
+    return this.plugs.length;
   }
 
   protected addLabel(label: Partial<Label>): void {
@@ -145,7 +162,7 @@ export default abstract class AbstractRackModule implements RackModule {
       renderContext.fillStyle = '#ffffff';
       renderContext.fillText(
         plug.name || '',
-        this.width / 2,
+        plug.position.x,
         plug.position.y - plug.radius - 4,
       );
       renderContext.beginPath();
