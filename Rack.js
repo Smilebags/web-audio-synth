@@ -1,4 +1,4 @@
-import { subtract, isSet, add } from "./util.js";
+import { subtract, isSet, add, distance } from "./util.js";
 import Cable from "./Cable.js";
 import SaveToClipboardButton from "./headerButtons/SaveToClipboardButton.js";
 import HeaderButtonFactory from "./headerButtons/HeaderButtonFactory.js";
@@ -16,9 +16,10 @@ export default class Rack {
         this.mousedownPlug = null;
         this.mouseupPlug = null;
         this.delegateModule = null;
-        this.xScrollPosition = 0;
+        this.scrollPosition = { x: 0, y: 0 };
         this.headerHeight = 32;
         this.headerButtons = [];
+        this.moduleHeight = 400;
         this.dpr = window.devicePixelRatio || 1;
         this.resetWindowSize();
         this.headerButtons.push(new SaveToClipboardButton(this));
@@ -62,11 +63,15 @@ export default class Rack {
     handleWheel(e) {
         e.preventDefault();
         e.stopPropagation();
-        this.setScrollPosition(this.xScrollPosition + e.deltaX);
+        this.setScrollPosition({
+            x: this.scrollPosition.x + e.deltaX,
+            y: this.scrollPosition.y + e.deltaY,
+        });
         return false;
     }
     setScrollPosition(pos) {
-        this.xScrollPosition = Math.max(pos, 0);
+        this.scrollPosition.x = Math.max(pos.x, 0);
+        this.scrollPosition.y = Math.max(pos.y, 0);
     }
     loadModulesFromPatchObject(patchObject) {
         patchObject.moduleSlots.forEach((moduleSlot) => {
@@ -152,25 +157,31 @@ export default class Rack {
         });
         return JSON.stringify(output);
     }
+    get activeRow() {
+        return Math.round(this.scrollPosition.y / this.moduleHeight);
+    }
     get nextAvailableSpace() {
-        return this.moduleSlots.reduce((currentMax, slot) => {
+        const yOffset = this.activeRow;
+        const relevantModuleSlots = this.moduleSlots.filter(slot => slot.position.y === yOffset);
+        const xOffset = relevantModuleSlots.reduce((currentMax, slot) => {
             if (slot.position.x + slot.module.width >= currentMax) {
                 return slot.position.x + slot.module.width;
             }
             return currentMax;
         }, 0);
+        return {
+            x: xOffset,
+            y: yOffset,
+        };
     }
     toRackFromWorldPosition(worldPos) {
-        return subtract(worldPos, { x: -this.xScrollPosition, y: this.headerHeight });
+        return subtract(worldPos, { x: -this.scrollPosition.x, y: this.headerHeight - this.scrollPosition.y });
     }
     fromRackToWorldPosition(rackPos) {
-        return add(rackPos, { x: -this.xScrollPosition, y: this.headerHeight });
+        return add(rackPos, { x: -this.scrollPosition.x, y: this.headerHeight });
     }
     addModule(rackModule, modulePosition) {
-        const defaultPosition = {
-            x: this.nextAvailableSpace,
-            y: 0,
-        };
+        const defaultPosition = this.nextAvailableSpace;
         this.moduleSlots.push({ module: rackModule, position: modulePosition || defaultPosition });
     }
     getModuleIndex(rackModule) {
@@ -181,7 +192,10 @@ export default class Rack {
         if (!moduleSlot) {
             throw 'No module slot found';
         }
-        return moduleSlot.position;
+        return {
+            x: moduleSlot.position.x,
+            y: moduleSlot.position.y * this.moduleHeight
+        };
     }
     getModuleSlotByModule(rackModule) {
         const slot = this.moduleSlots.find(slot => slot.module === rackModule);
@@ -189,9 +203,12 @@ export default class Rack {
     }
     getModuleByRackPosition(pos) {
         const moduleSlot = this.moduleSlots.find((moduleSlot) => {
-            const modulePosition = moduleSlot.position;
-            return modulePosition.x <= pos.x
-                && modulePosition.x + moduleSlot.module.width >= pos.x;
+            const modulePos = moduleSlot.position;
+            const xIsContained = modulePos.x <= pos.x
+                && modulePos.x + moduleSlot.module.width > pos.x;
+            const yIsContained = modulePos.y * this.moduleHeight <= pos.y
+                && (modulePos.y * this.moduleHeight) + this.moduleHeight > pos.y;
+            return xIsContained && yIsContained;
         });
         if (moduleSlot) {
             return moduleSlot.module;
@@ -266,13 +283,13 @@ export default class Rack {
         this.renderContext.save();
         this.renderContext.scale(this.dpr, this.dpr);
         this.renderBackground();
-        this.renderHeader();
         this.renderContext.save();
-        this.renderContext.translate(-this.xScrollPosition, this.headerHeight);
+        this.renderContext.translate(-this.scrollPosition.x, this.headerHeight - this.scrollPosition.y);
         this.renderModules();
         this.renderCables();
         this.renderDraggingCable();
         this.renderContext.restore();
+        this.renderHeader();
         this.renderContext.restore();
         requestAnimationFrame(() => {
             this.render();
@@ -284,6 +301,8 @@ export default class Rack {
     }
     renderHeader() {
         let currentOffset = 0;
+        this.renderContext.fillStyle = "#a0a0a0";
+        this.renderContext.fillRect(0, 0, this.renderContext.canvas.width, 32);
         this.headerButtons.forEach((button) => {
             this.renderContext.save();
             this.renderContext.translate(currentOffset, 0);
@@ -292,13 +311,24 @@ export default class Rack {
             currentOffset += button.width;
         });
     }
+    renderBorder(moduleSlot, offset, opacity) {
+        this.renderContext.strokeStyle = "#000000";
+        this.renderContext.globalAlpha = opacity;
+        this.renderContext.strokeRect(offset, offset, moduleSlot.module.width - (offset * 2), this.moduleHeight - (offset * 2));
+    }
     renderModules() {
         this.moduleSlots.forEach((moduleSlot) => {
             this.renderContext.save();
             const modulePosition = moduleSlot.position;
-            this.renderContext.translate(modulePosition.x, modulePosition.y);
-            this.renderContext.fillStyle = "#222222";
-            this.renderContext.fillRect(0, 0, moduleSlot.module.width, 400);
+            this.renderContext.translate(modulePosition.x, modulePosition.y * this.moduleHeight);
+            this.renderContext.fillStyle = "#202020";
+            this.renderContext.fillRect(0, 0, moduleSlot.module.width, this.moduleHeight);
+            this.renderBorder(moduleSlot, 0, 0.5);
+            this.renderBorder(moduleSlot, 1, 0.25);
+            this.renderBorder(moduleSlot, 2, 0.125);
+            this.renderBorder(moduleSlot, 3, 0.06);
+            this.renderBorder(moduleSlot, 4, 0.03);
+            this.renderContext.globalAlpha = 1;
             moduleSlot.module.render(this.renderContext);
             this.renderContext.restore();
         });
@@ -306,17 +336,35 @@ export default class Rack {
     renderCables() {
         this.cables.forEach(cable => cable.render(this.renderContext));
     }
+    renderCord(renderContext, pos1, pos2, cableSlack, color) {
+        renderContext.beginPath();
+        renderContext.strokeStyle = color;
+        renderContext.lineCap = 'round';
+        renderContext.lineWidth = 4;
+        renderContext.moveTo(pos1.x, pos1.y);
+        renderContext.bezierCurveTo(pos1.x, pos1.y + cableSlack, pos2.x, pos2.y + cableSlack, pos2.x, pos2.y);
+        renderContext.stroke();
+    }
     renderDraggingCable() {
         if (!this.mousedownPlug
             || !this.rackMousedownPosition
             || !this.rackMousemovePosition) {
             return;
         }
-        this.renderContext.strokeStyle = "#ff0000";
-        this.renderContext.lineWidth = 4;
-        this.renderContext.beginPath();
-        this.renderContext.moveTo(this.rackMousedownPosition.x, this.rackMousedownPosition.y);
-        this.renderContext.lineTo(this.rackMousemovePosition.x, this.rackMousemovePosition.y);
-        this.renderContext.stroke();
+        const cableLength = distance(this.rackMousedownPosition, this.rackMousemovePosition);
+        const cableSlack = cableLength * 0.3;
+        this.renderCord(this.renderContext, this.rackMousedownPosition, this.rackMousemovePosition, cableSlack, "#ff0000");
+        // this.renderContext.lineWidth = 4;
+        // this.renderContext.lineCap = 'round';
+        // this.renderContext.beginPath();
+        // this.renderContext.moveTo(
+        //   this.rackMousedownPosition.x,
+        //   this.rackMousedownPosition.y,
+        // );
+        // this.renderContext.lineTo(
+        //   this.rackMousemovePosition.x,
+        //   this.rackMousemovePosition.y,
+        // );
+        // this.renderContext.stroke();
     }
 }

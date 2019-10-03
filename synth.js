@@ -22,6 +22,7 @@ async function loadFromClipboard() {
     const rackEl = document.querySelector('.rack');
     const rackContext = rackEl.getContext('2d');
     const rackModuleFactory = new RackModuleFactory(audioContext);
+    // @ts-ignore
     const patchString = await navigator.clipboard.readText();
     Rack.fromPatchString(audioContext, rackContext, rackModuleFactory, patchString);
 }
@@ -35,12 +36,9 @@ async function loadDependencies(audioContext) {
     ]);
 }
 async function loadImages() {
-    const [oscImage, clipboardImage,] = await Promise.all([
-        loadImage('https://previews.123rf.com/images/vectorstockcompany/vectorstockcompany1808/vectorstockcompany180815912/108559328-sine-wave-graphic-vector-icon-isolated-on-transparent-background-sine-wave-graphic-logo-concept.jpg'),
-        loadImage('https://target.scene7.com/is/image/Target/GUEST_c25fb669-5872-4f7c-8631-1186a7caa07d?wid=488&hei=488&fmt=pjpeg'),
+    const [clipboardImage,] = await Promise.all([
+        loadImage('/static/clipboard.jpg'),
     ]);
-    // @ts-ignore
-    window.oscImage = oscImage;
     // @ts-ignore
     window.clipboardImage = clipboardImage;
 }

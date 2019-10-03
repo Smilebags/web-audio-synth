@@ -8,8 +8,9 @@ export default class SaveToClipboardButton {
         // @ts-ignore
         window.clipboardImage, 0, 0, this.width, this.width);
     }
-    async handlePress() {
+    handlePress() {
         const patchString = this.rack.getPatchString();
+        // @ts-ignore
         navigator.clipboard.writeText(patchString);
         console.log('Saved to clipboard');
         alert('Saved to clipboard');

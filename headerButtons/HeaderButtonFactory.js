@@ -9,8 +9,8 @@ export default class HeaderButtonFactory {
                 context.restore();
             },
             handlePress() {
-                const newGain = rack.rackModuleFactory.createModule(moduleType, {});
-                rack.addModule(newGain);
+                const newModule = rack.rackModuleFactory.createModule(moduleType, {});
+                rack.addModule(newModule);
             },
         };
     }

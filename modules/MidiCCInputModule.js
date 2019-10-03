@@ -15,14 +15,14 @@ export default class MidiCCInputModule extends AbstractRackModule {
             this.outputs.push(output);
         }
         this.setupMidiAccess();
-        this.addPlug(this.outputs[0], "1", "out");
-        this.addPlug(this.outputs[1], "2", "out");
-        this.addPlug(this.outputs[2], "3", "out");
-        this.addPlug(this.outputs[3], "4", "out");
-        this.addPlug(this.outputs[4], "5", "out");
-        this.addPlug(this.outputs[5], "6", "out");
-        this.addPlug(this.outputs[6], "7", "out");
-        this.addPlug(this.outputs[7], "8", "out");
+        this.addPlug(this.outputs[0], "1", "out", 0, 'left');
+        this.addPlug(this.outputs[1], "2", "out", 1, 'left');
+        this.addPlug(this.outputs[2], "3", "out", 2, 'left');
+        this.addPlug(this.outputs[3], "4", "out", 3, 'left');
+        this.addPlug(this.outputs[4], "5", "out", 0, 'right');
+        this.addPlug(this.outputs[5], "6", "out", 1, 'right');
+        this.addPlug(this.outputs[6], "7", "out", 2, 'right');
+        this.addPlug(this.outputs[7], "8", "out", 3, 'right');
     }
     async setupMidiAccess() {
         // @ts-ignore
@@ -33,6 +33,9 @@ export default class MidiCCInputModule extends AbstractRackModule {
         }
         if (midiInputs.length) {
             this.midiInput = midiInputs[0];
+        }
+        if (!this.midiInput) {
+            return;
         }
         this.midiInput.onmidimessage = (e) => this.handleMidiMessage(e);
     }

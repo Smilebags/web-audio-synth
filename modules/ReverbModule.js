@@ -5,7 +5,7 @@ const getImpulseBuffer = (audioContext, impulseUrl) => {
         .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer));
 };
 export default class ReverbModule extends AbstractRackModule {
-    constructor(context, { impulseResponseUrl = 'ElvedenHallMarbleHall.m4a' }) {
+    constructor(context, { impulseResponseUrl = 'static/ElvedenHallMarbleHall.m4a' }) {
         super();
         this.type = 'Reverb';
         this.mousedownPos = null;

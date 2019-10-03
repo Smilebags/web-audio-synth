@@ -15,7 +15,8 @@ export default class OscillatorModule extends AbstractRackModule {
                 const gain = this.gainNode.gain.value;
                 return String(gain.toFixed(2));
             },
-            position: { x: 5, y: 105 },
+            position: { x: this.width - 12, y: 105 },
+            align: 'right',
         });
         this.addPlug(this.gainNode, 'In', 'in');
         this.addPlug(this.gainNode.gain, 'VC', 'in');

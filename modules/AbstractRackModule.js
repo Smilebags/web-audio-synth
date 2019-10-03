@@ -23,13 +23,23 @@ export default class AbstractRackModule {
     onMouseup(position) {
         this.emit('mouseup', position);
     }
-    addPlug(param, name, type, order = null) {
-        const slot = order !== null ? order : this.plugs.length;
+    addPlug(param, name, type, order = null, positioning = 'center') {
+        const slot = order !== null ? order : this.firstAvailablePlugSlot;
+        let positioningOffset = 0;
+        if (positioning !== 'center') {
+            const offsetAmount = this.width / 6;
+            positioningOffset += positioning === 'left' ? -offsetAmount : offsetAmount;
+        }
+        const xPosition = (this.width / 2) + positioningOffset;
+        const yPosition = (slot * 50) + 50;
         const position = {
-            x: this.width / 2,
-            y: (slot * 50) + 50,
+            x: xPosition,
+            y: yPosition,
         };
         this.plugs.push(new Plug(this, param, position, name, type));
+    }
+    get firstAvailablePlugSlot() {
+        return this.plugs.length;
     }
     addLabel(label) {
         const defaultLabel = {
@@ -93,9 +103,23 @@ export default class AbstractRackModule {
         renderContext.save();
         renderContext.textAlign = label.align;
         renderContext.fillStyle = '#ffffff';
-        renderContext.font = "16px Arial";
+        renderContext.font = "10px Arial";
         renderContext.fillText(text, label.position.x, label.position.y);
         renderContext.restore();
+    }
+    renderPlug(renderContext, plug) {
+        renderContext.fillStyle = '#ffffff';
+        renderContext.fillText(plug.name || '', plug.position.x, plug.position.y - plug.radius - 4);
+        renderContext.beginPath();
+        renderContext.fillStyle = plug.type === 'in' ? '#404040' : '#b8b8b8';
+        renderContext.arc(plug.position.x, plug.position.y, plug.radius, 0, 2 * Math.PI);
+        renderContext.fill();
+        renderContext.closePath();
+        renderContext.beginPath();
+        renderContext.fillStyle = '#000000';
+        renderContext.arc(plug.position.x, plug.position.y, plug.radius - 1.5, 0, 2 * Math.PI);
+        renderContext.fill();
+        renderContext.closePath();
     }
     render(renderContext) {
         renderContext.textAlign = "center";
@@ -103,13 +127,8 @@ export default class AbstractRackModule {
         renderContext.font = "16px Arial";
         renderContext.fillText(this.name || this.type, this.width / 2, 20);
         renderContext.font = "12px Arial";
-        this.plugs.forEach((plug, index) => {
-            renderContext.fillStyle = '#ffffff';
-            renderContext.fillText(plug.name || '', this.width / 2, plug.position.y - plug.radius - 4);
-            renderContext.beginPath();
-            renderContext.fillStyle = plug.type === 'in' ? '#101010' : '#181818';
-            renderContext.arc(plug.position.x, plug.position.y, plug.radius, 0, 2 * Math.PI);
-            renderContext.fill();
+        this.plugs.forEach((plug) => {
+            this.renderPlug(renderContext, plug);
         });
         this.labels.forEach((label) => {
             this.renderLabel(renderContext, label);
