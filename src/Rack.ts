@@ -34,6 +34,8 @@ export default class Rack {
   private headerHeight: number = 32;
   private headerButtons: HeaderButton[] = [];
 
+  private moduleHeight = 400;
+
   constructor(
     public audioContext: AudioContext,
     public renderContext: CanvasRenderingContext2D,
@@ -206,17 +208,27 @@ export default class Rack {
     return JSON.stringify(output);
   }
 
-  get nextAvailableSpace(): number {
-    return this.moduleSlots.reduce((currentMax, slot) => {
+  get activeRow() {
+    return Math.round(this.scrollPosition.y / this.moduleHeight);
+  }
+
+  get nextAvailableSpace(): Vec2 {
+    const yOffset = this.activeRow;
+    const relevantModuleSlots = this.moduleSlots.filter(slot => slot.position.y === yOffset);
+    const xOffset = relevantModuleSlots.reduce((currentMax, slot) => {
       if (slot.position.x + slot.module.width >= currentMax) {
         return slot.position.x + slot.module.width;
       }
       return currentMax;
     }, 0);
+    return {
+      x: xOffset,
+      y: yOffset,
+    };
   }
 
   toRackFromWorldPosition(worldPos: Vec2): Vec2 {
-    return subtract(worldPos, {x: -this.scrollPosition.x, y: this.headerHeight});
+    return subtract(worldPos, {x: -this.scrollPosition.x, y: this.headerHeight - this.scrollPosition.y});
   }
 
   fromRackToWorldPosition(rackPos: Vec2): Vec2 {
@@ -224,10 +236,7 @@ export default class Rack {
   }
 
   addModule(rackModule: RackModule, modulePosition?: Vec2): void {
-    const defaultPosition = {
-      x: this.nextAvailableSpace,
-      y: 0,
-    };
+    const defaultPosition = this.nextAvailableSpace;
     this.moduleSlots.push({module: rackModule, position: modulePosition || defaultPosition});
   }
 
@@ -240,7 +249,10 @@ export default class Rack {
     if (!moduleSlot) {
       throw 'No module slot found';
     }
-    return moduleSlot.position;
+    return {
+      x: moduleSlot.position.x,
+      y: moduleSlot.position.y * this.moduleHeight
+    };
   }
 
   getModuleSlotByModule(rackModule: RackModule): ModuleSlot | null {
@@ -250,9 +262,13 @@ export default class Rack {
 
   getModuleByRackPosition(pos: Vec2): RackModule | null {
     const moduleSlot = this.moduleSlots.find((moduleSlot) => {
-      const modulePosition = moduleSlot.position;
-      return modulePosition.x <= pos.x
-        && modulePosition.x + moduleSlot.module.width >= pos.x;
+      const modulePos = moduleSlot.position;
+      const xIsContained = modulePos.x <= pos.x
+        && modulePos.x + moduleSlot.module.width > pos.x;
+      const yIsContained = modulePos.y * this.moduleHeight <= pos.y
+        && (modulePos.y * this.moduleHeight) + this.moduleHeight > pos.y;
+      
+      return xIsContained && yIsContained;
     });
     if (moduleSlot) {
       return moduleSlot.module;
@@ -337,15 +353,15 @@ export default class Rack {
 
   render(): void {
     this.renderContext.save();
-    this.renderContext.scale(this.dpr, this.dpr);
-    this.renderBackground();
-    this.renderContext.save();
-    this.renderContext.translate(-this.scrollPosition.x, this.headerHeight - this.scrollPosition.y);
-    this.renderModules();
-    this.renderCables();
-    this.renderDraggingCable();
-    this.renderContext.restore();
-    this.renderHeader();
+      this.renderContext.scale(this.dpr, this.dpr);
+      this.renderBackground();
+      this.renderContext.save();
+        this.renderContext.translate(-this.scrollPosition.x, this.headerHeight - this.scrollPosition.y);
+        this.renderModules();
+        this.renderCables();
+        this.renderDraggingCable();
+      this.renderContext.restore();
+      this.renderHeader();
     this.renderContext.restore();
 
     requestAnimationFrame(() => {
@@ -385,9 +401,9 @@ export default class Rack {
     this.moduleSlots.forEach((moduleSlot) => {
       this.renderContext.save();
       const modulePosition = moduleSlot.position;
-      this.renderContext.translate(modulePosition.x, modulePosition.y);
+      this.renderContext.translate(modulePosition.x, modulePosition.y * this.moduleHeight);
       this.renderContext.fillStyle = "#222222";
-      this.renderContext.fillRect(0, 0, moduleSlot.module.width, 400);
+      this.renderContext.fillRect(0, 0, moduleSlot.module.width, this.moduleHeight);
       moduleSlot.module.render(this.renderContext);
       this.renderContext.restore();
     });
