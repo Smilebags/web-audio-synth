@@ -13,13 +13,26 @@ function getRandomColor() {
 export default class Cable {
   color: string;
   isConnected: boolean = true;
+
+  private plug1: Plug;
+  private plug2: Plug;
   constructor(
     public rack: Rack,
-    public plug1: Plug,
-    public plug2: Plug,
+    plug1: Plug,
+    plug2: Plug,
     private cableSlack = 30,
   ) {
     this.color = getRandomColor();
+    if(plug1.type === plug2.type) {
+      throw 'Cannot create a cable between two plugs of the same type';
+    }
+    if (plug1.type === 'out') {
+      this.plug1 = plug1;
+      this.plug2 = plug2;
+    } else {
+      this.plug1 = plug2;
+      this.plug2 = plug1;
+    }
     this.plug1.connect(this.plug2);
   }
 
