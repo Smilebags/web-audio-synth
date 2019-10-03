@@ -48,16 +48,11 @@ async function loadDependencies(audioContext: AudioContext) {
 async function loadImages() {
   const [
     clipboardImage,
-    backplateImage,
   ] = await Promise.all([
     loadImage('/static/clipboard.jpg'),
-    loadImage('/static/bluePlastic.jpg'),
- 
   ]);
   // @ts-ignore
   window.clipboardImage = clipboardImage;
-  // @ts-ignore
-  window.backplateImage = backplateImage;
 }
 
 async function registerProcessors(audioContext: AudioContext) {

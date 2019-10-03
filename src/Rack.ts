@@ -409,20 +409,11 @@ export default class Rack {
   }
 
   renderModules(): void {
-    // @ts-ignore
-    const backplatePattern = this.renderContext.createPattern(window.backplateImage, 'repeat')!;
     this.moduleSlots.forEach((moduleSlot) => {
       this.renderContext.save();
       const modulePosition = moduleSlot.position;
       this.renderContext.translate(modulePosition.x, modulePosition.y * this.moduleHeight);
-      this.renderContext.fillStyle = "#121110";
-      this.renderContext.fillRect(0, 0, moduleSlot.module.width, this.moduleHeight);
-      this.renderContext.fillStyle = backplatePattern;
-      const matrix = new DOMMatrix()
-      .rotate(modulePosition.x * (360 / Math.PI))
-      .scale(0.2);
-      backplatePattern.setTransform(matrix);
-      this.renderContext.globalAlpha = 0.2;
+      this.renderContext.fillStyle = "#202020";
       this.renderContext.fillRect(0, 0, moduleSlot.module.width, this.moduleHeight);
       this.renderBorder(moduleSlot, 0, 0.5);
       this.renderBorder(moduleSlot, 1, 0.25);
