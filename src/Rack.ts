@@ -28,7 +28,7 @@ export default class Rack {
   private onMouseup: (e: MouseEvent) => void;
   private delegateModule: RackModule | null = null;
 
-  private xScrollPosition = 0;
+  private scrollPosition: Vec2 = {x: 0, y:0};
   private dpr: number;
 
   private headerHeight: number = 32;
@@ -93,12 +93,16 @@ export default class Rack {
   handleWheel(e: WheelEvent) {
     e.preventDefault();
     e.stopPropagation();
-    this.setScrollPosition(this.xScrollPosition + e.deltaX);
+    this.setScrollPosition({
+      x: this.scrollPosition.x + e.deltaX,
+      y: this.scrollPosition.y + e.deltaY,
+    });
     return false;
   }
 
-  setScrollPosition(pos: number) {
-    this.xScrollPosition = Math.max(pos, 0);
+  setScrollPosition(pos: Vec2) {
+    this.scrollPosition.x = Math.max(pos.x, 0);
+    this.scrollPosition.y = Math.max(pos.y, 0);
   }
 
   loadModulesFromPatchObject(patchObject: {moduleSlots: any[]}): void {
@@ -212,11 +216,11 @@ export default class Rack {
   }
 
   toRackFromWorldPosition(worldPos: Vec2): Vec2 {
-    return subtract(worldPos, {x: -this.xScrollPosition, y: this.headerHeight});
+    return subtract(worldPos, {x: -this.scrollPosition.x, y: this.headerHeight});
   }
 
   fromRackToWorldPosition(rackPos: Vec2): Vec2 {
-    return add(rackPos, {x: -this.xScrollPosition, y: this.headerHeight});
+    return add(rackPos, {x: -this.scrollPosition.x, y: this.headerHeight});
   }
 
   addModule(rackModule: RackModule, modulePosition?: Vec2): void {
@@ -335,14 +339,15 @@ export default class Rack {
     this.renderContext.save();
     this.renderContext.scale(this.dpr, this.dpr);
     this.renderBackground();
-    this.renderHeader();
     this.renderContext.save();
-    this.renderContext.translate(-this.xScrollPosition, this.headerHeight);
+    this.renderContext.translate(-this.scrollPosition.x, this.headerHeight - this.scrollPosition.y);
     this.renderModules();
     this.renderCables();
     this.renderDraggingCable();
     this.renderContext.restore();
+    this.renderHeader();
     this.renderContext.restore();
+
     requestAnimationFrame(() => {
       this.render();
     });
@@ -360,6 +365,13 @@ export default class Rack {
 
   renderHeader(): void {
     let currentOffset = 0;
+    this.renderContext.fillStyle = "#a0a0a0";
+    this.renderContext.fillRect(
+      0,
+      0,
+      this.renderContext.canvas.width,
+      32,
+    );
     this.headerButtons.forEach((button) => {
       this.renderContext.save();
       this.renderContext.translate(currentOffset, 0);
