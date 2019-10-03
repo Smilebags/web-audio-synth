@@ -398,12 +398,34 @@ export default class Rack {
   }
 
   renderModules(): void {
+    // @ts-ignore
+    const backplatePattern = this.renderContext.createPattern(window.backplateImage, 'repeat')!;
+    // @ts-ignore
+    const backplatePattern2 = this.renderContext.createPattern(window.backplateImage, 'repeat')!;
+    // @ts-ignore
     this.moduleSlots.forEach((moduleSlot) => {
       this.renderContext.save();
       const modulePosition = moduleSlot.position;
       this.renderContext.translate(modulePosition.x, modulePosition.y * this.moduleHeight);
-      this.renderContext.fillStyle = "#222222";
+      this.renderContext.fillStyle = "#202020";
       this.renderContext.fillRect(0, 0, moduleSlot.module.width, this.moduleHeight);
+      this.renderContext.fillStyle = backplatePattern;
+      const matrix = new DOMMatrix()
+      .rotate(modulePosition.x * (360 / Math.PI))
+      .scale(0.05);
+      backplatePattern.setTransform(matrix);
+      this.renderContext.globalAlpha = 0.02;
+      this.renderContext.fillRect(0, 0, moduleSlot.module.width, this.moduleHeight);
+      const matrix2 = new DOMMatrix()
+      .rotate(modulePosition.x + 4036 * modulePosition.y * (360 / Math.PI))
+      .scale(0.1);
+      backplatePattern2.setTransform(matrix2);
+      this.renderContext.fillStyle = backplatePattern2;
+      this.renderContext.globalAlpha = 0.01;
+      this.renderContext.fillRect(0, 0, moduleSlot.module.width, this.moduleHeight);
+      this.renderContext.globalAlpha = 1;
+      this.renderContext.strokeStyle = "#181818";
+      this.renderContext.strokeRect(0, 0, moduleSlot.module.width, this.moduleHeight);
       moduleSlot.module.render(this.renderContext);
       this.renderContext.restore();
     });

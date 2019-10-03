@@ -47,17 +47,17 @@ async function loadDependencies(audioContext: AudioContext) {
 
 async function loadImages() {
   const [
-    oscImage,
     clipboardImage,
+    backplateImage,
   ] = await Promise.all([
-    loadImage('https://previews.123rf.com/images/vectorstockcompany/vectorstockcompany1808/vectorstockcompany180815912/108559328-sine-wave-graphic-vector-icon-isolated-on-transparent-background-sine-wave-graphic-logo-concept.jpg'),
     loadImage('https://target.scene7.com/is/image/Target/GUEST_c25fb669-5872-4f7c-8631-1186a7caa07d?wid=488&hei=488&fmt=pjpeg'),
+    loadImage('https://us.123rf.com/450wm/ardely/ardely1801/ardely180100034/93719756-cow-plaid-fabric-seamless-pattern-texture-background-black-and-white-color.jpg?ver=6'),
  
   ]);
   // @ts-ignore
-  window.oscImage = oscImage;
-  // @ts-ignore
   window.clipboardImage = clipboardImage;
+  // @ts-ignore
+  window.backplateImage = backplateImage;
 }
 
 async function registerProcessors(audioContext: AudioContext) {
