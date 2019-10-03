@@ -51,7 +51,7 @@ async function loadImages() {
     backplateImage,
   ] = await Promise.all([
     loadImage('https://target.scene7.com/is/image/Target/GUEST_c25fb669-5872-4f7c-8631-1186a7caa07d?wid=488&hei=488&fmt=pjpeg'),
-    loadImage('https://us.123rf.com/450wm/ardely/ardely1801/ardely180100034/93719756-cow-plaid-fabric-seamless-pattern-texture-background-black-and-white-color.jpg?ver=6'),
+    loadImage('http://img.cadnav.com/allimg/131005/1-131005010P4147.jpg'),
  
   ]);
   // @ts-ignore
