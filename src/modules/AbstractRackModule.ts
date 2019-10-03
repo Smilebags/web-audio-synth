@@ -146,9 +146,29 @@ export default abstract class AbstractRackModule implements RackModule {
     renderContext.save();
     renderContext.textAlign = label.align;
     renderContext.fillStyle = '#ffffff';
-    renderContext.font = "16px Arial";
+    renderContext.font = "10px Arial";
     renderContext.fillText(text, label.position.x, label.position.y);
     renderContext.restore();
+  }
+
+  renderPlug(renderContext: CanvasRenderingContext2D, plug: Plug) {
+    renderContext.fillStyle = '#ffffff';
+    renderContext.fillText(
+      plug.name || '',
+      plug.position.x,
+      plug.position.y - plug.radius - 4,
+    );
+    renderContext.beginPath();
+    renderContext.fillStyle = plug.type === 'in' ? '#404040' : '#b8b8b8';
+    renderContext.arc(plug.position.x, plug.position.y, plug.radius, 0, 2 * Math.PI);
+    renderContext.fill();
+    renderContext.closePath();
+    
+    renderContext.beginPath();
+    renderContext.fillStyle = '#000000';
+    renderContext.arc(plug.position.x, plug.position.y, plug.radius - 1.5, 0, 2 * Math.PI);
+    renderContext.fill();
+    renderContext.closePath();
   }
 
   render(renderContext: CanvasRenderingContext2D): void {
@@ -158,18 +178,8 @@ export default abstract class AbstractRackModule implements RackModule {
     renderContext.fillText(this.name || this.type, this.width / 2, 20);
 
     renderContext.font = "12px Arial";
-    this.plugs.forEach((plug, index) => {
-      renderContext.fillStyle = '#ffffff';
-      renderContext.fillText(
-        plug.name || '',
-        plug.position.x,
-        plug.position.y - plug.radius - 4,
-      );
-      renderContext.beginPath();
-
-      renderContext.fillStyle = plug.type === 'in' ? '#101010' : '#181818';
-      renderContext.arc(plug.position.x, plug.position.y, plug.radius, 0, 2 * Math.PI);
-      renderContext.fill();
+    this.plugs.forEach((plug) => {
+      this.renderPlug(renderContext, plug);
     });
 
     this.labels.forEach((label) => {

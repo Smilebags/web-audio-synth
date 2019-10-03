@@ -59,28 +59,32 @@ export default class EnvelopeModule extends AbstractRackModule {
         const a = this.envelopeAttackParam && this.envelopeAttackParam.value || 0;
         return String(a.toFixed(2));
       },
-      position: {x: 5, y: 105},
+      position: {x: this.width - 12, y: 105},
+      align: 'right'
     });
     this.addLabel({
       getText: () => {
         const d = this.envelopeDecayParam && this.envelopeDecayParam.value || 0;
         return String(d.toFixed(2));
       },
-      position: {x: 5, y: 155},
+      position: {x: this.width - 12, y: 155},
+      align: 'right'
     });
     this.addLabel({
       getText: () => {
         const s = this.envelopeSustainParam && this.envelopeSustainParam.value || 0;
         return String(s.toFixed(2));
       },
-      position: {x: 5, y: 205},
+      position: {x: this.width - 12, y: 205},
+      align: 'right'
     });
     this.addLabel({
       getText: () => {
         const r = this.envelopeReleaseParam && this.envelopeReleaseParam.value || 0;
         return String(r.toFixed(2));
       },
-      position: {x: 5, y: 255},
+      position: {x: this.width - 12, y: 255},
+      align: 'right'
     });
 
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});

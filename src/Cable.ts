@@ -1,6 +1,7 @@
 import Plug from "./Plug.js";
 import { add, distance } from "./util.js";
 import Rack from "./Rack.js";
+import { Vec2 } from "./types/Vec2.js";
 
 function getRandomColor() {
   const letters = '0123456789ABCDEF';
@@ -37,10 +38,49 @@ export default class Cable {
     this.plug1.connect(this.plug2);
   }
 
+  renderEnds(renderContext: CanvasRenderingContext2D): void {
+    const startPosition = add(
+      this.rack.getModuleRackPosition(this.plug1.module),
+      this.plug1.position,
+    );
+    const endPosition = add(
+      this.rack.getModuleRackPosition(this.plug2.module),
+      this.plug2.position,
+    );
+    renderContext.fillStyle = this.color;
+    renderContext.beginPath();
+    renderContext.arc(startPosition.x, startPosition.y, this.plug1.radius-2, 0, 2 * Math.PI);
+    renderContext.arc(endPosition.x, endPosition.y, this.plug2.radius-2, 0, 2 * Math.PI);
+    renderContext.fill();
+  }
+
+  renderCord(
+    renderContext: CanvasRenderingContext2D,
+    pos1: Vec2,
+    pos2: Vec2,
+    cableSlack: number,
+  ) {
+    renderContext.beginPath();
+    renderContext.strokeStyle = this.color;
+    renderContext.lineCap = 'round';
+    renderContext.lineWidth = 4;
+    renderContext.moveTo(pos1.x, pos1.y);
+    renderContext.bezierCurveTo(
+      pos1.x,
+      pos1.y + cableSlack,
+      pos2.x,
+      pos2.y + cableSlack,
+      pos2.x,
+      pos2.y,
+    );
+    renderContext.stroke();
+  }
+
   render(renderContext: CanvasRenderingContext2D): void {
     if (!this.isConnected) {
       return;
     }
+    this.renderEnds(renderContext);
     const plug1ModulePos = this.rack.getModuleRackPosition(this.plug1.module);
     const plug1RackPos = add(plug1ModulePos, this.plug1.position);
     const plug2ModulePos = this.rack.getModuleRackPosition(this.plug2.module);
@@ -49,20 +89,7 @@ export default class Cable {
     const cableLength = distance(plug1RackPos, plug2RackPos);
     const cableSlack = cableLength * (this.cableSlack / 100);
 
-    renderContext.beginPath();
-    renderContext.strokeStyle = this.color;
-    renderContext.lineCap = 'round';
-    renderContext.lineWidth = 4;
-    renderContext.moveTo(plug1RackPos.x, plug1RackPos.y);
-    renderContext.bezierCurveTo(
-      plug1RackPos.x,
-      plug1RackPos.y + cableSlack,
-      plug2RackPos.x,
-      plug2RackPos.y + cableSlack,
-      plug2RackPos.x,
-      plug2RackPos.y,
-    );
-    renderContext.stroke();
+    this.renderCord(renderContext, plug1RackPos, plug2RackPos, cableSlack);
   }
 
   remove() {

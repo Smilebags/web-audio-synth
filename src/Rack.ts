@@ -2,7 +2,7 @@ import { Vec2 } from "./types/Vec2.js";
 import RackModule from "./types/RackModule.js";
 import Plug from "./Plug.js";
 
-import { subtract, isSet, add } from "./util.js";
+import { subtract, isSet, add, distance } from "./util.js";
 import Cable from "./Cable.js";
 import RackModuleFactory from "./RackModuleFactory.js";
 import HeaderButton from "./types/HeaderButton.js";
@@ -397,6 +397,17 @@ export default class Rack {
     });
   }
 
+  renderBorder(moduleSlot: ModuleSlot, offset: number, opacity: number) {
+    this.renderContext.strokeStyle = "#000000";
+    this.renderContext.globalAlpha = opacity;
+    this.renderContext.strokeRect(
+      offset,
+      offset,
+      moduleSlot.module.width - (offset * 2),
+      this.moduleHeight - (offset * 2),
+    );
+  }
+
   renderModules(): void {
     // @ts-ignore
     const backplatePattern = this.renderContext.createPattern(window.backplateImage, 'repeat')!;
@@ -413,9 +424,12 @@ export default class Rack {
       backplatePattern.setTransform(matrix);
       this.renderContext.globalAlpha = 0.2;
       this.renderContext.fillRect(0, 0, moduleSlot.module.width, this.moduleHeight);
+      this.renderBorder(moduleSlot, 0, 0.5);
+      this.renderBorder(moduleSlot, 1, 0.25);
+      this.renderBorder(moduleSlot, 2, 0.125);
+      this.renderBorder(moduleSlot, 3, 0.06);
+      this.renderBorder(moduleSlot, 4, 0.03);
       this.renderContext.globalAlpha = 1;
-      this.renderContext.strokeStyle = "#181818";
-      this.renderContext.strokeRect(0, 0, moduleSlot.module.width, this.moduleHeight);
       moduleSlot.module.render(this.renderContext);
       this.renderContext.restore();
     });
@@ -425,6 +439,29 @@ export default class Rack {
     this.cables.forEach(cable => cable.render(this.renderContext));
   }
 
+  renderCord(
+    renderContext: CanvasRenderingContext2D,
+    pos1: Vec2,
+    pos2: Vec2,
+    cableSlack: number,
+    color: string,
+  ) {
+    renderContext.beginPath();
+    renderContext.strokeStyle = color;
+    renderContext.lineCap = 'round';
+    renderContext.lineWidth = 4;
+    renderContext.moveTo(pos1.x, pos1.y);
+    renderContext.bezierCurveTo(
+      pos1.x,
+      pos1.y + cableSlack,
+      pos2.x,
+      pos2.y + cableSlack,
+      pos2.x,
+      pos2.y,
+    );
+    renderContext.stroke();
+  }
+
   renderDraggingCable() {
     if(
       !this.mousedownPlug
@@ -432,17 +469,29 @@ export default class Rack {
       || !this.rackMousemovePosition) {
       return;
     }
-    this.renderContext.strokeStyle = "#ff0000";
-    this.renderContext.lineWidth = 4;
-    this.renderContext.beginPath();
-    this.renderContext.moveTo(
-      this.rackMousedownPosition.x,
-      this.rackMousedownPosition.y,
+    const cableLength = distance(
+      this.rackMousedownPosition,
+      this.rackMousemovePosition,
     );
-    this.renderContext.lineTo(
-      this.rackMousemovePosition.x,
-      this.rackMousemovePosition.y,
+    const cableSlack = cableLength * 0.3;
+    this.renderCord(
+      this.renderContext,
+      this.rackMousedownPosition,
+      this.rackMousemovePosition,
+      cableSlack,
+      "#ff0000",
     );
-    this.renderContext.stroke();
+    // this.renderContext.lineWidth = 4;
+    // this.renderContext.lineCap = 'round';
+    // this.renderContext.beginPath();
+    // this.renderContext.moveTo(
+    //   this.rackMousedownPosition.x,
+    //   this.rackMousedownPosition.y,
+    // );
+    // this.renderContext.lineTo(
+    //   this.rackMousemovePosition.x,
+    //   this.rackMousemovePosition.y,
+    // );
+    // this.renderContext.stroke();
   }
 }
