@@ -49,6 +49,9 @@ export default class MidiCCInputModule extends AbstractRackModule {
     if (midiInputs.length) {
       this.midiInput = midiInputs[0];
     }
+    if (!this.midiInput) {
+      return;
+    }
     this.midiInput.onmidimessage = (e: any) => this.handleMidiMessage(e);
   }
 
