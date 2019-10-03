@@ -50,8 +50,8 @@ async function loadImages() {
     clipboardImage,
     backplateImage,
   ] = await Promise.all([
-    loadImage('https://target.scene7.com/is/image/Target/GUEST_c25fb669-5872-4f7c-8631-1186a7caa07d?wid=488&hei=488&fmt=pjpeg'),
-    loadImage('http://img.cadnav.com/allimg/131005/1-131005010P4147.jpg'),
+    loadImage('/static/clipboard.jpg'),
+    loadImage('/static/bluePlastic.jpg'),
  
   ]);
   // @ts-ignore

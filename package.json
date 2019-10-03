@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "cp src/index.html dist && cp src/ElvedenHallMarbleHall.m4a dist && npx tsc -w",
-    "build": "cp src/index.html dist && cp src/ElvedenHallMarbleHall.m4a dist && npx tsc",
+    "dev": "cp src/index.html dist && cp -R src/static dist/ && npx tsc -w",
+    "build": "cp src/index.html dist && cp -R src/static dist/ && npx tsc",
     "serve": "ws -d dist",
     "deploy": "git checkout gh-pages && git merge master && npm run build && git subtree push --prefix dist origin gh-pages && git checkout master"
   },
