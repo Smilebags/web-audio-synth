@@ -14,8 +14,9 @@ export default class Cable {
   color: string;
   isConnected: boolean = true;
 
-  private plug1: Plug;
-  private plug2: Plug;
+  plug1: Plug;
+  plug2: Plug;
+
   constructor(
     public rack: Rack,
     plug1: Plug,
