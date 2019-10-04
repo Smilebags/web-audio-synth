@@ -56,7 +56,6 @@ export default class MidiCCInputModule extends AbstractRackModule {
   }
 
   handleMidiMessage(e:any ): void {
-    console.log(e.data);
     switch (e.data[0]) {
       case 176:
         this.handleCCMessage(e.data);
@@ -67,6 +66,9 @@ export default class MidiCCInputModule extends AbstractRackModule {
 
   handleCCMessage(data: [176, number, number]) {
     const outputIndex = data[1] - this.ccRangeOffset;
+    if (!this.outputs[outputIndex]) {
+      return;
+    }
     const value = data[2] / 127;
     this.outputs[outputIndex].offset.value = value;
   }
