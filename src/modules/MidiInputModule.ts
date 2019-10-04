@@ -86,7 +86,13 @@ export default class MidiInputModule extends AbstractRackModule {
       return;
     }
     this.currentNotes.delete(data[1]);
-    this.setGate(this.currentNotes.size !== 0)
+    this.setGate(this.currentNotes.size !== 0);
+    const previousNote = Array.from(this.currentNotes).pop();
+    if (!previousNote) {
+      return;
+    }
+    const keyVoltage = this.voltageFromKeyNumber(previousNote);
+    this.setVOVoltage(keyVoltage);
   }
 
   voltageFromKeyNumber(keyNumber: number): number {
