@@ -99,7 +99,7 @@ export default class StepSequencerModule extends AbstractRackModule {
   }
 
   getButtonPositionByIndex(index: number): Vec2 {
-    const rowCount = Math.ceil(this.buttonCount / 8);
+    const rowCount = Math.ceil(this.buttonCount / 4);
     const rowNumber = index % rowCount;
     const columnNumber = Math.floor(index / rowCount);
 

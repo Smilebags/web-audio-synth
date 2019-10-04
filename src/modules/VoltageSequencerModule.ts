@@ -117,11 +117,11 @@ export default class VoltageSequencer extends AbstractRackModule {
   }
 
   getDialPositionByIndex(index: number): Vec2 {
-    const rowCount = Math.ceil(this.buttonCount / 8);
+    const rowCount = Math.ceil(this.buttonCount / 4);
     const rowNumber = index % rowCount;
     const columnNumber = Math.floor(index / rowCount);
 
-    const offsetFromCenter = (rowNumber - 0.5) * this.dialSpread;
+    const offsetFromCenter = (rowNumber - 1.5) * this.dialSpread;
 
     const xPosition = (this.width / 2) + offsetFromCenter;
 
