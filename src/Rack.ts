@@ -45,17 +45,17 @@ export default class Rack {
     this.resetWindowSize();
 
     this.headerButtons.push(new SaveToClipboardButton(this));
-    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Oscillator', '#0099FF'));
-    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Gain', '#00FF99'));
-    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Envelope', '#9900FF'));
-    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'VoltageSequencer', '#99FF00'));
-    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Filter', '#FF0099'));
-    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Delay', '#FF9900'));
-    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Reverb', '#0099FF'));
-    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'StepSequencer', '#00FF99'));
-    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'VoltageQuantizer', '#9900FF'));
-    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'MidiInput', '#99FF00'));
-    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'MidiCCInput', '#FF0099'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Oscillator', '#0055AA'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Gain', '#00AA55'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Envelope', '#5500AA'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'VoltageSequencer', '#55AA00'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Filter', '#AA0055'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Delay', '#AA5500'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Reverb', '#0055AA'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'StepSequencer', '#00AA55'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'VoltageQuantizer', '#5500AA'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'MidiInput', '#55AA00'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'MidiCCInput', '#AA0055'));
 
     this.onMousedown = (e) => this.handleMousedown(e);
     this.onMousemove = (e) => this.handleMousemove(e);
