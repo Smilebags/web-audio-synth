@@ -13,6 +13,7 @@ import VoltageQuantizerModule from "./modules/VoltageQuantizerModule.js";
 import { RackModuleType } from "./types/RackModuleType.js";
 import MidiInputModule from "./modules/MidiInputModule.js";
 import MidiCCInputModule from "./modules/MidiCCInputModule.js";
+import NoiseModule from "./modules/NoiseModule.js";
 
 
 
@@ -48,6 +49,8 @@ export default class RackModuleFactory {
         return new VoltageQuantizerModule(this.audioContext);
       case 'Reverb':
         return new ReverbModule(this.audioContext, params);
+      case 'Noise':
+        return new NoiseModule(this.audioContext);
     }
   }
 }

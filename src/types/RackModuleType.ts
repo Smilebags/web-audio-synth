@@ -10,4 +10,5 @@ export type RackModuleType = 'Filter'
   | 'Gain'
   | 'Oscillator'
   | 'VoltageQuantizer'
+  | 'Noise'
   | 'Reverb';
