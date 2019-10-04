@@ -57,6 +57,7 @@ export default class Rack {
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'MidiInput', '#55AA00'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'MidiCCInput', '#AA0055'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Noise', '#AA5500'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'ClockDivider', '#0055AA'));
 
     this.onMousedown = (e) => this.handleMousedown(e);
     this.onMousemove = (e) => this.handleMousemove(e);

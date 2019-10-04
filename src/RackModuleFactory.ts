@@ -14,6 +14,7 @@ import { RackModuleType } from "./types/RackModuleType.js";
 import MidiInputModule from "./modules/MidiInputModule.js";
 import MidiCCInputModule from "./modules/MidiCCInputModule.js";
 import NoiseModule from "./modules/NoiseModule.js";
+import ClockDividerModule from "./modules/ClockDividerModule.js";
 
 
 
@@ -51,6 +52,8 @@ export default class RackModuleFactory {
         return new ReverbModule(this.audioContext, params);
       case 'Noise':
         return new NoiseModule(this.audioContext);
+      case 'ClockDivider':
+        return new ClockDividerModule(this.audioContext);
     }
   }
 }
