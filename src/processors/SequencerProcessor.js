@@ -27,8 +27,8 @@ class SequencerProcessor extends AudioWorkletProcessor {
   }
 
   subtick() {
-    if (this.currentSubtick === 15) {
-      this.currentSubtick = 0;
+    if (this.currentSubtick === 16) {
+      this.currentSubtick = 1;
       this.tick();
       return;
     }

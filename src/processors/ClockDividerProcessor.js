@@ -4,7 +4,8 @@ class ClockDividerProcessor extends AudioWorkletProcessor {
     this.isHigh = false;
     this.isResetHigh = false;
     this.threshold = 0.1;
-    this.currentStep = 0;
+    this.currentStep = 15;
+    this.isPreStart = true;
     this.cutoffValue = 0.5;
   }
 
@@ -14,6 +15,7 @@ class ClockDividerProcessor extends AudioWorkletProcessor {
 
   reset() {
     this.currentStep = 0;
+    this.isPreStart = true;
   }
 
   process(inputs, outputs, parameters) {
@@ -48,6 +50,7 @@ class ClockDividerProcessor extends AudioWorkletProcessor {
         }
       }
       // set output
+
       outputChannel1[i] = this.currentStep % 2 === 0;
       outputChannel2[i] = this.currentStep % 4 <= 1;
       outputChannel3[i] = this.currentStep % 8 <= 3;
