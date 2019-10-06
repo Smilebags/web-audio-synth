@@ -59,7 +59,11 @@ export default class VoltageSequencer extends AbstractRackModule {
     this.addEventListener('mousemove', (mousemovePos: Vec2) => this.handleMousemove(mousemovePos));
     this.addEventListener('mouseup', (mouseupPos: Vec2) => this.handleMouseup(mouseupPos));
 
-    this.addPlug(this.sequencerProcessor, 'Step', 'in', 4);
+    this.addPlug(this.sequencerProcessor, 'Clock', 'in', 3);
+    const stepTriggerParam = this.sequencerProcessor.parameters.get('stepTrigger');
+    if(stepTriggerParam) {
+      this.addPlug(stepTriggerParam, 'Step', 'in', 4);
+    }
     const resetTriggerParam = this.sequencerProcessor.parameters.get('resetTrigger');
     if(resetTriggerParam) {
       this.addPlug(resetTriggerParam, 'Reset', 'in', 5);

@@ -59,7 +59,11 @@ export default class StepSequencerModule extends AbstractRackModule {
 
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
 
-    this.addPlug(this.sequencerProcessor, 'Step', 'in', 4);
+    this.addPlug(this.sequencerProcessor, 'Clock', 'in', 3);
+    const stepTriggerParam = this.sequencerProcessor.parameters.get('stepTrigger');
+    if(stepTriggerParam) {
+      this.addPlug(stepTriggerParam, 'Step', 'in', 4);
+    }
     const resetTriggerParam = this.sequencerProcessor.parameters.get('resetTrigger');
     if(resetTriggerParam) {
       this.addPlug(resetTriggerParam, 'Reset', 'in', 5);

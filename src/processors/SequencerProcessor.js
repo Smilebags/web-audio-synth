@@ -3,6 +3,7 @@ class SequencerProcessor extends AudioWorkletProcessor {
     super();
     this.isHigh = false;
     this.isResetHigh = false;
+    this.isStepHigh = false;
     this.threshold = 0.1;
     this.currentStep = 0;
     this.currentSubtick = 0;
@@ -64,14 +65,26 @@ class SequencerProcessor extends AudioWorkletProcessor {
     
     for (let i = 0; i < outputChannel.length; i++) {
       const inputValue = inputChannel[i];
-      // determine tick
       const cutoff = this.cutoffValue;
+
+      // do subtick
       if (this.isHigh === true) {
         this.isHigh = inputValue >= cutoff - this.threshold;
       } else {
         this.isHigh = inputValue >= cutoff + this.threshold;
         if(this.isHigh) {
           this.subtick();
+        }
+      }
+
+      // do step
+      const stepValue = this.getParameterValue(parameters, 'stepTrigger', i);
+      if (this.isStepHigh === true) {
+        this.isStepHigh = stepValue >= cutoff - this.threshold;
+      } else {
+        this.isStepHigh = stepValue >= cutoff + this.threshold;
+        if(this.isStepHigh) {
+          this.tick();
         }
       }
 
@@ -85,6 +98,7 @@ class SequencerProcessor extends AudioWorkletProcessor {
           this.reset();
         }
       }
+      
       // set output
       outputChannel[i] = this.outputValue;
     }
@@ -106,6 +120,10 @@ class SequencerProcessor extends AudioWorkletProcessor {
     return [
       {
         name: 'resetTrigger',
+        defaultValue: 0,
+      },
+      {
+        name: 'stepTrigger',
         defaultValue: 0,
       },
     ]
