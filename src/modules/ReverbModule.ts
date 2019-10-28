@@ -14,32 +14,42 @@ export default class ReverbModule extends AbstractRackModule {
   context: AudioContext;
   plugs!: Plug[];
   type: string = 'Reverb';
-  private reverb: ConvolverNode;
-  private impulseResponseUrl: string;
+  private in: GainNode;
+  private reverbs: ConvolverNode[] = [];
+  private impulseResponseUrls = [
+    'static/Basement.m4a',
+    'static/ErrolBrickworksKiln.m4a',
+    'static/ElvedenHallLordsCloakroom.m4a',
+    'static/ElvedenHallMarbleHall.m4a',
+  ];
+  private reverbNames: string[] = [
+    'Tiny',
+    'Small',
+    'Big',
+    'Huge',
+  ];
 
   private mousedownPos: Vec2 | null = null;
   private mousemovePos: Vec2 | null = null;
 
-  constructor(
-    context: AudioContext,
-    {
-      impulseResponseUrl = 'static/ElvedenHallMarbleHall.m4a'
-    }: {
-      impulseResponseUrl?: string,
-
-    }) {
+  constructor(context: AudioContext) {
     super();
 
     this.context = context;
-    this.impulseResponseUrl = impulseResponseUrl;
-    this.reverb = this.context.createConvolver();
-    getImpulseBuffer(context, impulseResponseUrl).then((arrayBuffer) => {
-      this.reverb.buffer = arrayBuffer;
-      this.addPlug(this.reverb, 'Out', 'out', 2);
+
+    this.in = this.context.createGain();
+    this.addPlug(this.in, 'In', 'in', 0);
+
+    this.impulseResponseUrls.forEach((impulseResponseUrl, index) => {
+      this.reverbs[index] = this.context.createConvolver();
+      getImpulseBuffer(context, impulseResponseUrl).then((arrayBuffer) => {
+        this.reverbs[index].buffer = arrayBuffer;
+        this.addPlug(this.reverbs[index], this.reverbNames[index], 'out', index + 1);
+        this.in.connect(this.reverbs[index]);
+      });
     });
+    
 
-
-    this.addPlug(this.reverb, 'In', 'in', 0);
 
     // this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
     // this.addEventListener('mousemove', (e: Vec2) => {this.handleMousemove(e)});
@@ -68,7 +78,6 @@ export default class ReverbModule extends AbstractRackModule {
   toParams(): any {
     return {
       type: this.type,
-      impulseResponseUrl: this.impulseResponseUrl,
     };
   }
 }

@@ -49,7 +49,7 @@ export default class RackModuleFactory {
       case 'VoltageQuantizer':
         return new VoltageQuantizerModule(this.audioContext);
       case 'Reverb':
-        return new ReverbModule(this.audioContext, params);
+        return new ReverbModule(this.audioContext);
       case 'Noise':
         return new NoiseModule(this.audioContext);
       case 'ClockDivider':
