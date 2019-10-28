@@ -28,16 +28,7 @@ class ClockDividerProcessor extends AudioWorkletProcessor {
     
     for (let i = 0; i < outputChannel1.length; i++) {
       const inputValue = inputChannel[i];
-      // determine tick
       const cutoff = this.cutoffValue;
-      if (this.isHigh === true) {
-        this.isHigh = inputValue >= cutoff - this.threshold;
-      } else {
-        this.isHigh = inputValue >= cutoff + this.threshold;
-        if(this.isHigh) {
-          this.tick();
-        }
-      }
 
       // do reset
       const resetValue = this.getParameterValue(parameters, 'resetTrigger', i);
@@ -49,8 +40,18 @@ class ClockDividerProcessor extends AudioWorkletProcessor {
           this.reset();
         }
       }
-      // set output
 
+      // determine tick
+      if (this.isHigh === true) {
+        this.isHigh = inputValue >= cutoff - this.threshold;
+      } else {
+        this.isHigh = inputValue >= cutoff + this.threshold;
+        if(this.isHigh) {
+          this.tick();
+        }
+      }
+      
+      // set output
       outputChannel1[i] = this.currentStep % 2 === 0;
       outputChannel2[i] = this.currentStep % 4 <= 1;
       outputChannel3[i] = this.currentStep % 8 <= 3;
