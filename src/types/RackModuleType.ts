@@ -12,4 +12,5 @@ export type RackModuleType = 'Filter'
   | 'VoltageQuantizer'
   | 'Noise'
   | 'ClockDivider'
+  | 'Looper'
   | 'Reverb';
