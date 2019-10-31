@@ -7,16 +7,17 @@ class SamplerProcessor extends AudioWorkletProcessor {
     this.bufferWriteOffset = 0;
     this.bufferReadOffset = 0;
     this.isWriting = false;
+    this.isPlayTriggerHigh = false;
     this.cutoff = 0.5;
   }
 
   static get parameterDescriptors() {
     return [
       {
-        name: 'startTrigger',
+        name: 'recordTrigger',
       },
       {
-        name: 'stopTrigger',
+        name: 'playTrigger',
       },
       {
         name: 'playbackRate',
@@ -37,26 +38,32 @@ class SamplerProcessor extends AudioWorkletProcessor {
     const outputChannel = output[0];
     const input = inputs[0];
     const inputChannel = input[0];
+    
     for (let i = 0; i < outputChannel.length; ++i) {
-      // start writing if start is high
-      if (this.getParameterValue(parameters, 'startTrigger', i) >= this.cutoff) {
+      if (this.getParameterValue(parameters, 'recordTrigger', i) >= this.cutoff) {
         this.startRecording();
-      }
-      
-      // stop writing if stop is high
-      if (this.getParameterValue(parameters, 'stopTrigger', i) >= this.cutoff) {
+      } else {
         this.stopRecording();
       }
       
-      // write input to buffer
       if(this.isWriting) {
         this.write(inputChannel[i] || 0);
       }
+
+      const currentPlayTrigger = this.getParameterValue(parameters, 'playTrigger', i);
+      const currentPlayTriggerIsHigh = currentPlayTrigger >= this.cutoff;
+      if (!this.isPlayTriggerHigh && currentPlayTriggerIsHigh) {
+        this.restartPlay();
+      }
+      this.isPlayTriggerHigh = currentPlayTriggerIsHigh;
+
+      if (!this.isPlayTriggerHigh) {
+        outputChannel[i] = 0;
+        continue;
+      }
       
-      // read buffer to output
       outputChannel[i] = this.read();
 
-      // advance read position
       const playbackRate = this.getParameterValue(parameters, 'playbackRate', i);
       if(playbackRate !== 0) {
         this.advanceReadPosition(playbackRate);
@@ -86,12 +93,19 @@ class SamplerProcessor extends AudioWorkletProcessor {
     this.bufferWriteOffset = (this.bufferWriteOffset + 1) % this.bufferLength;
   }
 
+  restartPlay() {
+    this.bufferReadOffset = 0;
+  }
+
   read() {
+    if (this.readPosition >= this.recordingLength) {
+      return 0;
+    }
     return this.buffer[this.readPosition];
   }
 
   advanceReadPosition(amount) {
-    this.bufferReadOffset = (this.bufferReadOffset + amount) % this.recordingLength; 
+    this.bufferReadOffset += amount; 
   }
 
   getParameterValue(parameters, parameterName, sampleIndex) {
