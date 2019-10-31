@@ -20,6 +20,12 @@ class SamplerProcessor extends AudioWorkletProcessor {
         name: 'playTrigger',
       },
       {
+        name: 'startPosition',
+        defaultValue: 0,
+        minValue: 0,
+        maxValue: 1,
+      },
+      {
         name: 'playbackRate',
         defaultValue: 0,
         minValue: 0,
@@ -53,7 +59,8 @@ class SamplerProcessor extends AudioWorkletProcessor {
       const currentPlayTrigger = this.getParameterValue(parameters, 'playTrigger', i);
       const currentPlayTriggerIsHigh = currentPlayTrigger >= this.cutoff;
       if (!this.isPlayTriggerHigh && currentPlayTriggerIsHigh) {
-        this.restartPlay();
+        const startPos = this.getParameterValue(parameters, 'startPosition', i)
+        this.restartPlay(startPos);
       }
       this.isPlayTriggerHigh = currentPlayTriggerIsHigh;
 
@@ -93,8 +100,8 @@ class SamplerProcessor extends AudioWorkletProcessor {
     this.bufferWriteOffset = (this.bufferWriteOffset + 1) % this.bufferLength;
   }
 
-  restartPlay() {
-    this.bufferReadOffset = 0;
+  restartPlay(startPos) {
+    this.bufferReadOffset = Math.floor(this.recordingLength * startPos);
   }
 
   read() {

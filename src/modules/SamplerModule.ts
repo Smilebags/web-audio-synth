@@ -6,6 +6,7 @@ export default class SamplerModule extends AbstractRackModule {
   private sampler: AudioWorkletNode;
   private recordTriggerParam: AudioParam;
   private playTriggerParam: AudioParam;
+  private startPosParam: AudioParam;
   private playbackRateParam: AudioParam;
   private noopGain: GainNode;
 
@@ -26,6 +27,8 @@ export default class SamplerModule extends AbstractRackModule {
     this.addPlug(this.recordTriggerParam, 'Record', 'in');
     this.playTriggerParam = this.sampler.parameters.get('playTrigger')!;
     this.addPlug(this.playTriggerParam, 'Play', 'in');
+    this.startPosParam = this.sampler.parameters.get('startPosition')!;
+    this.addPlug(this.startPosParam, 'Start', 'in');
     this.playbackRateParam = this.sampler.parameters.get('playbackRate')!;
     this.addPlug(this.playbackRateParam, 'Rate', 'in');
     
