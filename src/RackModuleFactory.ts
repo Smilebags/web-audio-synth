@@ -16,6 +16,7 @@ import MidiCCInputModule from "./modules/MidiCCInputModule.js";
 import NoiseModule from "./modules/NoiseModule.js";
 import ClockDividerModule from "./modules/ClockDividerModule.js";
 import SamplerModule from "./modules/SamplerModule.js";
+import AudioInputModule from "./modules/AudioInputModule.js";
 
 
 
@@ -57,6 +58,8 @@ export default class RackModuleFactory {
         return new ClockDividerModule(this.audioContext);
       case 'Sampler':
         return new SamplerModule(this.audioContext);
+      case 'AudioInput':
+        return new AudioInputModule(this.audioContext);
     }
   }
 }
