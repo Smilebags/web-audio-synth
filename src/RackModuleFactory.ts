@@ -17,6 +17,7 @@ import NoiseModule from "./modules/NoiseModule.js";
 import ClockDividerModule from "./modules/ClockDividerModule.js";
 import SamplerModule from "./modules/SamplerModule.js";
 import AudioInputModule from "./modules/AudioInputModule.js";
+import GlideModule from "./modules/GlideModule.js";
 
 
 
@@ -60,6 +61,8 @@ export default class RackModuleFactory {
         return new SamplerModule(this.audioContext);
       case 'AudioInput':
         return new AudioInputModule(this.audioContext);
+      case 'Glide':
+        return new GlideModule(this.audioContext);
     }
   }
 }
