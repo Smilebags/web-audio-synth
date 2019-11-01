@@ -63,11 +63,6 @@ class SamplerProcessor extends AudioWorkletProcessor {
         this.restartPlay(startPos);
       }
       this.isPlayTriggerHigh = currentPlayTriggerIsHigh;
-
-      if (!this.isPlayTriggerHigh) {
-        outputChannel[i] = 0;
-        continue;
-      }
       
       outputChannel[i] = this.read();
 
