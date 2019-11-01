@@ -13,6 +13,8 @@ export default abstract class AbstractRackModule implements RackModule {
   width: number = 100;
   plugs: Plug[] = [];
   labels: Label[] = [];
+  dials: {pos: Vec2, radius: number, param: AudioParam}[] = [];
+
   abstract type: string;
   name: string | null = null;
   private eventListeners: {[key: string]: Function[]} = {};
@@ -33,6 +35,66 @@ export default abstract class AbstractRackModule implements RackModule {
     this.emit('mouseup', position);
   }
 
+  private getYPositionFromOrder(order: number | null = null) {
+    const slot = order !== null ? order : this.firstAvailablePlugSlot;
+    return (slot * 45) + 55;
+  }
+
+  protected getDialParamFromPosition(pos: Vec2): AudioParam | null {
+    const foundDial = this.dials.find((dial) => {
+      return distance(dial.pos, pos) <= dial.radius;
+    });
+    if (!foundDial) {
+      return null;
+    }
+    return foundDial.param;
+  }
+
+  protected addDialPlugAndLabel(
+    plugParam: AudioParam | AudioNode, 
+    dialParam: AudioParam,
+    name: string,
+    type: 'in' | 'out',
+    label: () => string,
+    order: number | null = null,
+  ) {
+
+    const dialPos = {
+      x: 20,
+      y: this.getYPositionFromOrder(order),
+    };
+    this.addDial(
+      dialPos,
+      12,
+      dialParam,
+    );
+
+    const labelPos = {
+      x: 90,
+      y: this.getYPositionFromOrder(order) + 5,
+    };
+    this.addLabel({
+      getText: label,
+      position: labelPos,
+      align: 'right',
+    });
+
+    this.addPlug(
+      plugParam,
+      name,
+      type,
+      order,
+    );
+  }
+
+  protected addDial(
+    pos: Vec2,
+    radius: number,
+    param: AudioParam,
+  ) {
+    this.dials.push({pos, radius, param});
+  }
+
   protected addPlug(
     param: AudioNode | AudioParam, 
     name: string,
@@ -40,14 +102,13 @@ export default abstract class AbstractRackModule implements RackModule {
     order: number | null = null,
     positioning: 'left' | 'center' | 'right' = 'center',
   ): void {
-    const slot = order !== null ? order : this.firstAvailablePlugSlot;
     let positioningOffset = 0;
     if (positioning !== 'center') {
       const offsetAmount = this.width / 6;
       positioningOffset += positioning === 'left' ? -offsetAmount : offsetAmount;
     }
     const xPosition = (this.width / 2) + positioningOffset;
-    const yPosition = (slot * 50) + 50;
+    const yPosition = this.getYPositionFromOrder(order);
     const position = {
       x: xPosition,
       y: yPosition,
@@ -185,6 +246,14 @@ export default abstract class AbstractRackModule implements RackModule {
     this.labels.forEach((label) => {
       this.renderLabel(renderContext, label);
     });
+
+    this.dials.forEach((dial) => this.renderDial(
+      renderContext,
+      dial.pos,
+      dial.radius,
+      dial.param.value,
+      '',
+    ));
   }
 
   emit(eventName: string, eventValue: any): void {

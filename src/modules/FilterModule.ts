@@ -9,8 +9,6 @@ export default class FilterModule extends AbstractRackModule {
   plugs!: Plug[];
   type: string = 'Filter';
 
-  private dials: {pos: Vec2, radius: number, param: AudioParam}[] = [];
-
   private in: GainNode;
   private qIn: ConstantSourceNode;
   private lowpass: BiquadFilterNode;
@@ -80,12 +78,8 @@ export default class FilterModule extends AbstractRackModule {
     this.addEventListener('mouseup', () => {this.handleMouseup()});
   }
 
-  addDial(pos: Vec2, radius: number, param: AudioParam) {
-    this.dials.push({pos, radius, param});
-  }
-
   handleMousedown(mousedownEvent: Vec2): void {
-    const param = this.getParamFromPosition(mousedownEvent);
+    const param = this.getDialParamFromPosition(mousedownEvent);
     if (!param) {
       return;
     }
@@ -115,25 +109,6 @@ export default class FilterModule extends AbstractRackModule {
     this.mousedownPos = null;
   }
 
-  getParamFromPosition(pos: Vec2): AudioParam | null {
-    const foundDial = this.dials.find((dial) => {
-      return distance(dial.pos, pos) <= dial.radius;
-    });
-    if (!foundDial) {
-      return null;
-    }
-    return foundDial.param;
-  }
-  render(renderContext: CanvasRenderingContext2D): void {
-    super.render(renderContext);
-    this.dials.forEach((dial) => this.renderDial(
-      renderContext,
-      dial.pos,
-      dial.radius,
-      dial.param.value,
-      '',
-    ));
-  }
   toParams(): any {
     return {
       type: this.type,

@@ -18,6 +18,7 @@ import ClockDividerModule from "./modules/ClockDividerModule.js";
 import SamplerModule from "./modules/SamplerModule.js";
 import AudioInputModule from "./modules/AudioInputModule.js";
 import GlideModule from "./modules/GlideModule.js";
+import ValuesModule from "./modules/ValuesModule.js";
 
 
 
@@ -63,6 +64,8 @@ export default class RackModuleFactory {
         return new AudioInputModule(this.audioContext);
       case 'Glide':
         return new GlideModule(this.audioContext);
+      case 'Values':
+        return new ValuesModule(this.audioContext);
     }
   }
 }
