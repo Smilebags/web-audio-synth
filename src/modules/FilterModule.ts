@@ -16,7 +16,6 @@ export default class FilterModule extends AbstractRackModule {
   private vo: AudioWorkletNode;
   private paramValueOffset: number | null = null;
   private voCoarseParam?: AudioParam;
-
   
   private mousedownParam: AudioParam | null = null;
   private paramInitialValue: number | null = null;
@@ -59,19 +58,29 @@ export default class FilterModule extends AbstractRackModule {
     this.qIn.connect(this.lowpass.Q);
     this.qIn.connect(this.highpass.Q);
 
-    this.addPlug(this.in, 'In', 'in', 0);
+    this.addPlug(this.in, 'In', 'in');
+
     if (this.voCoarseParam) {
       this.voCoarseParam.value = voltageOffset;
-      this.addPlug(this.voCoarseParam, 'V/O In', 'in', 1);
+      this.addDialPlugAndLabel(
+        this.voCoarseParam,
+        this.voCoarseParam,
+        'V/O In',
+        'in',
+        () => ((this.voCoarseParam!).value ** 2).toFixed(2),
+      );
     }
-    this.addPlug(this.qIn.offset, 'Q', 'in', 2);
+
+    this.addDialPlugAndLabel(
+      this.qIn.offset,
+      this.qIn.offset,
+      'Q',
+      'in',
+      () => (this.qIn.offset!).value.toFixed(2),
+    );
+
     this.addPlug(this.lowpass, 'Low', 'out', 3);
     this.addPlug(this.highpass, 'High', 'out', 4);
-
-    if(this.voCoarseParam) {
-      this.addDial({x: 15, y:100}, 12, this.voCoarseParam);
-    }
-    this.addDial({x: 15, y:150}, 12, this.qIn.offset);
 
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
     this.addEventListener('mousemove', (e: Vec2) => {this.handleMousemove(e)});
