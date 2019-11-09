@@ -13,8 +13,11 @@ export default class EnvelopeModule extends AbstractRackModule {
   private envelopeDecayParam: AudioParam;
   private envelopeSustainParam: AudioParam;
   private envelopeReleaseParam: AudioParam;
+
+  private mousedownParam: AudioParam | null = null;
+  private paramInitialValue: number | null = null;
   private mousedownPos: Vec2 | null = null;
-  private paramMousedownValue: number | null = null;
+  private paramValueOffset: number | null = null;
 
   constructor(
     context: AudioContext,
@@ -35,106 +38,85 @@ export default class EnvelopeModule extends AbstractRackModule {
     this.context = context;
     this.envelope = new AudioWorkletNode(this.context, 'envelope-generator-processor');
 
+    this.addPlug(this.envelope, 'Trigger', 'in', 0);
+
+
     this.envelopeAttackParam = this.envelope.parameters.get('a')!;
     this.envelopeAttackParam.value = a;
-    this.addPlug(this.envelopeAttackParam, 'A', 'in', 1);
+    this.addDialPlugAndLabel(
+      this.envelopeAttackParam,
+      this.envelopeAttackParam,
+      'A',
+      'in',
+      () => this.envelopeAttackParam.value.toFixed(2),
+    );
 
     this.envelopeDecayParam = this.envelope.parameters.get('d')!;
     this.envelopeDecayParam.value = d;
-    this.addPlug(this.envelopeDecayParam, 'D', 'in', 2);
+    this.addDialPlugAndLabel(
+      this.envelopeDecayParam,
+      this.envelopeDecayParam,
+      'D',
+      'in',
+      () => this.envelopeDecayParam.value.toFixed(2),
+    );
 
     this.envelopeSustainParam = this.envelope.parameters.get('s')!;
     this.envelopeSustainParam.value = s;
-    this.addPlug(this.envelopeSustainParam, 'S', 'in', 3);
+    this.addDialPlugAndLabel(
+      this.envelopeSustainParam,
+      this.envelopeSustainParam,
+      'S',
+      'in',
+      () => this.envelopeSustainParam.value.toFixed(2),
+    );
 
     this.envelopeReleaseParam = this.envelope.parameters.get('r')!;
     this.envelopeReleaseParam.value = r;
-    this.addPlug(this.envelopeReleaseParam, 'R', 'in', 4);
+    this.addDialPlugAndLabel(
+      this.envelopeReleaseParam,
+      this.envelopeReleaseParam,
+      'R',
+      'in',
+      () => this.envelopeReleaseParam.value.toFixed(2),
+    );
     
-    this.addPlug(this.envelope, 'Trigger', 'in', 0);
     this.addPlug(this.envelope, 'Out', 'out', 5);
-
-    this.addLabel({
-      getText: () => {
-        const a = this.envelopeAttackParam && this.envelopeAttackParam.value || 0;
-        return String(a.toFixed(2));
-      },
-      position: {x: this.width - 12, y: 105},
-      align: 'right'
-    });
-    this.addLabel({
-      getText: () => {
-        const d = this.envelopeDecayParam && this.envelopeDecayParam.value || 0;
-        return String(d.toFixed(2));
-      },
-      position: {x: this.width - 12, y: 155},
-      align: 'right'
-    });
-    this.addLabel({
-      getText: () => {
-        const s = this.envelopeSustainParam && this.envelopeSustainParam.value || 0;
-        return String(s.toFixed(2));
-      },
-      position: {x: this.width - 12, y: 205},
-      align: 'right'
-    });
-    this.addLabel({
-      getText: () => {
-        const r = this.envelopeReleaseParam && this.envelopeReleaseParam.value || 0;
-        return String(r.toFixed(2));
-      },
-      position: {x: this.width - 12, y: 255},
-      align: 'right'
-    });
 
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
     this.addEventListener('mousemove', (e: Vec2) => {this.handleMousemove(e)});
+    this.addEventListener('mouseup', () => {this.handleMouseup()});
   }
   
   handleMousedown(mousedownEvent: Vec2): void {
-    const paramUnderMouse = this.getParamByPosition(mousedownEvent);
-    if (!paramUnderMouse) {
-      this.mousedownPos = null;
-      this.paramMousedownValue = null;
+    const param = this.getDialParamFromPosition(mousedownEvent);
+    if (!param) {
       return;
     }
+    this.mousedownParam = param;
     this.mousedownPos = mousedownEvent;
-    this.paramMousedownValue = paramUnderMouse.value;
+    this.paramInitialValue = param.value;
   }
-  
+
   handleMousemove(mousemoveEvent: Vec2): void {
-    if (!this.mousedownPos) {
+    if (
+      this.mousedownPos === null
+      || this.mousedownParam === null
+      || this.paramInitialValue === null
+    ) {
       return;
     }
-    const paramToUpdate = this.getParamByPosition(this.mousedownPos);
-    if (!paramToUpdate) {
-      return;
-    }
-    const changeAmount = (this.mousedownPos.y - mousemoveEvent.y) / 100;
-    if (this.paramMousedownValue === null || this.paramMousedownValue === undefined) {
-      return;
-    }
-    paramToUpdate.value = Math.max(this.paramMousedownValue + changeAmount, 0);
+    const relativeYPos = this.mousedownPos.y - mousemoveEvent.y;
+    this.paramValueOffset = this.paramInitialValue + (relativeYPos / 2**6 );
+    if (this.mousedownParam) {
+      this.mousedownParam.value = this.paramValueOffset;
+    } 
   }
 
-  getParamByPosition(position: Vec2): AudioParam | null | undefined {
-    if (position.y < 70) {
-      return null;
-    }
-    if (position.y < 120) {
-      return this.envelopeAttackParam;
-    }
-    if (position.y < 170) {
-      return this.envelopeDecayParam;
-    }
-    if (position.y < 220) {
-      return this.envelopeSustainParam;
-    }
-    if (position.y < 270) {
-      return this.envelopeReleaseParam;
-    }
-
-    return null;
+  handleMouseup(): void {
+    this.mousedownParam = null;
+    this.paramInitialValue = null;
+    this.mousedownPos = null;
   }
 
   toParams(): any {
