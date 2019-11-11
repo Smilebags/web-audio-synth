@@ -49,7 +49,7 @@ async function loadImages() {
   const [
     clipboardImage,
   ] = await Promise.all([
-    loadImage('/static/clipboard.jpg'),
+    loadImage('static/clipboard.jpg'),
   ]);
   // @ts-ignore
   window.clipboardImage = clipboardImage;
