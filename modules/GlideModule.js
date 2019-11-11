@@ -1,29 +1,30 @@
 import AbstractRackModule from "./AbstractRackModule.js";
-export default class OscillatorModule extends AbstractRackModule {
-    constructor(context, { gain = 1, }) {
+export default class GlideModule extends AbstractRackModule {
+    constructor(context) {
         super();
-        this.type = 'Gain';
+        this.context = context;
+        this.type = 'Glide';
         this.mousedownParam = null;
         this.paramInitialValue = null;
         this.mousedownPos = null;
-        this.context = context;
-        this.gainNode = this.context.createGain();
-        this.gainNode.gain.value = gain;
-        this.addPlug(this.gainNode, 'In', 'in');
-        this.addDialPlugAndLabel(this.gainNode.gain, this.gainNode.gain, 'VC', 'in', () => this.gainNode.gain.value.toFixed(2));
-        this.addPlug(this.gainNode, 'Out', 'out');
+        this.paramValueOffset = null;
+        this.glideWorklet = new AudioWorkletNode(this.context, 'glide-processor');
+        this.addPlug(this.glideWorklet, 'In', 'in');
+        this.glideAmountParam = this.glideWorklet.parameters.get('glideAmount');
+        this.addDialPlugAndLabel(this.glideAmountParam, this.glideAmountParam, 'Amount', 'in', () => this.glideAmountParam.value.toFixed(2));
+        this.addPlug(this.glideWorklet, 'Out', 'out');
         this.addEventListener('mousedown', (e) => { this.handleMousedown(e); });
         this.addEventListener('mousemove', (e) => { this.handleMousemove(e); });
         this.addEventListener('mouseup', () => { this.handleMouseup(); });
     }
-    handleMousedown(pos) {
-        const dialParam = this.getDialParamFromPosition(pos);
-        if (!dialParam) {
+    handleMousedown(mousedownEvent) {
+        const param = this.getDialParamFromPosition(mousedownEvent);
+        if (!param) {
             return;
         }
-        this.mousedownParam = dialParam;
-        this.paramInitialValue = dialParam.value;
-        this.mousedownPos = pos;
+        this.mousedownParam = param;
+        this.mousedownPos = mousedownEvent;
+        this.paramInitialValue = param.value;
     }
     handleMousemove(mousemoveEvent) {
         if (this.mousedownPos === null
@@ -32,8 +33,9 @@ export default class OscillatorModule extends AbstractRackModule {
             return;
         }
         const relativeYPos = this.mousedownPos.y - mousemoveEvent.y;
+        this.paramValueOffset = this.paramInitialValue + (relativeYPos / 2 ** 6);
         if (this.mousedownParam) {
-            this.mousedownParam.value = this.paramInitialValue + (relativeYPos / 2 ** 6);
+            this.mousedownParam.value = this.paramValueOffset;
         }
     }
     handleMouseup() {
@@ -44,7 +46,6 @@ export default class OscillatorModule extends AbstractRackModule {
     toParams() {
         return {
             type: this.type,
-            gain: this.gainNode.gain.value,
         };
     }
 }

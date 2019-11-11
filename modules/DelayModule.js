@@ -1,38 +1,47 @@
 import AbstractRackModule from "./AbstractRackModule.js";
-import { subtract } from "../util.js";
 export default class DelayModule extends AbstractRackModule {
     constructor(context, { startingDelay = 0.2 }) {
         super();
         this.type = 'Delay';
-        this.initialDelay = 0;
+        this.mousedownParam = null;
+        this.paramInitialValue = null;
         this.mousedownPos = null;
-        this.mousemovePos = null;
+        this.paramValueOffset = null;
         this.context = context;
         this.delay = this.context.createDelay();
         this.delay.delayTime.value = startingDelay;
-        this.addPlug(this.delay, 'In', 'in', 0);
-        this.addPlug(this.delay.delayTime, 'Delay Time', 'in', 1);
-        this.addPlug(this.delay, 'Out', 'out', 2);
+        this.addPlug(this.delay, 'In', 'in');
+        this.addDialPlugAndLabel(this.delay.delayTime, this.delay.delayTime, 'Delay Time', 'in', () => this.delay.delayTime.value.toFixed(2));
+        this.addPlug(this.delay, 'Out', 'out');
         this.addEventListener('mousedown', (e) => { this.handleMousedown(e); });
         this.addEventListener('mousemove', (e) => { this.handleMousemove(e); });
+        this.addEventListener('mouseup', () => { this.handleMouseup(); });
     }
     handleMousedown(mousedownEvent) {
-        if (!this.isInFreqBox(mousedownEvent)) {
+        const param = this.getDialParamFromPosition(mousedownEvent);
+        if (!param) {
             return;
         }
+        this.mousedownParam = param;
         this.mousedownPos = mousedownEvent;
-        this.initialDelay = this.delay.delayTime.value;
+        this.paramInitialValue = param.value;
     }
     handleMousemove(mousemoveEvent) {
-        this.mousemovePos = mousemoveEvent;
-        if (!this.mousedownPos || !this.initialDelay) {
+        if (this.mousedownPos === null
+            || this.mousedownParam === null
+            || this.paramInitialValue === null) {
             return;
         }
-        const relativeYPos = subtract(this.mousedownPos, this.mousemovePos).y;
-        this.delay.delayTime.value = this.initialDelay + (relativeYPos / 2 ** 6);
+        const relativeYPos = this.mousedownPos.y - mousemoveEvent.y;
+        this.paramValueOffset = this.paramInitialValue + (relativeYPos / 2 ** 6);
+        if (this.mousedownParam) {
+            this.mousedownParam.value = this.paramValueOffset;
+        }
     }
-    isInFreqBox(pos) {
-        return pos.y >= 200;
+    handleMouseup() {
+        this.mousedownParam = null;
+        this.paramInitialValue = null;
+        this.mousedownPos = null;
     }
     toParams() {
         return {

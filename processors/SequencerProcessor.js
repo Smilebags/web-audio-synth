@@ -4,6 +4,7 @@ class SequencerProcessor extends AudioWorkletProcessor {
         super();
         this.isHigh = false;
         this.isResetHigh = false;
+        this.isStepHigh = false;
         this.threshold = 0.1;
         this.currentStep = 0;
         this.currentSubtick = 0;
@@ -24,8 +25,8 @@ class SequencerProcessor extends AudioWorkletProcessor {
         this.levels = levels;
     }
     subtick() {
-        if (this.currentSubtick === 15) {
-            this.currentSubtick = 0;
+        if (this.currentSubtick === 16) {
+            this.currentSubtick = 1;
             this.tick();
             return;
         }
@@ -56,17 +57,7 @@ class SequencerProcessor extends AudioWorkletProcessor {
         const inputChannel = input[0];
         for (let i = 0; i < outputChannel.length; i++) {
             const inputValue = inputChannel[i];
-            // determine tick
             const cutoff = this.cutoffValue;
-            if (this.isHigh === true) {
-                this.isHigh = inputValue >= cutoff - this.threshold;
-            }
-            else {
-                this.isHigh = inputValue >= cutoff + this.threshold;
-                if (this.isHigh) {
-                    this.subtick();
-                }
-            }
             // do reset
             const resetValue = this.getParameterValue(parameters, 'resetTrigger', i);
             if (this.isResetHigh === true) {
@@ -76,6 +67,27 @@ class SequencerProcessor extends AudioWorkletProcessor {
                 this.isResetHigh = resetValue >= cutoff + this.threshold;
                 if (this.isResetHigh) {
                     this.reset();
+                }
+            }
+            // do subtick
+            if (this.isHigh === true) {
+                this.isHigh = inputValue >= cutoff - this.threshold;
+            }
+            else {
+                this.isHigh = inputValue >= cutoff + this.threshold;
+                if (this.isHigh) {
+                    this.subtick();
+                }
+            }
+            // do step
+            const stepValue = this.getParameterValue(parameters, 'stepTrigger', i);
+            if (this.isStepHigh === true) {
+                this.isStepHigh = stepValue >= cutoff - this.threshold;
+            }
+            else {
+                this.isStepHigh = stepValue >= cutoff + this.threshold;
+                if (this.isStepHigh) {
+                    this.tick();
                 }
             }
             // set output
@@ -96,6 +108,10 @@ class SequencerProcessor extends AudioWorkletProcessor {
         return [
             {
                 name: 'resetTrigger',
+                defaultValue: 0,
+            },
+            {
+                name: 'stepTrigger',
                 defaultValue: 0,
             },
         ];

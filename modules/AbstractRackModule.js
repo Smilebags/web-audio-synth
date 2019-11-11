@@ -6,6 +6,7 @@ export default class AbstractRackModule {
         this.width = 100;
         this.plugs = [];
         this.labels = [];
+        this.dials = [];
         this.name = null;
         this.eventListeners = {};
     }
@@ -23,15 +24,47 @@ export default class AbstractRackModule {
     onMouseup(position) {
         this.emit('mouseup', position);
     }
-    addPlug(param, name, type, order = null, positioning = 'center') {
+    getYPositionFromOrder(order = null) {
         const slot = order !== null ? order : this.firstAvailablePlugSlot;
+        return (slot * 45) + 55;
+    }
+    getDialParamFromPosition(pos) {
+        const foundDial = this.dials.find((dial) => {
+            return distance(dial.pos, pos) <= dial.radius;
+        });
+        if (!foundDial) {
+            return null;
+        }
+        return foundDial.param;
+    }
+    addDialPlugAndLabel(plugParam, dialParam, name, type, label, order = null) {
+        const dialPos = {
+            x: 20,
+            y: this.getYPositionFromOrder(order),
+        };
+        this.addDial(dialPos, 12, dialParam);
+        const labelPos = {
+            x: 90,
+            y: this.getYPositionFromOrder(order) + 5,
+        };
+        this.addLabel({
+            getText: label,
+            position: labelPos,
+            align: 'right',
+        });
+        this.addPlug(plugParam, name, type, order);
+    }
+    addDial(pos, radius, param) {
+        this.dials.push({ pos, radius, param });
+    }
+    addPlug(param, name, type, order = null, positioning = 'center') {
         let positioningOffset = 0;
         if (positioning !== 'center') {
             const offsetAmount = this.width / 6;
             positioningOffset += positioning === 'left' ? -offsetAmount : offsetAmount;
         }
         const xPosition = (this.width / 2) + positioningOffset;
-        const yPosition = (slot * 50) + 50;
+        const yPosition = this.getYPositionFromOrder(order);
         const position = {
             x: xPosition,
             y: yPosition,
@@ -133,6 +166,7 @@ export default class AbstractRackModule {
         this.labels.forEach((label) => {
             this.renderLabel(renderContext, label);
         });
+        this.dials.forEach((dial) => this.renderDial(renderContext, dial.pos, dial.radius, dial.param.value, ''));
     }
     emit(eventName, eventValue) {
         if (!this.eventListeners[eventName]) {

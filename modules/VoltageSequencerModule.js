@@ -40,7 +40,11 @@ export default class VoltageSequencer extends AbstractRackModule {
         this.addEventListener('mousedown', (e) => { this.handleMousedown(e); });
         this.addEventListener('mousemove', (mousemovePos) => this.handleMousemove(mousemovePos));
         this.addEventListener('mouseup', (mouseupPos) => this.handleMouseup(mouseupPos));
-        this.addPlug(this.sequencerProcessor, 'Step', 'in', 4);
+        this.addPlug(this.sequencerProcessor, 'Clock', 'in', 3);
+        const stepTriggerParam = this.sequencerProcessor.parameters.get('stepTrigger');
+        if (stepTriggerParam) {
+            this.addPlug(stepTriggerParam, 'Step', 'in', 4);
+        }
         const resetTriggerParam = this.sequencerProcessor.parameters.get('resetTrigger');
         if (resetTriggerParam) {
             this.addPlug(resetTriggerParam, 'Reset', 'in', 5);
@@ -87,10 +91,10 @@ export default class VoltageSequencer extends AbstractRackModule {
         return this.levels.length;
     }
     getDialPositionByIndex(index) {
-        const rowCount = Math.ceil(this.buttonCount / 8);
+        const rowCount = Math.ceil(this.buttonCount / 4);
         const rowNumber = index % rowCount;
         const columnNumber = Math.floor(index / rowCount);
-        const offsetFromCenter = (rowNumber - 0.5) * this.dialSpread;
+        const offsetFromCenter = (rowNumber - 1.5) * this.dialSpread;
         const xPosition = (this.width / 2) + offsetFromCenter;
         const yPosition = this.topOffset + (columnNumber * this.dialSpread);
         return {

@@ -37,7 +37,7 @@ async function loadDependencies(audioContext) {
 }
 async function loadImages() {
     const [clipboardImage,] = await Promise.all([
-        loadImage('static/clipboard.jpg'),
+        loadImage('/static/clipboard.jpg'),
     ]);
     // @ts-ignore
     window.clipboardImage = clipboardImage;
@@ -48,5 +48,9 @@ async function registerProcessors(audioContext) {
         audioContext.audioWorklet.addModule('processors/VoltPerOctaveProcessor.js'),
         audioContext.audioWorklet.addModule('processors/SequencerProcessor.js'),
         audioContext.audioWorklet.addModule('processors/VoltageQuantizerProcessor.js'),
+        audioContext.audioWorklet.addModule('processors/NoiseProcessor.js'),
+        audioContext.audioWorklet.addModule('processors/ClockDividerProcessor.js'),
+        audioContext.audioWorklet.addModule('processors/SamplerProcessor.js'),
+        audioContext.audioWorklet.addModule('processors/GlideProcessor.js'),
     ]);
 }

@@ -11,6 +11,12 @@ import ReverbModule from "./modules/ReverbModule.js";
 import VoltageQuantizerModule from "./modules/VoltageQuantizerModule.js";
 import MidiInputModule from "./modules/MidiInputModule.js";
 import MidiCCInputModule from "./modules/MidiCCInputModule.js";
+import NoiseModule from "./modules/NoiseModule.js";
+import ClockDividerModule from "./modules/ClockDividerModule.js";
+import SamplerModule from "./modules/SamplerModule.js";
+import AudioInputModule from "./modules/AudioInputModule.js";
+import GlideModule from "./modules/GlideModule.js";
+import ValuesModule from "./modules/ValuesModule.js";
 export default class RackModuleFactory {
     constructor(audioContext) {
         this.audioContext = audioContext;
@@ -42,7 +48,19 @@ export default class RackModuleFactory {
             case 'VoltageQuantizer':
                 return new VoltageQuantizerModule(this.audioContext);
             case 'Reverb':
-                return new ReverbModule(this.audioContext, params);
+                return new ReverbModule(this.audioContext);
+            case 'Noise':
+                return new NoiseModule(this.audioContext);
+            case 'ClockDivider':
+                return new ClockDividerModule(this.audioContext);
+            case 'Sampler':
+                return new SamplerModule(this.audioContext);
+            case 'AudioInput':
+                return new AudioInputModule(this.audioContext);
+            case 'Glide':
+                return new GlideModule(this.audioContext);
+            case 'Values':
+                return new ValuesModule(this.audioContext);
         }
     }
 }

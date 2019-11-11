@@ -5,19 +5,35 @@ const getImpulseBuffer = (audioContext, impulseUrl) => {
         .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer));
 };
 export default class ReverbModule extends AbstractRackModule {
-    constructor(context, { impulseResponseUrl = 'static/ElvedenHallMarbleHall.m4a' }) {
+    constructor(context) {
         super();
         this.type = 'Reverb';
+        this.reverbs = [];
+        this.impulseResponseUrls = [
+            'static/Basement.m4a',
+            'static/ErrolBrickworksKiln.m4a',
+            'static/ElvedenHallLordsCloakroom.m4a',
+            'static/ElvedenHallMarbleHall.m4a',
+        ];
+        this.reverbNames = [
+            'Tiny',
+            'Small',
+            'Big',
+            'Huge',
+        ];
         this.mousedownPos = null;
         this.mousemovePos = null;
         this.context = context;
-        this.impulseResponseUrl = impulseResponseUrl;
-        this.reverb = this.context.createConvolver();
-        getImpulseBuffer(context, impulseResponseUrl).then((arrayBuffer) => {
-            this.reverb.buffer = arrayBuffer;
-            this.addPlug(this.reverb, 'Out', 'out', 2);
+        this.in = this.context.createGain();
+        this.addPlug(this.in, 'In', 'in', 0);
+        this.impulseResponseUrls.forEach((impulseResponseUrl, index) => {
+            this.reverbs[index] = this.context.createConvolver();
+            getImpulseBuffer(context, impulseResponseUrl).then((arrayBuffer) => {
+                this.reverbs[index].buffer = arrayBuffer;
+                this.addPlug(this.reverbs[index], this.reverbNames[index], 'out', index + 1);
+                this.in.connect(this.reverbs[index]);
+            });
         });
-        this.addPlug(this.reverb, 'In', 'in', 0);
         // this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
         // this.addEventListener('mousemove', (e: Vec2) => {this.handleMousemove(e)});
     }
@@ -41,7 +57,6 @@ export default class ReverbModule extends AbstractRackModule {
     toParams() {
         return {
             type: this.type,
-            impulseResponseUrl: this.impulseResponseUrl,
         };
     }
 }

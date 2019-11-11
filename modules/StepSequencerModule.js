@@ -34,7 +34,11 @@ export default class StepSequencerModule extends AbstractRackModule {
             false,
         ];
         this.addEventListener('mousedown', (e) => { this.handleMousedown(e); });
-        this.addPlug(this.sequencerProcessor, 'Step', 'in', 4);
+        this.addPlug(this.sequencerProcessor, 'Clock', 'in', 3);
+        const stepTriggerParam = this.sequencerProcessor.parameters.get('stepTrigger');
+        if (stepTriggerParam) {
+            this.addPlug(stepTriggerParam, 'Step', 'in', 4);
+        }
         const resetTriggerParam = this.sequencerProcessor.parameters.get('resetTrigger');
         if (resetTriggerParam) {
             this.addPlug(resetTriggerParam, 'Reset', 'in', 5);
@@ -67,7 +71,7 @@ export default class StepSequencerModule extends AbstractRackModule {
         return this.levels.length;
     }
     getButtonPositionByIndex(index) {
-        const rowCount = Math.ceil(this.buttonCount / 8);
+        const rowCount = Math.ceil(this.buttonCount / 4);
         const rowNumber = index % rowCount;
         const columnNumber = Math.floor(index / rowCount);
         const xPosition = (this.width / 2)

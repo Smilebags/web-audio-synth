@@ -1,17 +1,20 @@
 import AbstractRackModule from "./AbstractRackModule.js";
-export default class OscillatorModule extends AbstractRackModule {
-    constructor(context, { gain = 1, }) {
+export default class ValuesModule extends AbstractRackModule {
+    constructor(context) {
         super();
-        this.type = 'Gain';
+        this.type = 'Values';
+        this.valuesNodes = [];
         this.mousedownParam = null;
         this.paramInitialValue = null;
         this.mousedownPos = null;
         this.context = context;
-        this.gainNode = this.context.createGain();
-        this.gainNode.gain.value = gain;
-        this.addPlug(this.gainNode, 'In', 'in');
-        this.addDialPlugAndLabel(this.gainNode.gain, this.gainNode.gain, 'VC', 'in', () => this.gainNode.gain.value.toFixed(2));
-        this.addPlug(this.gainNode, 'Out', 'out');
+        for (let i = 0; i < 8; i++) {
+            const constantSourceNode = this.context.createConstantSource();
+            constantSourceNode.offset.value = 0;
+            constantSourceNode.start();
+            this.valuesNodes.push(constantSourceNode);
+            this.addDialPlugAndLabel(this.valuesNodes[i], this.valuesNodes[i].offset, String(i + 1), 'out', () => this.valuesNodes[i].offset.value.toFixed(2));
+        }
         this.addEventListener('mousedown', (e) => { this.handleMousedown(e); });
         this.addEventListener('mousemove', (e) => { this.handleMousemove(e); });
         this.addEventListener('mouseup', () => { this.handleMouseup(); });
@@ -44,7 +47,6 @@ export default class OscillatorModule extends AbstractRackModule {
     toParams() {
         return {
             type: this.type,
-            gain: this.gainNode.gain.value,
         };
     }
 }
