@@ -58,9 +58,6 @@ export default class KeyboardInputModule extends AbstractRackModule {
   gateHighVoltage: number;
   currentKeys: Set<string>;
 
-  private mousedownPos: Vec2 | null = null;
-  private mousemovePos: Vec2 | null = null;
-
   constructor(
     context: AudioContext,
     {

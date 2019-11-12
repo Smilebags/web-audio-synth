@@ -19,10 +19,53 @@ export default abstract class AbstractRackModule implements RackModule {
   name: string | null = null;
   private eventListeners: {[key: string]: Function[]} = {};
 
+  protected mousedownParam: AudioParam | null = null;
+  protected paramInitialValue: number | null = null;
+  protected mousedownPos: Vec2 | null = null;
+  protected paramValueOffset: number | null = null;
+
+
   getPlugAtPosition(pos: Vec2): Plug | null {
     return this.plugs.find(plug => {
       return distance(pos, plug.position) <= plug.radius;
     }) || null;
+  }
+
+  addDefaultEventListeners() {
+    this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
+    this.addEventListener('mousemove', (e: Vec2) => {this.handleMousemove(e)});
+    this.addEventListener('mouseup', () => {this.handleMouseup()});
+  }
+
+  handleMousedown(mousedownEvent: Vec2): void {
+    const param = this.getDialParamFromPosition(mousedownEvent);
+    if (!param) {
+      return;
+    }
+    this.mousedownParam = param;
+    this.mousedownPos = mousedownEvent;
+    this.paramInitialValue = param.value;
+  }
+
+  handleMousemove(mousemoveEvent: Vec2): void {
+    if (
+      this.mousedownPos === null
+      || this.mousedownParam === null
+      || this.paramInitialValue === null
+    ) {
+      return;
+    }
+    const relativeYPos = this.mousedownPos.y - mousemoveEvent.y;
+    this.paramValueOffset = this.paramInitialValue + (relativeYPos / 2**6 );
+    if (this.mousedownParam) {
+      this.mousedownParam.value = this.paramValueOffset;
+    } 
+  }
+
+  handleMouseup(): void {
+    this.mousedownParam = null;
+    this.paramInitialValue = null;
+    this.mousedownPos = null;
   }
 
   onMousedown(position: Vec2): void {

@@ -14,7 +14,6 @@ export default class OscillatorModule extends AbstractRackModule {
   private voltageOffset: number;
 
   private initialVoltage: number | null = null;
-  private mousedownPos: Vec2 | null = null;
   private mousemovePos: Vec2 | null = null;
 
   constructor(

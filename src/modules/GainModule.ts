@@ -12,10 +12,6 @@ export default class OscillatorModule extends AbstractRackModule {
   type: string = 'Gain';
   private gainNode: GainNode;
 
-  private mousedownParam: AudioParam | null = null;
-  private paramInitialValue: number | null = null;
-  private mousedownPos: Vec2 | null = null;
-
   constructor(
     context: AudioContext,
     {
@@ -40,41 +36,9 @@ export default class OscillatorModule extends AbstractRackModule {
     );
     this.addPlug(this.gainNode, 'Out', 'out');
 
-    this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
-    this.addEventListener('mousemove', (e: Vec2) => {this.handleMousemove(e)});
-    this.addEventListener('mouseup', () => {this.handleMouseup()});
+    this.addDefaultEventListeners();
   }
   
-  handleMousedown(pos: Vec2): void {
-    const dialParam = this.getDialParamFromPosition(pos);
-    if (!dialParam) {
-      return;
-    }
-    this.mousedownParam = dialParam;
-    this.paramInitialValue = dialParam.value;
-    this.mousedownPos = pos;
-  }
-
-  handleMousemove(mousemoveEvent: Vec2): void {
-    if (
-      this.mousedownPos === null
-      || this.mousedownParam === null
-      || this.paramInitialValue === null
-    ) {
-      return;
-    }
-    const relativeYPos = this.mousedownPos.y - mousemoveEvent.y;
-    if (this.mousedownParam) {
-      this.mousedownParam.value = this.paramInitialValue + (relativeYPos / 2**6 );
-    } 
-  }
-
-  handleMouseup(): void {
-    this.mousedownParam = null;
-    this.paramInitialValue = null;
-    this.mousedownPos = null;
-  }
-
   toParams(): any {
     return {
       type: this.type,

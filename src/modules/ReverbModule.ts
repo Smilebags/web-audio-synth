@@ -29,9 +29,6 @@ export default class ReverbModule extends AbstractRackModule {
     'Huge',
   ];
 
-  private mousedownPos: Vec2 | null = null;
-  private mousemovePos: Vec2 | null = null;
-
   constructor(context: AudioContext) {
     super();
 

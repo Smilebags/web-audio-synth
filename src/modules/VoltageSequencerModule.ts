@@ -16,7 +16,6 @@ export default class VoltageSequencer extends AbstractRackModule {
   private dialSpread = 24;
   private dialSize = 10;
 
-  private mousedownPos: Vec2 | null = null;
   private mousedownDialIndex: number | null = null;
   private mousedownDialInitialValue: number | null = null;
 
@@ -55,9 +54,7 @@ export default class VoltageSequencer extends AbstractRackModule {
       0,
     ];
 
-    this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
-    this.addEventListener('mousemove', (mousemovePos: Vec2) => this.handleMousemove(mousemovePos));
-    this.addEventListener('mouseup', (mouseupPos: Vec2) => this.handleMouseup(mouseupPos));
+    this.addDefaultEventListeners();
 
     this.addPlug(this.sequencerProcessor, 'Clock', 'in', 3);
     const stepTriggerParam = this.sequencerProcessor.parameters.get('stepTrigger');
@@ -97,7 +94,7 @@ export default class VoltageSequencer extends AbstractRackModule {
     this.sequencerProcessor.port.postMessage({type: 'setLevels', payload: this.levels});
   }
 
-  handleMouseup(pos: Vec2): void {
+  handleMouseup(): void {
     this.mousedownDialIndex = null;
     this.mousedownDialInitialValue = null;
   }
