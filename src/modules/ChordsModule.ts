@@ -150,7 +150,7 @@ export default class ChordsModule extends AbstractRackModule {
     }
 
     const pixelDifference = pos.y - this.mousedownPos.y;
-    const valueDifference = pixelDifference / 2 ** 6;
+    const valueDifference = pixelDifference / 2 ** 8;
     const newValue = this.mousedownDialInitialValue + valueDifference;
     this.setValue(
       this.mousedownDialIndex[0],
