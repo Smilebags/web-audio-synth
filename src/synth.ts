@@ -65,5 +65,6 @@ async function registerProcessors(audioContext: AudioContext) {
     audioContext.audioWorklet.addModule('processors/ClockDividerProcessor.js'),
     audioContext.audioWorklet.addModule('processors/SamplerProcessor.js'),
     audioContext.audioWorklet.addModule('processors/GlideProcessor.js'),
+    audioContext.audioWorklet.addModule('processors/ChordsProcessor.js'),
   ]);
 }
