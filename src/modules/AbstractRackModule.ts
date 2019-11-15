@@ -56,7 +56,7 @@ export default abstract class AbstractRackModule implements RackModule {
       return;
     }
     const relativeYPos = this.mousedownPos.y - mousemoveEvent.y;
-    this.paramValueOffset = this.paramInitialValue + (relativeYPos / 2**6 );
+    this.paramValueOffset = this.paramInitialValue + (relativeYPos / 2**7 );
     if (this.mousedownParam) {
       this.mousedownParam.value = this.paramValueOffset;
     } 
