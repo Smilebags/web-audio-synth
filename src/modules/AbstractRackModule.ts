@@ -143,20 +143,24 @@ export default abstract class AbstractRackModule implements RackModule {
     name: string,
     type: 'in' | 'out',
     order: number | null = null,
-    positioning: 'left' | 'center' | 'right' = 'center',
+    positioning: 'left' | 'center' | 'right' | 'fixed' = 'center',
+    fixedPosition?: Vec2,
   ): void {
-    let positioningOffset = 0;
-    if (positioning !== 'center') {
-      const offsetAmount = this.width / 6;
-      positioningOffset += positioning === 'left' ? -offsetAmount : offsetAmount;
+    let position = fixedPosition;
+    if (positioning !== 'fixed') {
+      let positioningOffset = 0;
+      if (positioning !== 'center') {
+        const offsetAmount = this.width / 6;
+        positioningOffset += positioning === 'left' ? -offsetAmount : offsetAmount;
+      }
+      const xPosition = (this.width / 2) + positioningOffset;
+      const yPosition = this.getYPositionFromOrder(order);
+      position = {
+        x: xPosition,
+        y: yPosition,
+      }
     }
-    const xPosition = (this.width / 2) + positioningOffset;
-    const yPosition = this.getYPositionFromOrder(order);
-    const position = {
-      x: xPosition,
-      y: yPosition,
-    }
-    this.plugs.push(new Plug(this, param, position, name, type));
+    this.plugs.push(new Plug(this, param, position!, name, type));
   }
 
   get firstAvailablePlugSlot() {
@@ -294,7 +298,7 @@ export default abstract class AbstractRackModule implements RackModule {
       renderContext,
       dial.pos,
       dial.radius,
-      dial.param.value,
+      dial.param.value * 2 * Math.PI,
       '',
     ));
   }
