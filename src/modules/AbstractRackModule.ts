@@ -31,6 +31,14 @@ export default abstract class AbstractRackModule implements RackModule {
     }) || null;
   }
 
+  getPlugIndex(plug: Plug): number {
+    return this.plugs.findIndex(modulePlug => modulePlug === plug);
+  }
+
+  getPlugByIndex(index: number): Plug | null {
+    return this.plugs[index] || null;
+  }
+
   addDefaultEventListeners() {
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
     this.addEventListener('mousemove', (e: Vec2) => {this.handleMousemove(e)});

@@ -15,6 +15,13 @@ interface ModuleSlot {
   position: Vec2;
 };
 
+interface CableLoadObject {
+  outModule: number;
+  outPlug: number;
+  inModule: number;
+  inPlug: number;
+}
+
 export default class Rack {
   cables: Cable[] = [];
   moduleSlots: ModuleSlot[] = [];
@@ -88,6 +95,7 @@ export default class Rack {
         throw 'Invalid patch string';
       }
       rack.loadModulesFromPatchObject(patch);
+      rack.connectCablesFromPatchObject(patch);
     } catch (error) {
       console.error(error);
     }
@@ -118,6 +126,19 @@ export default class Rack {
     patchObject.moduleSlots.forEach((moduleSlot) => {
       const moduleInstance = this.rackModuleFactory.createModule(moduleSlot.module.type, moduleSlot.module);
       this.addModule(moduleInstance, moduleSlot.position);
+    });
+  }
+
+  connectCablesFromPatchObject(patchObject: { cables: CableLoadObject[]}) {
+    patchObject.cables.forEach((cableOptions) => {
+      const outModule = this.moduleSlots[cableOptions.outModule].module;
+      const inModule = this.moduleSlots[cableOptions.inModule].module;
+      const outPlug = outModule.getPlugByIndex(cableOptions.outPlug);
+      const inPlug = inModule.getPlugByIndex(cableOptions.inPlug);
+      if (!outPlug || !inPlug) {
+        return;
+      }
+      this.patch(outPlug, inPlug);
     });
   }
 
@@ -211,6 +232,14 @@ export default class Rack {
         module: moduleSlot.module.toParams(),
         position: moduleSlot.position,
       }
+    });
+    output.cables = this.cables.map((cable) => {
+      return {
+        outModule: this.getModuleIndex(cable.plug1.module),
+        outPlug: cable.plug1.module.getPlugIndex(cable.plug1),
+        inModule: this.getModuleIndex(cable.plug2.module),
+        inPlug: cable.plug2.module.getPlugIndex(cable.plug2),
+      };
     });
     return JSON.stringify(output);
   }
