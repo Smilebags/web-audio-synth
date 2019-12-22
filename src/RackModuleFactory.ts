@@ -66,7 +66,7 @@ export default class RackModuleFactory {
       case 'Glide':
         return new GlideModule(this.audioContext);
       case 'Values':
-        return new ValuesModule(this.audioContext);
+        return new ValuesModule(this.audioContext, params);
       case 'Chords':
         return new ChordsModule(this.audioContext);
     }

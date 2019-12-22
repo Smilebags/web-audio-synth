@@ -7,12 +7,19 @@ export default class ValuesModule extends AbstractRackModule {
   type: string = 'Values';
   valuesNodes: ConstantSourceNode[] = [];
 
-  constructor(context: AudioContext) {
+  constructor(
+    context: AudioContext,
+    {
+      initialValues = [0, 0, 0, 0, 0, 0, 0, 0],
+    } : {
+      initialValues?: number[],
+    }
+  ) {
     super();
     this.context = context;
     for (let i = 0; i < 8; i++) {
       const constantSourceNode = this.context.createConstantSource();
-      constantSourceNode.offset.value = 0;
+      constantSourceNode.offset.value = initialValues[i];
       constantSourceNode.start();
 
       this.valuesNodes.push(constantSourceNode);
@@ -28,9 +35,14 @@ export default class ValuesModule extends AbstractRackModule {
     this.addDefaultEventListeners();
   }
 
+  get valuesAsArray() {
+    return this.valuesNodes.map(node => node.offset.value);
+  }
+
   toParams(): any {
     return {
       type: this.type,
+      initialValues: this.valuesAsArray,
     };
   }
 }
