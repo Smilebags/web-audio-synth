@@ -39,5 +39,6 @@ export default JSON.stringify({
         y: 0
       }
     },
-  ]
+  ],
+  cables: [],
 });
