@@ -62,3 +62,7 @@ export function displayFreq(freq: number): string {
 export function clamp(value: number, low: number = 0, high: number = 1) {
   return Math.max(Math.min(value, high), low);
 }
+
+export function notify(message: string): void {
+  console.log(message);
+}
