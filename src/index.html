@@ -50,6 +50,40 @@
       font-weight: 800;
       text-transform: uppercase;
     }
+
+    .modal__wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: sans-serif;
+    }
+
+    .modal__body {
+      width: 50vw;
+      max-height: 75vh;
+      background-color: white;
+      border-radius: 4px;
+      padding: 8px;
+    }
+
+    .modal__header {
+      font-size: 24px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .modal__contents {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
   </style>
   <link rel="modulepreload" href="Rack.js">
   <link rel="modulepreload" href="RackModuleFactory.js">

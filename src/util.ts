@@ -1,5 +1,69 @@
 import { Vec2 } from "./types/Vec2.js";
 
+
+export interface ModalAction {
+  text: string;
+  callback: Function;
+  primary: boolean;
+}
+
+export async function modal(
+  title: string,
+  message: string,
+  actions: ModalAction[],
+) {
+  const modalWrapperEl = document.createElement('div');
+  modalWrapperEl.classList.add('modal__wrapper');
+  
+  const modalEl = document.createElement('div');
+  modalEl.classList.add('modal__body');
+  
+  const headerEl = document.createElement('div');
+  headerEl.classList.add('modal__header');
+  headerEl.innerText = title;
+
+  const contentsEl = document.createElement('div');
+  contentsEl.classList.add('modal__contents');
+  contentsEl.innerText = message;
+
+  const actionsContainerEl = document.createElement('div');
+  actionsContainerEl.classList.add('modal__actions');
+
+  document.body.appendChild(modalWrapperEl);
+  modalWrapperEl.appendChild(modalEl);
+  modalEl.appendChild(headerEl);
+  modalEl.appendChild(contentsEl);
+  modalEl.appendChild(actionsContainerEl);
+  actions.forEach(action => {
+    const actionEl = document.createElement('button');
+    actionEl.addEventListener('click', () => {
+      action.callback();
+      document.body.removeChild(modalWrapperEl);
+    });
+    actionEl.innerText = action.text;
+    actionEl.classList.add('modal__button');
+    if (action.primary) {
+      actionEl.classList.add('modal__button-primary');
+    }
+    actionsContainerEl.appendChild(actionEl);
+  });
+}
+
+export function chooseOption(
+  title: string,
+  message: string,
+  options: string[],
+): Promise<string> {
+  return new Promise((resolve) => {
+    const actions: ModalAction[] = options.map(option => ({
+      primary: false,
+      text: option,
+      callback: () => {resolve(option)},
+    }));
+    modal(title, message, actions);
+  });
+}
+
 export function distance(pos1: Vec2, pos2: Vec2) {
   return (((pos2.x - pos1.x) ** 2) + ((pos2.y - pos1.y) ** 2)) ** 0.5;
 }
