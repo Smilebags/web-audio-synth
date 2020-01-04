@@ -20,6 +20,12 @@ export default class MidiInputModule extends AbstractRackModule {
   private currentNotes: Set<number>;
   private midiInputs: any = null;
   private midiInput: any = null;
+  private isInLearnMode = false;
+  
+  private channel = 1;
+  private readonly noteOnOffset = 16;
+  private readonly pitchbendOffset = 96;
+  private readonly modwheelOffset = 48;
 
   constructor(
     context: AudioContext,
@@ -68,7 +74,45 @@ export default class MidiInputModule extends AbstractRackModule {
     this.addPlug(this.trigger, "Trigger", "out");
     this.addPlug(this.pitchBend, "Pitchbend", "out");
     this.addPlug(this.modWheel, "Modwheel", "out");
-}
+
+    this.addButton({
+      enabled: () => this.isInLearnMode,
+      callback: () => this.triggerLearnMode(),
+      position: {x: 5, y: 305},
+      size: {x: 90, y: 90},
+      text: () => this.isInLearnMode ? 'Learning' : 'Learn',
+    });
+    this.addDefaultEventListeners();
+  }
+
+  triggerLearnMode() {
+    this.isInLearnMode = true;
+    this.midiInput.addEventListener(
+      'midimessage',
+      (midiInputEvent: any) => {
+        const eventStatus = midiInputEvent.data[0];
+        if (eventStatus < 144 || eventStatus > 159) {
+          return;
+        }
+        this.channel = eventStatus - 143;
+        this.isInLearnMode = false;
+      },
+      {once: true},
+    );
+  }
+
+  get noteOnStatus() {
+    return 127 + this.channel + this.noteOnOffset;
+  }
+  get noteOffStatus() {
+    return 127 + this.channel;
+  }
+  get pitchbendStatus() {
+    return 127 + this.channel + this.pitchbendOffset;
+  }
+  get modwheelStatus() {
+    return 127 + this.channel + this.modwheelOffset;
+  }
 
   async setupMidiAccess() {
     // @ts-ignore
@@ -98,18 +142,17 @@ export default class MidiInputModule extends AbstractRackModule {
   }
 
   handleMidiMessage(e:any ): void {
-    console.log(e.data);
     switch (e.data[0]) {
-      case 144:
+      case this.noteOnStatus:
         this.handleNoteOn(e.data);
         break;
-      case 128:
+      case this.noteOffStatus:
         this.handleNoteOff(e.data);
         break;
-      case 224:
+      case this.pitchbendStatus:
         this.handlePitchBend(e.data);
         break;
-      case 176:
+      case this.modwheelStatus:
         this.handleModWheel(e.data);
         break;
       default:
