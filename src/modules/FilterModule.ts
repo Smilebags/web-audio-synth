@@ -1,7 +1,7 @@
 import Plug from "../Plug.js";
 import AbstractRackModule from "./AbstractRackModule.js";
 import { Vec2 } from "../types/Vec2.js";
-import { subtract, distance } from "../util.js";
+import { subtract, distance, displayFreq } from "../util.js";
 
 export default class FilterModule extends AbstractRackModule {
   width!: number;
@@ -14,15 +14,17 @@ export default class FilterModule extends AbstractRackModule {
   private lowpass: BiquadFilterNode;
   private highpass: BiquadFilterNode;
   private vo: AudioWorkletNode;
-  private voCoarseParam?: AudioParam;
+  private voCoarseParam: AudioParam;
   
 
   constructor(
     context: AudioContext, 
     {
       voltageOffset = Math.log2(440),
+      qOffset = 0,
     } : {
       voltageOffset?: number,
+      qOffset?: number,
     },
   ) {
     super();
@@ -33,7 +35,7 @@ export default class FilterModule extends AbstractRackModule {
     this.in.gain.value = 1;
 
     this.qIn = this.context.createConstantSource();
-    this.qIn.offset.value = 0;
+    this.qIn.offset.value = qOffset;
     this.qIn.start();
 
 
@@ -44,7 +46,8 @@ export default class FilterModule extends AbstractRackModule {
     this.highpass.frequency.value = 0;
     this.highpass.type = 'highpass';
     this.vo = new AudioWorkletNode(this.context, 'volt-per-octave-processor');
-    this.voCoarseParam = this.vo.parameters.get('coarse');
+    this.voCoarseParam = this.vo.parameters.get('coarse')!;
+    this.voCoarseParam.value = voltageOffset;
 
     this.in.connect(this.lowpass);
     this.in.connect(this.highpass);
@@ -56,23 +59,20 @@ export default class FilterModule extends AbstractRackModule {
 
     this.addPlug(this.in, 'In', 'in');
 
-    if (this.voCoarseParam) {
-      this.voCoarseParam.value = voltageOffset;
-      this.addDialPlugAndLabel(
-        this.voCoarseParam,
-        this.voCoarseParam,
-        'V/O In',
-        'in',
-        () => ((this.voCoarseParam!).value ** 2).toFixed(2),
-      );
-    }
+    this.addDialPlugAndLabel(
+      this.voCoarseParam,
+      this.voCoarseParam,
+      'V/O In',
+      'in',
+      () => displayFreq(2 ** this.voCoarseParam.value),
+    );
 
     this.addDialPlugAndLabel(
       this.qIn.offset,
       this.qIn.offset,
       'Q',
       'in',
-      () => (this.qIn.offset!).value.toFixed(2),
+      () => this.qIn.offset.value.toFixed(2),
     );
 
     this.addPlug(this.lowpass, 'Low', 'out', 3);
@@ -84,7 +84,8 @@ export default class FilterModule extends AbstractRackModule {
   toParams(): any {
     return {
       type: this.type,
-      voltageOffset: this.paramValueOffset,
+      voltageOffset: this.voCoarseParam.value,
+      qOffset: this.qIn.offset.value,
     }
   }
 }
