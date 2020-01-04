@@ -1,23 +1,29 @@
 import Rack from './Rack.js';
 import RackModuleFactory from './RackModuleFactory.js';
-import samplePatch from './SamplePatch.js';
+// import samplePatch from './SamplePatch.js';
 import { loadImage } from './util.js';
 
 const optionsEl = document.querySelector('.options')!;
-const loadFromClipboardEl = document.querySelector('.load-from-clipboard')!;
-const startDefaultEl = document.querySelector('.start-default')!;
 optionsEl.addEventListener('click', hideOptions, {once: true});
-loadFromClipboardEl.addEventListener('click', loadFromClipboard, {once: true});
-startDefaultEl.addEventListener('click', loadDefaultPatch, {once: true});
 
-async function loadDefaultPatch() {
+const loadFromClipboardEl = document.querySelector('.load-from-clipboard')!;
+loadFromClipboardEl.addEventListener('click', loadFromClipboard, {once: true});
+
+const startDefaultEl = document.querySelector('.start-default')!;
+startDefaultEl.addEventListener('click', () => loadPatch(), {once: true});
+
+const startThreeVoiceSawEl = document.querySelector('.start-three-voice-saw')!;
+startThreeVoiceSawEl.addEventListener('click', () => loadPatch('three-voice-saw'), {once: true});
+
+async function loadPatch(patchName = 'default') {
   const audioContext = new AudioContext();
   await loadDependencies(audioContext);
 
   const rackEl: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>('.rack')!;
   const rackContext = rackEl.getContext('2d')!;
   const rackModuleFactory = new RackModuleFactory(audioContext);
-  Rack.fromPatchString(audioContext, rackContext,rackModuleFactory, samplePatch);
+  const patchString = await fetch(`/${patchName}.patch`).then(res => res.text());
+  Rack.fromPatchString(audioContext, rackContext,rackModuleFactory, patchString);
 }
 
 async function loadFromClipboard() {

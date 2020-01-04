@@ -27,9 +27,14 @@
       display: grid;
       height: calc(100vh - 32px);
       grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
       grid-gap: 16px;
       padding: 16px;
     }
+    /* .options .left,
+    .options .right {
+      display: grid;
+    } */
 
     .options.hidden {
       display: none;
@@ -57,6 +62,7 @@
   <div class="options">
     <div class="load-from-clipboard">Load from clipboard</div>
     <div class="start-default">Start default</div>
+    <div class="start-three-voice-saw">Start Three-voice saw demo</div>
   </div>
   <canvas class="rack">
   </canvas>
