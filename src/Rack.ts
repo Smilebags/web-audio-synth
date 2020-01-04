@@ -8,6 +8,7 @@ import RackModuleFactory from "./RackModuleFactory.js";
 import HeaderButton from "./types/HeaderButton.js";
 import SaveToClipboardButton from "./headerButtons/SaveToClipboardButton.js";
 import HeaderButtonFactory from "./headerButtons/HeaderButtonFactory.js";
+import ModifierKeyStatus from "./ModifierKeyStatus.js";
 
 
 interface ModuleSlot {
@@ -42,6 +43,8 @@ export default class Rack {
   private headerButtons: HeaderButton[] = [];
 
   private moduleHeight = 400;
+
+  private modifierKeyStatus = new ModifierKeyStatus();
 
   constructor(
     public audioContext: AudioContext,
@@ -110,10 +113,19 @@ export default class Rack {
   handleWheel(e: WheelEvent) {
     e.preventDefault();
     e.stopPropagation();
-    this.setScrollPosition({
-      x: this.scrollPosition.x + e.deltaX,
-      y: this.scrollPosition.y + e.deltaY,
-    });
+    if (this.modifierKeyStatus.shift) {
+      // swap scroll directions to allow for horizontal scroll
+      this.setScrollPosition({
+        x: this.scrollPosition.x + e.deltaY,
+        y: this.scrollPosition.y + e.deltaX,
+      });
+    } else {
+      this.setScrollPosition({
+        x: this.scrollPosition.x + e.deltaX,
+        y: this.scrollPosition.y + e.deltaY,
+      });
+    }
+
     return false;
   }
 
