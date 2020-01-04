@@ -15,6 +15,9 @@ startDefaultEl.addEventListener('click', () => loadPatch(), {once: true});
 const startThreeVoiceSawEl = document.querySelector('.start-three-voice-saw')!;
 startThreeVoiceSawEl.addEventListener('click', () => loadPatch('three-voice-saw'), {once: true});
 
+const startMultiInstrumentEl = document.querySelector('.start-two-instruments')!;
+startMultiInstrumentEl.addEventListener('click', () => loadPatch('two-instruments'), {once: true});
+
 async function loadPatch(patchName = 'default') {
   const audioContext = new AudioContext();
   await loadDependencies(audioContext);
