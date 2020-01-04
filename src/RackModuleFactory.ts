@@ -42,7 +42,7 @@ export default class RackModuleFactory {
       case 'MidiInput':
         return new MidiInputModule(this.audioContext, params);
       case 'MidiCCInput':
-        return new MidiCCInputModule(this.audioContext);
+        return new MidiCCInputModule(this.audioContext, params);
       case 'Delay':
         return new DelayModule(this.audioContext, params);
       case 'Output':

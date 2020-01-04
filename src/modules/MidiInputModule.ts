@@ -22,7 +22,7 @@ export default class MidiInputModule extends AbstractRackModule {
   private midiInput: any = null;
   private isInLearnMode = false;
   
-  private channel = 1;
+  private channel: number;
   private readonly noteOnOffset = 16;
   private readonly pitchbendOffset = 96;
   private readonly modwheelOffset = 48;
@@ -30,9 +30,11 @@ export default class MidiInputModule extends AbstractRackModule {
   constructor(
     context: AudioContext,
     {
-      gateHighVoltage = 1
+      gateHighVoltage = 1,
+      channel = 1,
     }: {
       gateHighVoltage?: number;
+      channel?: number;
     }
   ) {
     super();
@@ -40,6 +42,7 @@ export default class MidiInputModule extends AbstractRackModule {
     this.context = context;
 
     this.gateHighVoltage = gateHighVoltage;
+    this.channel = channel;
     this.currentNotes = new Set();
 
     this.velocity = this.context.createConstantSource();
@@ -223,6 +226,7 @@ export default class MidiInputModule extends AbstractRackModule {
   toParams(): any {
     return {
       type: this.type,
+      channel: this.channel,
       gateHighVoltage: this.gateHighVoltage
     };
   }

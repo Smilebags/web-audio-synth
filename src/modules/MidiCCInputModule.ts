@@ -13,13 +13,21 @@ export default class MidiCCInputModule extends AbstractRackModule {
   private outputs: ConstantSourceNode[];
   private midiInput: any = null;
   private isInLearnMode = false;
-  private ccRangeOffset = 21;
+  private ccRangeOffset: number;
 
 
-  constructor(context: AudioContext) {
+  constructor(
+    context: AudioContext,
+    {
+      ccRangeOffset = 21,
+    }: {
+      ccRangeOffset?: number;
+    }
+  ) {
     super();
 
     this.context = context;
+    this.ccRangeOffset = ccRangeOffset;
 
     this.outputs = [];
     for (let i = 0; i < 8; i++) {
@@ -110,6 +118,7 @@ export default class MidiCCInputModule extends AbstractRackModule {
   toParams(): any {
     return {
       type: this.type,
+      ccRangeOffset: this.ccRangeOffset,
     };
   }
 }
