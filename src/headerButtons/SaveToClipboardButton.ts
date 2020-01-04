@@ -1,6 +1,6 @@
 import HeaderButton from "../types/HeaderButton.js";
 import Rack from "../Rack.js";
-import { notify } from "../util.js";
+import { notify, modal } from "../util.js";
 
 export default class SaveToClipboardButton implements HeaderButton {
   constructor(private rack: Rack) {}
@@ -20,10 +20,9 @@ export default class SaveToClipboardButton implements HeaderButton {
       const patchString = this.rack.getPatchString();
       // @ts-ignore
       await navigator.clipboard.writeText(patchString);
-      notify('Saved to clipboard');
+      modal('Success', 'Saved patch to clipboard.');
     } catch (error) {
-      notify('Failed to save to clipboard');
-      
+      modal('Error', 'Failed to save to clipboard.');
     }
   }
 }

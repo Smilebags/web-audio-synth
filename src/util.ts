@@ -10,8 +10,15 @@ export interface ModalAction {
 export async function modal(
   title: string,
   message: string,
-  actions: ModalAction[],
+  actions?: ModalAction[],
 ) {
+  if (!actions) {
+    actions = [{
+      text: 'OK',
+      callback: () => {},
+      primary: true,
+    }];
+  }
   const modalWrapperEl = document.createElement('div');
   modalWrapperEl.classList.add('modal__wrapper');
   
