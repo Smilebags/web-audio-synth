@@ -1,5 +1,6 @@
-import HeaderButton from "../types/HeaderButton";
-import Rack from "../Rack";
+import HeaderButton from "../types/HeaderButton.js";
+import Rack from "../Rack.js";
+import { notify } from "../util.js";
 
 export default class SaveToClipboardButton implements HeaderButton {
   constructor(private rack: Rack) {}
@@ -14,11 +15,15 @@ export default class SaveToClipboardButton implements HeaderButton {
       this.width,
     );
   }
-  handlePress() {
-    const patchString = this.rack.getPatchString();
-    // @ts-ignore
-    navigator.clipboard.writeText(patchString);
-    console.log('Saved to clipboard');
-    alert('Saved to clipboard');
+  async handlePress() {
+    try {
+      const patchString = this.rack.getPatchString();
+      // @ts-ignore
+      await navigator.clipboard.writeText(patchString);
+      notify('Saved to clipboard');
+    } catch (error) {
+      notify('Failed to save to clipboard');
+      
+    }
   }
 }
