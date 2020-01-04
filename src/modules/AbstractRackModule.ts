@@ -9,11 +9,20 @@ interface Label {
   align: CanvasTextAlign;
 };
 
+interface Button {
+  position: Vec2;
+  size: Vec2;
+  text: () => string;
+  enabled: () => boolean;
+  callback: Function;
+}
+
 export default abstract class AbstractRackModule implements RackModule {
   width: number = 100;
   plugs: Plug[] = [];
   labels: Label[] = [];
   dials: {pos: Vec2, radius: number, param: AudioParam}[] = [];
+  buttons: Button[] = [];
 
   abstract type: string;
   name: string | null = null;
@@ -47,12 +56,18 @@ export default abstract class AbstractRackModule implements RackModule {
 
   handleMousedown(mousedownEvent: Vec2): void {
     const param = this.getDialParamFromPosition(mousedownEvent);
-    if (!param) {
+    if (param) {
+      this.mousedownParam = param;
+      this.mousedownPos = mousedownEvent;
+      this.paramInitialValue = param.value;
       return;
     }
-    this.mousedownParam = param;
-    this.mousedownPos = mousedownEvent;
-    this.paramInitialValue = param.value;
+    const selectedButton = this.buttons
+      .find(button => this.testButtonIntersection(button, mousedownEvent));
+    if (selectedButton) {
+      selectedButton.callback();
+      return;
+    }
   }
 
   handleMousemove(mousemoveEvent: Vec2): void {
@@ -136,6 +151,17 @@ export default abstract class AbstractRackModule implements RackModule {
       type,
       order,
     );
+  }
+
+  protected addButton(button: Button) {
+    this.buttons.push(button);
+  }
+
+  private testButtonIntersection(button: Button, pos: Vec2): boolean {
+    return (button.position.x <= pos.x)
+      && (button.position.y <= pos.y)
+      && (button.position.x + button.size.x >= pos.x)
+      && (button.position.y + button.size.y >= pos.y);
   }
 
   protected addDial(
@@ -300,6 +326,16 @@ export default abstract class AbstractRackModule implements RackModule {
 
     this.labels.forEach((label) => {
       this.renderLabel(renderContext, label);
+    });
+
+    this.buttons.forEach((button) => {
+      this.renderButton(
+        renderContext,
+        button.position,
+        button.size,
+        button.text(),
+        button.enabled(),
+      );
     });
 
     this.dials.forEach((dial) => this.renderDial(
