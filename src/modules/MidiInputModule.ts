@@ -1,6 +1,7 @@
 import Plug from "../Plug.js";
 import AbstractRackModule from "./AbstractRackModule.js";
 import { Vec2 } from "../types/Vec2.js";
+import { chooseOption } from "../util.js";
 
 export default class MidiInputModule extends AbstractRackModule {
   width!: number;
@@ -19,7 +20,6 @@ export default class MidiInputModule extends AbstractRackModule {
   private currentNotes: Set<number>;
   private midiInputs: any = null;
   private midiInput: any = null;
-  private midiInputIndex = 0;
 
   constructor(
     context: AudioContext,
@@ -77,12 +77,23 @@ export default class MidiInputModule extends AbstractRackModule {
     for (const input of access.inputs.values()) {
       this.midiInputs.push(input);
     }
-    if (this.midiInputs.length) {
-      this.midiInput = this.midiInputs[0];
-    }
-    if (!this.midiInput) {
+
+    if (!this.midiInputs.length) {
       return;
     }
+
+    if (this.midiInputs.length === 1) {
+      this.midiInput = this.midiInputs[0];
+    } else {
+        const choice = await chooseOption(
+          'MIDI Note Input device',
+          'Choose which MIDI device to use for the MIDI Keyboard module',
+          this.midiInputs.map((input: any) => input.name),
+        );
+        const index = this.midiInputs.findIndex((input: any) => input.name === choice);
+        this.midiInput = this.midiInputs[index];
+    }
+    
     this.midiInput.onmidimessage = (e: any) => this.handleMidiMessage(e);
   }
 

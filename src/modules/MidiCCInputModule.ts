@@ -1,6 +1,7 @@
 import Plug from "../Plug.js";
 import AbstractRackModule from "./AbstractRackModule.js";
 import { Vec2 } from "../types/Vec2.js";
+import { chooseOption } from "../util.js";
 
 export default class MidiCCInputModule extends AbstractRackModule {
   width!: number;
@@ -8,9 +9,11 @@ export default class MidiCCInputModule extends AbstractRackModule {
   plugs!: Plug[];
   type: string = "MidiCCInput";
   name = "CC In";
-
+  
+  
   private outputs: ConstantSourceNode[];
   private midiInput: any = null;
+  private ccOffset: number | null = null;
 
   private ccRangeOffset = 21;
 
@@ -46,12 +49,23 @@ export default class MidiCCInputModule extends AbstractRackModule {
     for (const input of access.inputs.values()) {
       midiInputs.push(input);
     }
-    if (midiInputs.length) {
-      this.midiInput = midiInputs[0];
-    }
-    if (!this.midiInput) {
+
+    if (!midiInputs.length) {
       return;
     }
+
+    if (midiInputs.length === 1) {
+      this.midiInput = midiInputs[0];
+    } else {
+      const choice = await chooseOption(
+        'MIDI CC Input device',
+        'Choose which MIDI device to use for the MIDI CC Module',
+        midiInputs.map(input => input.name),
+      );
+      const index = midiInputs.findIndex(input => input.name === choice);
+      this.midiInput = midiInputs[index];
+    }
+    
     this.midiInput.onmidimessage = (e: any) => this.handleMidiMessage(e);
   }
 
