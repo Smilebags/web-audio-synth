@@ -10,12 +10,11 @@ export default class MidiCCInputModule extends AbstractRackModule {
   type: string = "MidiCCInput";
   name = "CC In";
   
-  
   private outputs: ConstantSourceNode[];
   private midiInput: any = null;
-  private ccOffset: number | null = null;
-
+  private isInLearnMode = false;
   private ccRangeOffset = 21;
+
 
   constructor(context: AudioContext) {
     super();
@@ -40,7 +39,28 @@ export default class MidiCCInputModule extends AbstractRackModule {
     this.addPlug(this.outputs[5], "6", "out", 1, 'right');
     this.addPlug(this.outputs[6], "7", "out", 2, 'right');
     this.addPlug(this.outputs[7], "8", "out", 3, 'right');
-}
+    
+    this.addButton({
+      enabled: () => this.isInLearnMode,
+      callback: () => this.triggerLearnMode(),
+      position: {x: 5, y: 305},
+      size: {x: 90, y: 90},
+      text: () => this.isInLearnMode ? 'Learning' : 'Learn',
+    });
+    this.addDefaultEventListeners();
+  }
+
+  private triggerLearnMode() {
+    this.isInLearnMode = true;
+    this.midiInput.addEventListener(
+      'midimessage',
+      (midiInputEvent: any) => {
+        this.ccRangeOffset = midiInputEvent.data[1];
+        this.isInLearnMode = false;
+      },
+      {once: true},
+    );
+  }
 
   async setupMidiAccess() {
     // @ts-ignore
@@ -66,7 +86,7 @@ export default class MidiCCInputModule extends AbstractRackModule {
       this.midiInput = midiInputs[index];
     }
     
-    this.midiInput.onmidimessage = (e: any) => this.handleMidiMessage(e);
+    this.midiInput.addEventListener('midimessage', (e: any) => this.handleMidiMessage(e));
   }
 
   handleMidiMessage(e:any ): void {
