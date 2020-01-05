@@ -140,9 +140,9 @@ export default class KeyboardInputModule extends AbstractRackModule {
     return pos.y >= 200;
   }
 
-  toParams(): any {
+  toParams(): Object {
     return {
-      type: this.type,
+      ...super.toParams(),
       isOn: this.isOn,
       octave: this.octave,
       gateHighVoltage: this.gateHighVoltage,

@@ -39,9 +39,9 @@ export default class OscillatorModule extends AbstractRackModule {
     this.addDefaultEventListeners();
   }
   
-  toParams(): any {
+  toParams(): Object {
     return {
-      type: this.type,
+      ...super.toParams(),
       gain: this.gainNode.gain.value,
     }
   }

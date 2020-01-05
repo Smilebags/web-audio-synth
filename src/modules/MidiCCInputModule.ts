@@ -115,9 +115,9 @@ export default class MidiCCInputModule extends AbstractRackModule {
     this.outputs[outputIndex].offset.value = value;
   }
 
-  toParams(): any {
+  toParams(): Object {
     return {
-      type: this.type,
+      ...super.toParams(),
       ccRangeOffset: this.ccRangeOffset,
     };
   }

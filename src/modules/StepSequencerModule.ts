@@ -146,12 +146,4 @@ export default class StepSequencerModule extends AbstractRackModule {
       );
     });
   }
-
-  toParams(): any {
-    return {
-      type: this.type,
-      // stepCount: this.states.length,
-      // tickInterval: this.tickInterval,
-    }
-  }
 }

@@ -39,7 +39,7 @@ export default class ValuesModule extends AbstractRackModule {
     return this.valuesNodes.map(node => node.offset.value);
   }
 
-  toParams(): any {
+  toParams(): Object {
     return {
       type: this.type,
       initialValues: this.valuesAsArray,

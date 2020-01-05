@@ -223,9 +223,9 @@ export default class MidiInputModule extends AbstractRackModule {
     this.gate.offset.value = onOff ? this.gateHighVoltage : 0;
   }
 
-  toParams(): any {
+  toParams(): Object {
     return {
-      type: this.type,
+      ...super.toParams(),
       channel: this.channel,
       gateHighVoltage: this.gateHighVoltage
     };

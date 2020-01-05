@@ -37,9 +37,9 @@ export default class DelayModule extends AbstractRackModule {
     this.addDefaultEventListeners();
   }
 
-  toParams(): any {
+  toParams(): Object {
     return {
-      type: this.type,
+      ...super.toParams(),
       startingDelay: this.delay.delayTime.value,
     };
   }

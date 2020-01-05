@@ -150,12 +150,4 @@ export default class VoltageSequencer extends AbstractRackModule {
       this.renderLed(renderContext, pos, 3, Number(this.currentIndex === index));
     });
   }
-
-  toParams(): any {
-    return {
-      type: this.type,
-      // stepCount: this.states.length,
-      // tickInterval: this.tickInterval,
-    }
-  }
 }

@@ -175,9 +175,9 @@ export default class OscillatorModule extends AbstractRackModule {
   //   renderContext.restore();
   // }
 
-  toParams(): any {
+  toParams(): Object {
     return {
-      type: this.type,
+      ...super.toParams(),
       oscType: this.osc.type,
       voltageOffset: this.voltageOffset,
     };

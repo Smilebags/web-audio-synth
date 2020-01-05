@@ -81,9 +81,9 @@ export default class EnvelopeModule extends AbstractRackModule {
     this.addDefaultEventListeners();
   }
   
-  toParams(): any {
+  toParams(): Object {
     return {
-      type: this.type,
+      ...super.toParams(),
       a: this.envelopeAttackParam.value,
       d: this.envelopeDecayParam.value,
       s: this.envelopeSustainParam.value,

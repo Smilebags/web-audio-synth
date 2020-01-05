@@ -81,9 +81,9 @@ export default class FilterModule extends AbstractRackModule {
     this.addDefaultEventListeners();
   }
 
-  toParams(): any {
+  toParams(): Object {
     return {
-      type: this.type,
+      ...super.toParams(),
       voltageOffset: this.voCoarseParam.value,
       qOffset: this.qIn.offset.value,
     }
