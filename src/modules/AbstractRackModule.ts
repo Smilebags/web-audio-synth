@@ -33,6 +33,8 @@ export default abstract class AbstractRackModule implements RackModule {
   protected mousedownPos: Vec2 | null = null;
   protected paramValueOffset: number | null = null;
 
+  private isInRenameMode = false;
+
 
   getPlugAtPosition(pos: Vec2): Plug | null {
     return this.plugs.find(plug => {
@@ -55,6 +57,9 @@ export default abstract class AbstractRackModule implements RackModule {
   }
 
   handleMousedown(mousedownEvent: Vec2): void {
+    if (mousedownEvent.y <= 16) {
+      this.enterRenameMode();
+    }
     const param = this.getDialParamFromPosition(mousedownEvent);
     if (param) {
       this.mousedownParam = param;
@@ -99,6 +104,37 @@ export default abstract class AbstractRackModule implements RackModule {
   }
   onMouseup(position: Vec2): void {
     this.emit('mouseup', position);
+  }
+
+  enterRenameMode() {
+    this.isInRenameMode = true;
+    document.addEventListener('keydown', this.handleRenameModeKeyboardKeystroke);
+  }
+
+  handleRenameModeKeyboardKeystroke = (e: KeyboardEvent) => {
+    this.name = this.name === null ? '' : this.name;
+    switch(e.keyCode)
+    {
+      case 8:
+        if (this.name === '') {
+          break;
+        }
+        this.name = this.name!.substring(0, this.name.length - 1);
+        break;
+      case 13:
+        this.isInRenameMode = false;
+        document.removeEventListener('keydown', this.handleRenameModeKeyboardKeystroke);
+        break;
+      default:
+        if (
+          (e.keyCode >= 48 && e.keyCode <= 57)
+          || (e.keyCode >= 65 && e.keyCode <= 90)
+          || e.keyCode === 32
+        ) {
+          this.name += e.key;
+        }
+        break;
+    }
   }
 
   private getYPositionFromOrder(order: number | null = null) {
@@ -317,8 +353,13 @@ export default abstract class AbstractRackModule implements RackModule {
     renderContext.textAlign = "center";
     renderContext.fillStyle = '#ffffff';
     renderContext.font = "16px Arial";
-    renderContext.fillText(this.name || this.type, this.width / 2, 20);
-
+    renderContext.fillText(this.name === null ? this.type : this.name, this.width / 2, 20);
+    if (this.isInRenameMode) {
+      renderContext.save();
+      renderContext.fillStyle = '#ffffff';
+      renderContext.fillRect(5, 20, 90, 2);
+      renderContext.restore();
+    }
     renderContext.font = "12px Arial";
     this.plugs.forEach((plug) => {
       this.renderPlug(renderContext, plug);
@@ -372,5 +413,9 @@ export default abstract class AbstractRackModule implements RackModule {
     this.eventListeners[eventName].push(callback);
   }
 
-  abstract toParams(): Object;
+  toParams(): Object {
+    return {
+      type: this.type,
+    };
+  }
 }
