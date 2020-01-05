@@ -44,10 +44,4 @@ export default class ClockDividerModule extends AbstractRackModule {
     this.addPlug(this.div32, '/32', 'out');
     this.addPlug(this.div64, '/64', 'out');
   }
-
-  toParams(): any {
-    return {
-      type: this.type,
-    };
-  }
 }

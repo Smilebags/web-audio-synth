@@ -112,10 +112,4 @@ export default class RecorderModule extends AbstractRackModule {
       this.mediaRecorder.state === 'recording',
     );
   }
-
-  toParams(): any {
-    return {
-      type: this.type,
-    };
-  }
 }

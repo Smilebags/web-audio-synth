@@ -34,10 +34,4 @@ export default class SamplerModule extends AbstractRackModule {
     
     this.addPlug(this.sampler, 'Out', 'out');
   }
-
-  toParams(): any {
-    return {
-      type: this.type,
-    };
-  }
 }

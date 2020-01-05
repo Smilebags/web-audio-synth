@@ -27,12 +27,4 @@ export default class GlideModule extends AbstractRackModule {
 
     this.addDefaultEventListeners();
   }
-
-  
-
-  toParams(): any {
-    return {
-      type: this.type,
-    };
-  }
 }

@@ -13,10 +13,4 @@ export default class AudioInputModule extends AbstractRackModule {
       this.addPlug(this.audioSourceNode, "Microphone", "out");
     }, () => {});
   }
-
-  toParams(): any {
-    return {
-      type: this.type,
-    };
-  }
 }

@@ -234,9 +234,4 @@ export default class ChordsModule extends AbstractRackModule {
     });
   }
 
-  toParams(): any {
-    return {
-      type: this.type,
-    };
-  }
 }

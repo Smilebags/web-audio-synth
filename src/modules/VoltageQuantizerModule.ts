@@ -17,10 +17,4 @@ export default class VoltageQuantizerModule extends AbstractRackModule {
     this.addPlug(this.quantizer, 'In', 'in', 0);
     this.addPlug(this.quantizer, 'Out', 'out', 1);
   }
-
-  toParams(): any {
-    return {
-      type: this.type,
-    };
-  }
 }
