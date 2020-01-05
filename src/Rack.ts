@@ -170,9 +170,11 @@ export default class Rack {
     addEventListener("mouseup", this.onMouseup);
     
     this.mousedownPlug = this.getPlugAtRackPosition(this.rackMousedownPosition);
-    if (!this.mousedownPlug) {
-      this.delegateMousedown(this.rackMousedownPosition);
+    if (this.mousedownPlug) {
+      return;
     }
+
+    this.delegateMousedown(this.rackMousedownPosition);
   }
 
   handleMousemove(mousemoveEvent: MouseEvent): void {
