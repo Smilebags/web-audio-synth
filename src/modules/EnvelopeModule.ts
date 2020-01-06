@@ -19,10 +19,10 @@ export default class EnvelopeModule extends AbstractRackModule {
     params: any,
   ) {
     super(params);
-    const a: number = params.a;
-    const d: number = params.d;
-    const s: number = params.s;
-    const r: number = params.r;
+    const { a = 0.01} = params;
+    const { d = 0.05} = params;
+    const { s = 0.5} = params;
+    const { r = 0.2} = params;
 
     this.context = context;
     this.envelope = new AudioWorkletNode(this.context, 'envelope-generator-processor');

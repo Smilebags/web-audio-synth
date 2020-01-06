@@ -17,7 +17,7 @@ export default class OscillatorModule extends AbstractRackModule {
     params: any,
   ) {
     super(params);
-    const { gain = 0 } = params;
+    const { gain = 1 } = params;
     this.context = context;
    
     this.gainNode = this.context.createGain();
