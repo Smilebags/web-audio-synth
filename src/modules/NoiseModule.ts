@@ -8,8 +8,11 @@ export default class NoiseModule extends AbstractRackModule {
   type: string = 'Noise';
   private noise: AudioWorkletNode;
 
-  constructor(context: AudioContext) {
-    super();
+  constructor(
+    context: AudioContext,
+    params: any,
+  ) {
+    super(params);
     this.context = context;
     this.noise = new AudioWorkletNode(this.context, 'noise-processor');
     this.addPlug(this.noise, 'White', 'out');

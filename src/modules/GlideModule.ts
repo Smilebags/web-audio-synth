@@ -7,8 +7,11 @@ export default class GlideModule extends AbstractRackModule {
   private glideWorklet: AudioWorkletNode;
   private glideAmountParam: AudioParam;
 
-  constructor(private context: AudioContext) {
-    super();
+  constructor(
+    private context: AudioContext,
+    params: any,  
+  ) {
+    super(params);
 
     this.glideWorklet = new AudioWorkletNode(this.context, 'glide-processor');
 

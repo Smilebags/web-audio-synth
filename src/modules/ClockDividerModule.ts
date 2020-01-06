@@ -14,8 +14,11 @@ export default class ClockDividerModule extends AbstractRackModule {
   private div32: GainNode;
   private div64: GainNode;
 
-  constructor(context: AudioContext) {
-    super();
+  constructor(
+    context: AudioContext,
+    params: any,  
+  ) {
+    super(params);
     this.context = context;
     this.divider = new AudioWorkletNode(this.context, 'clock-divider-processor', {numberOfOutputs: 6});
 

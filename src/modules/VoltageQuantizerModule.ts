@@ -9,8 +9,11 @@ export default class VoltageQuantizerModule extends AbstractRackModule {
   type: string = 'VoltageQuantizer';
   private quantizer: AudioWorkletNode;
 
-  constructor(context: AudioContext) {
-    super();
+  constructor(
+    context: AudioContext,
+    params: any,
+  ) {
+    super(params);
 
     this.context = context;
     this.quantizer = new AudioWorkletNode(this.context, 'voltage-quantizer-processor');

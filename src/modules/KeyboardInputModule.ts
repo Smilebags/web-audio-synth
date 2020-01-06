@@ -60,17 +60,13 @@ export default class KeyboardInputModule extends AbstractRackModule {
 
   constructor(
     context: AudioContext,
-    {
-      isOn = true,
-      octave = 0,
-      gateHighVoltage = 1,
-    } : {
-      isOn?: boolean,
-      octave?: number,
-      gateHighVoltage?: number,
-    }
+    params: any,
   ) {
-    super();
+    super(params);
+
+    const { isOn = true } = params;
+    const { octave = 0 } = params;
+    const { gateHighVoltage = 1 } = params;
 
     this.context = context;
 

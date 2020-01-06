@@ -13,16 +13,14 @@ export default class DelayModule extends AbstractRackModule {
 
   constructor(
     context: AudioContext,
-    {
-      startingDelay = 0.2
-    }: {
-      startingDelay?: number
+    params: {[key: string]: any} = {
+      startingDelay: 0.2
     }) {
-    super();
+    super(params);
 
     this.context = context;
     this.delay = this.context.createDelay();
-    this.delay.delayTime.value = startingDelay;
+    this.delay.delayTime.value = params.startingDelay;
 
     this.addPlug(this.delay, 'In', 'in');
     this.addDialPlugAndLabel(

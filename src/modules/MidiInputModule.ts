@@ -29,16 +29,12 @@ export default class MidiInputModule extends AbstractRackModule {
 
   constructor(
     context: AudioContext,
-    {
-      gateHighVoltage = 1,
-      channel = 1,
-    }: {
-      gateHighVoltage?: number;
-      channel?: number;
-    }
+    params: any,
   ) {
-    super();
+    super(params);
 
+    const { gateHighVoltage = 1 } = params;
+    const { channel = 1 } = params;
     this.context = context;
 
     this.gateHighVoltage = gateHighVoltage;

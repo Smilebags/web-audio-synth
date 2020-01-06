@@ -22,8 +22,11 @@ export default class VoltageSequencer extends AbstractRackModule {
   private sequencerProcessor: AudioWorkletNode;
   private noopGain: GainNode;
 
-  constructor(context: AudioContext) {
-    super();
+  constructor(
+    context: AudioContext,
+    params: any,
+  ) {
+    super(params);
 
     this.context = context;
     

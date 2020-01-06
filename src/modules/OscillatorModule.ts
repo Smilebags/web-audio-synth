@@ -18,14 +18,12 @@ export default class OscillatorModule extends AbstractRackModule {
 
   constructor(
     context: AudioContext,
-    {
-      oscType = 'sine',
-      voltageOffset = Math.log2(440),
-    }: {
-      oscType?: OscillatorType,
-      voltageOffset?: number,
-    }) {
-    super();
+    params: any,
+  ) {
+    super(params);
+
+    const { oscType = 'sine' } = params;
+    const { voltageOffset = Math.log2(440) } = params;
 
     this.context = context;
     this.osc = this.context.createOscillator();

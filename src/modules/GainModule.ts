@@ -14,13 +14,10 @@ export default class OscillatorModule extends AbstractRackModule {
 
   constructor(
     context: AudioContext,
-    {
-      gain = 1,
-    } : {
-      gain?: number,
-    }) {
-    super();
-
+    params: any,
+  ) {
+    super(params);
+    const { gain = 0 } = params;
     this.context = context;
    
     this.gainNode = this.context.createGain();

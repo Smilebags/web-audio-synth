@@ -8,7 +8,7 @@ export default class MidiCCInputModule extends AbstractRackModule {
   context: AudioContext;
   plugs!: Plug[];
   type: string = "MidiCCInput";
-  name = "CC In";
+  name: string = this.name || "CC In";
   
   private outputs: ConstantSourceNode[];
   private midiInput: any = null;
@@ -18,13 +18,11 @@ export default class MidiCCInputModule extends AbstractRackModule {
 
   constructor(
     context: AudioContext,
-    {
-      ccRangeOffset = 21,
-    }: {
-      ccRangeOffset?: number;
-    }
+    params: any,
   ) {
-    super();
+    super(params);
+
+    const { ccRangeOffset = 21 } = params;
 
     this.context = context;
     this.ccRangeOffset = ccRangeOffset;

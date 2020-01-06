@@ -19,16 +19,12 @@ export default class FilterModule extends AbstractRackModule {
 
   constructor(
     context: AudioContext, 
-    {
-      voltageOffset = Math.log2(440),
-      qOffset = 0,
-    } : {
-      voltageOffset?: number,
-      qOffset?: number,
-    },
+    params: any,
   ) {
-    super();
+    super(params);
 
+    const { voltageOffset = Math.log2(440) } = params;
+    const { qOffset = 0 } = params;
     this.context = context;
     
     this.in = this.context.createGain();

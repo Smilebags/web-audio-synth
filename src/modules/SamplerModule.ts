@@ -10,8 +10,11 @@ export default class SamplerModule extends AbstractRackModule {
   private playbackRateParam: AudioParam;
   private noopGain: GainNode;
 
-  constructor(private context: AudioContext) {
-    super();
+  constructor(
+    private context: AudioContext,
+    params: Object
+  ) {
+    super(params);
 
 
     this.sampler = new AudioWorkletNode(this.context, 'sampler-processor');

@@ -6,8 +6,10 @@ export default class AudioInputModule extends AbstractRackModule {
   private audioSourceNode: MediaStreamAudioSourceNode | null = null;
 
   constructor(
-    private context: AudioContext) {
-    super();
+    private context: AudioContext,
+    params: any,
+  ) {
+    super(params);
     navigator.getUserMedia( {audio:true}, (stream) => {
       this.audioSourceNode = this.context.createMediaStreamSource( stream );
       this.addPlug(this.audioSourceNode, "Microphone", "out");

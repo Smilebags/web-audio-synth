@@ -36,7 +36,7 @@ export default class RackModuleFactory {
       case 'StepSequencer':
         return new StepSequencerModule(this.audioContext, params);
       case 'VoltageSequencer':
-        return new VoltageSequencerModule(this.audioContext);
+        return new VoltageSequencerModule(this.audioContext, params);
       case 'KeyboardInput':
         return new KeyboardInputModule(this.audioContext, params);
       case 'MidiInput':
@@ -46,29 +46,29 @@ export default class RackModuleFactory {
       case 'Delay':
         return new DelayModule(this.audioContext, params);
       case 'Output':
-        return new OutputModule(this.audioContext);
+        return new OutputModule(this.audioContext, params);
       case 'Gain':
         return new GainModule(this.audioContext, params);
       case 'Oscillator':
         return new OscillatorModule(this.audioContext, params);
       case 'VoltageQuantizer':
-        return new VoltageQuantizerModule(this.audioContext);
+        return new VoltageQuantizerModule(this.audioContext, params);
       case 'Reverb':
-        return new ReverbModule(this.audioContext);
+        return new ReverbModule(this.audioContext, params);
       case 'Noise':
-        return new NoiseModule(this.audioContext);
+        return new NoiseModule(this.audioContext, params);
       case 'ClockDivider':
-        return new ClockDividerModule(this.audioContext);
+        return new ClockDividerModule(this.audioContext, params);
       case 'Sampler':
-        return new SamplerModule(this.audioContext);
+        return new SamplerModule(this.audioContext, params);
       case 'AudioInput':
-        return new AudioInputModule(this.audioContext);
+        return new AudioInputModule(this.audioContext, params);
       case 'Glide':
-        return new GlideModule(this.audioContext);
+        return new GlideModule(this.audioContext, params);
       case 'Values':
         return new ValuesModule(this.audioContext, params);
       case 'Chords':
-        return new ChordsModule(this.audioContext);
+        return new ChordsModule(this.audioContext, params);
     }
   }
 }

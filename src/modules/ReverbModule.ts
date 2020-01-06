@@ -29,8 +29,11 @@ export default class ReverbModule extends AbstractRackModule {
     'Huge',
   ];
 
-  constructor(context: AudioContext) {
-    super();
+  constructor(
+    context: AudioContext,
+    params: any,
+  ) {
+    super(params);
 
     this.context = context;
 

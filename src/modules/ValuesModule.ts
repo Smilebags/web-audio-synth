@@ -9,13 +9,11 @@ export default class ValuesModule extends AbstractRackModule {
 
   constructor(
     context: AudioContext,
-    {
-      initialValues = [0, 0, 0, 0, 0, 0, 0, 0],
-    } : {
-      initialValues?: number[],
-    }
+    params: any,
   ) {
-    super();
+    super(params);
+
+    const { initialValues = [0, 0, 0, 0, 0, 0, 0, 0] } = params;
     this.context = context;
     for (let i = 0; i < 8; i++) {
       const constantSourceNode = this.context.createConstantSource();

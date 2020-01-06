@@ -16,8 +16,11 @@ export default class RecorderModule extends AbstractRackModule {
   private mediaRecorder: MediaRecorder;
   private recorderBuffer: any[] = [];
 
-  constructor(context: AudioContext) {
-    super();
+  constructor(
+    context: AudioContext,
+    params: any,
+  ) {
+    super(params);
     this.context = context;
     this.input = this.context.createGain();
     this.mediaStreamNode = this.context.createMediaStreamDestination();

@@ -26,6 +26,7 @@ export default abstract class AbstractRackModule implements RackModule {
 
   abstract type: string;
   name: string | null = null;
+  private label: string | null;
   private eventListeners: {[key: string]: Function[]} = {};
 
   protected mousedownParam: AudioParam | null = null;
@@ -34,6 +35,10 @@ export default abstract class AbstractRackModule implements RackModule {
   protected paramValueOffset: number | null = null;
 
   private isInRenameMode = false;
+
+  constructor(params: {label?: string}) {
+    this.label = params.label || null;
+  }
 
 
   getPlugAtPosition(pos: Vec2): Plug | null {
@@ -108,18 +113,21 @@ export default abstract class AbstractRackModule implements RackModule {
 
   enterRenameMode() {
     this.isInRenameMode = true;
+    this.label = this.label === null ? this.name : this.label;
     document.addEventListener('keydown', this.handleRenameModeKeyboardKeystroke);
   }
 
   handleRenameModeKeyboardKeystroke = (e: KeyboardEvent) => {
-    this.name = this.name === null ? '' : this.name;
+    if (this.label === null) {
+      return; //this shouldn't happen if label is set prior to adding the event listener
+    }
     switch(e.keyCode)
     {
       case 8:
-        if (this.name === '') {
+        if (this.label === '') {
           break;
         }
-        this.name = this.name!.substring(0, this.name.length - 1);
+        this.label = this.label!.substring(0, this.label.length - 1);
         break;
       case 13:
         this.isInRenameMode = false;
@@ -131,7 +139,7 @@ export default abstract class AbstractRackModule implements RackModule {
           || (e.keyCode >= 65 && e.keyCode <= 90)
           || e.keyCode === 32
         ) {
-          this.name += e.key;
+          this.label += e.key;
         }
         break;
     }
@@ -235,6 +243,16 @@ export default abstract class AbstractRackModule implements RackModule {
 
   get firstAvailablePlugSlot() {
     return this.plugs.length;
+  }
+
+  get displayName(): string {
+    if (this.label !== null) {
+      return this.label;
+    }
+    if (this.name !== null) {
+      return this.name;
+    }
+    return this.type;
   }
 
   protected addLabel(label: Partial<Label>): void {
@@ -353,7 +371,7 @@ export default abstract class AbstractRackModule implements RackModule {
     renderContext.textAlign = "center";
     renderContext.fillStyle = '#ffffff';
     renderContext.font = "16px Arial";
-    renderContext.fillText(this.name === null ? this.type : this.name, this.width / 2, 20);
+    renderContext.fillText(this.displayName, this.width / 2, 20);
     if (this.isInRenameMode) {
       renderContext.save();
       renderContext.fillStyle = '#ffffff';
@@ -416,6 +434,7 @@ export default abstract class AbstractRackModule implements RackModule {
   toParams(): Object {
     return {
       type: this.type,
+      label: this.label,
     };
   }
 }

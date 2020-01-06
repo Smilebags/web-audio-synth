@@ -39,8 +39,11 @@ export default class ChordsModule extends AbstractRackModule {
 
   private dialRadius: number = 13;
 
-  constructor(context: AudioContext) {
-    super();
+  constructor(
+    context: AudioContext,
+    params: any,
+  ) {
+    super(params);
     this.context = context;
 
     this.processor = new AudioWorkletNode(this.context, 'chords-processor', {numberOfOutputs: 4});

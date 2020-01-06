@@ -20,14 +20,11 @@ export default class StepSequencerModule extends AbstractRackModule {
 
   constructor(
     context: AudioContext,
-    {
-      tickInterval = 200,
-    } : {
-      tickInterval?: number,
-    }
+    params: any,
   ) {
-    super();
+    super(params);
 
+    const { tickInterval = 200 } = params;
     this.context = context;
     
     this.noopGain = this.context.createGain();
