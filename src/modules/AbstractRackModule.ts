@@ -55,6 +55,10 @@ export default abstract class AbstractRackModule implements RackModule {
     return this.plugs[index] || null;
   }
 
+  getAllPlugs(): Plug[] {
+    return this.plugs;
+  }
+
   addDefaultEventListeners() {
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
     this.addEventListener('mousemove', (e: Vec2) => {this.handleMousemove(e)});
@@ -113,7 +117,9 @@ export default abstract class AbstractRackModule implements RackModule {
 
   enterRenameMode() {
     this.isInRenameMode = true;
-    this.label = this.label === null ? this.name : this.label;
+    if (this.label === null) {
+      this.label = this.displayName;
+    }
     document.addEventListener('keydown', this.handleRenameModeKeyboardKeystroke);
   }
 

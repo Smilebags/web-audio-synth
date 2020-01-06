@@ -166,6 +166,10 @@ export default class Rack {
     }
 
     this.rackMousedownPosition = this.toRackFromWorldPosition(mousedownPosition);
+    if (this.modifierKeyStatus.alt) {
+      this.handleDeleteModuleClick(this.rackMousedownPosition);
+      return;
+    }
     addEventListener("mousemove", this.onMousemove);
     addEventListener("mouseup", this.onMouseup);
     
@@ -215,6 +219,14 @@ export default class Rack {
     this.cleanUpMouseState();
     
 
+  }
+
+  handleDeleteModuleClick(rackPos: Vec2): void {
+    const selectedModule = this.getModuleByRackPosition(rackPos);
+    if (!selectedModule) {
+      return;
+    }
+    this.removeModule(selectedModule);
   }
 
   cleanUpMouseState(): void {
@@ -373,6 +385,25 @@ export default class Rack {
       return;
     }
     this.cables.splice(index, 1);
+  }
+
+  removeModule(rackModule: RackModule): void {
+    const cables = this.getCablesByModule(rackModule);
+    cables.map(cable => this.removeCable(cable));
+    const slotIndex = this.moduleSlots.findIndex(moduleSlot => moduleSlot.module === rackModule);
+    if (slotIndex === -1) {
+      return;
+    }
+    this.moduleSlots.splice(slotIndex, 1);
+  }
+
+  getCablesByModule(rackModule: RackModule): Cable[] {
+    const plugs = rackModule.getAllPlugs();
+    return this.cables.filter(
+      cable => (
+        plugs.indexOf(cable.plug1) !== -1
+        || plugs.indexOf(cable.plug2) !== -1
+    ));
   }
 
   delegateMousedown(rackPosition: Vec2): void {

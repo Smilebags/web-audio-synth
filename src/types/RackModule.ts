@@ -6,6 +6,7 @@ export default interface RackModule {
   getPlugAtPosition(pos: Vec2): Plug | null;
   getPlugIndex(plug: Plug): number;
   getPlugByIndex(index: number): Plug | null;
+  getAllPlugs(): Plug[];
   render(renderContext: CanvasRenderingContext2D): void;
   onMousedown(position: Vec2): void;
   onMousemove(position: Vec2): void;
