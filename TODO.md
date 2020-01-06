@@ -1,6 +1,5 @@
 # TODO
 - Make modules movable
-- Make modules removable
 - Add touch support
 
 Needs params saved
