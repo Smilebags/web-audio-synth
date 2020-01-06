@@ -44,6 +44,10 @@ export default class Rack {
 
   private moduleHeight = 400;
 
+  private selectedModule: RackModule | null = null;
+  private isDraggingModule = false;
+  private draggedModuleOffset: Vec2 | null = null;
+
   private modifierKeyStatus = new ModifierKeyStatus();
 
   constructor(
@@ -171,6 +175,12 @@ export default class Rack {
       this.handleDeleteModuleClick(this.rackMousedownPosition);
       return;
     }
+
+    if (this.modifierKeyStatus.ctrl) {
+      this.handleMoveModuleMouseDown(this.rackMousedownPosition);
+      return;
+    }
+
     addEventListener("mousemove", this.onMousemove);
     addEventListener("mouseup", this.onMouseup);
     
@@ -187,6 +197,10 @@ export default class Rack {
       x: mousemoveEvent.clientX,
       y: mousemoveEvent.clientY,
     });
+    if (this.isDraggingModule) {
+      this.handleMoveModuleMouseMove(this.rackMousemovePosition);
+      return;
+    }
     if(!this.mousedownPlug) {
       this.delegateMousemove(this.rackMousemovePosition);
     }
@@ -197,6 +211,12 @@ export default class Rack {
       x: mouseupEvent.clientX,
       y: mouseupEvent.clientY,
     });
+
+    if (this.isDraggingModule) {
+      this.handleMoveModuleMouseUp(this.rackMouseupPosition);
+      this.cleanUpMouseState();
+      return;
+    }
     
     if(!this.mousedownPlug) {
       this.delegateMouseup(this.rackMouseupPosition);
@@ -228,6 +248,52 @@ export default class Rack {
       return;
     }
     this.removeModule(selectedModule);
+  }
+
+  handleMoveModuleMouseDown(rackPos: Vec2): void {
+    const selectedModule = this.getModuleByRackPosition(rackPos);
+    if (!selectedModule) {
+      return;
+    }
+    this.selectedModule = selectedModule;
+    this.isDraggingModule = true;
+    this.draggedModuleOffset = {x: 0, y: 0};
+    addEventListener("mousemove", this.onMousemove);
+    addEventListener("mouseup", this.onMouseup);
+  }
+
+  handleMoveModuleMouseMove(rackPos: Vec2): void {
+    if(!this.rackMousedownPosition) {
+      return;
+    }
+    this.draggedModuleOffset = {
+      x: rackPos.x - this.rackMousedownPosition.x,
+      y: rackPos.y - this.rackMousedownPosition.y,
+    };
+  }
+
+  handleMoveModuleMouseUp(rackPos: Vec2): void {
+    if(
+      !this.rackMousedownPosition ||
+      !this.selectedModule
+    ) {
+      return;
+    }
+    this.draggedModuleOffset = {
+      x: rackPos.x - this.rackMousedownPosition.x,
+      y: rackPos.y - this.rackMousedownPosition.y,
+    };
+    const rowOffset = Math.floor((this.draggedModuleOffset.y / this.moduleHeight) + 0.5);
+    const moduleSlot = this.moduleSlots.find(slot => slot.module === this.selectedModule);
+    if (
+      moduleSlot
+      && rowOffset !== 0
+      && moduleSlot.position.y + rowOffset >= 0) {
+      moduleSlot.position = this.getNextAvailableSpace(moduleSlot.module.width, moduleSlot.position.y + rowOffset);
+    }
+    this.isDraggingModule = false;
+    this.selectedModule = null;
+    this.draggedModuleOffset = null;
   }
 
   cleanUpMouseState(): void {
@@ -275,8 +341,8 @@ export default class Rack {
     return Math.round(this.scrollPosition.y / this.moduleHeight);
   }
 
-  getNextAvailableSpace(width: number): Vec2 {
-    const yOffset = this.activeRow;
+  getNextAvailableSpace(width: number, preferredRow?: number): Vec2 {
+    const yOffset = preferredRow !== undefined ? preferredRow : this.activeRow;
     const relevantModuleSlots = this.moduleSlots.filter(slot => slot.position.y === yOffset);
     if(relevantModuleSlots.length === 0) {
       return {
@@ -310,6 +376,15 @@ export default class Rack {
     };
   }
 
+  // getModuleSlotCalculatedPosition(moduleSlot: ModuleSlot): Vec2 {
+    
+  //     return {
+  //       x: moduleSlot.position.x,
+  //       y: moduleSlot.position.y * this.moduleHeight,
+  //     }
+  //   }
+  // }
+
   toRackFromWorldPosition(worldPos: Vec2): Vec2 {
     return subtract(worldPos, {x: -this.scrollPosition.x, y: this.headerHeight - this.scrollPosition.y});
   }
@@ -331,6 +406,15 @@ export default class Rack {
     const moduleSlot = this.getModuleSlotByModule(rackModule);
     if (!moduleSlot) {
       throw 'No module slot found';
+    }
+    if (
+      moduleSlot.module === this.selectedModule
+      && this.draggedModuleOffset
+    ) {
+      return {
+        x: moduleSlot.position.x + this.draggedModuleOffset.x,
+        y: (moduleSlot.position.y * this.moduleHeight) + this.draggedModuleOffset.y,
+      }
     }
     return {
       x: moduleSlot.position.x,
@@ -513,8 +597,8 @@ export default class Rack {
   renderModules(): void {
     this.moduleSlots.forEach((moduleSlot) => {
       this.renderContext.save();
-      const modulePosition = moduleSlot.position;
-      this.renderContext.translate(modulePosition.x, modulePosition.y * this.moduleHeight);
+      const modulePosition = this.getModuleRackPosition(moduleSlot.module);
+      this.renderContext.translate(modulePosition.x, modulePosition.y);
       this.renderContext.fillStyle = "#202020";
       this.renderContext.fillRect(0, 0, moduleSlot.module.width, this.moduleHeight);
       this.renderBorder(moduleSlot, 0, 0.5);
