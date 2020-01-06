@@ -275,17 +275,37 @@ export default class Rack {
     return Math.round(this.scrollPosition.y / this.moduleHeight);
   }
 
-  get nextAvailableSpace(): Vec2 {
+  getNextAvailableSpace(width: number): Vec2 {
     const yOffset = this.activeRow;
     const relevantModuleSlots = this.moduleSlots.filter(slot => slot.position.y === yOffset);
-    const xOffset = relevantModuleSlots.reduce((currentMax, slot) => {
-      if (slot.position.x + slot.module.width >= currentMax) {
-        return slot.position.x + slot.module.width;
+    if(relevantModuleSlots.length === 0) {
+      return {
+        x: 0,
+        y: yOffset,
+      };
+    }
+    if(relevantModuleSlots.length === 1) {
+      return {
+        x: relevantModuleSlots[0].module.width,
+        y: yOffset,
+      };
+    }
+    const sortedModuleSlots = relevantModuleSlots.sort((a, b) => a.position.x - b.position.x);
+    for (let i = 1; i < sortedModuleSlots.length; i++) {
+      const previousModule = sortedModuleSlots[i-1]
+      const previousModuleEnd = previousModule.position.x + previousModule.module.width;
+      const spaceBefore = sortedModuleSlots[i].position.x - previousModuleEnd;
+      if (spaceBefore >= width) {
+        return {
+          x: previousModuleEnd,
+          y: yOffset,
+        };
       }
-      return currentMax;
-    }, 0);
+    }
+    const lastModuleSlot = sortedModuleSlots[sortedModuleSlots.length - 1];
+    const endPosition = lastModuleSlot.position.x + lastModuleSlot.module.width;
     return {
-      x: xOffset,
+      x: endPosition,
       y: yOffset,
     };
   }
@@ -299,7 +319,7 @@ export default class Rack {
   }
 
   addModule(rackModule: RackModule, modulePosition?: Vec2): void {
-    const defaultPosition = this.nextAvailableSpace;
+    const defaultPosition = this.getNextAvailableSpace(rackModule.width);
     this.moduleSlots.push({module: rackModule, position: modulePosition || defaultPosition});
   }
 
