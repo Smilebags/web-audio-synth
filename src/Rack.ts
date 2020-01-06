@@ -55,6 +55,7 @@ export default class Rack {
     this.resetWindowSize();
 
     this.headerButtons.push(new SaveToClipboardButton(this));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Output', '#AA5500'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Oscillator', '#0055AA'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Gain', '#00AA55'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Envelope', '#5500AA'));
