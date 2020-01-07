@@ -2,7 +2,7 @@ import { Vec2 } from "./types/Vec2.js";
 import RackModule from "./types/RackModule.js";
 import Plug from "./Plug.js";
 
-import { subtract, isSet, add, distance } from "./util.js";
+import { subtract, isSet, add, distance, isPromise } from "./util.js";
 import Cable from "./Cable.js";
 import RackModuleFactory from "./RackModuleFactory.js";
 import HeaderButton from "./types/HeaderButton.js";
@@ -59,7 +59,10 @@ export default class Rack {
     this.resetWindowSize();
 
     this.headerButtons.push(new SaveToClipboardButton(this));
-    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Output', '#AA5500'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Output', '#00AA55'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'KeyboardInput', '#5500AA'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'MidiInput', '#55AA00'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'MidiCCInput', '#AA0055'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Oscillator', '#0055AA'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Gain', '#00AA55'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Envelope', '#5500AA'));
@@ -69,8 +72,6 @@ export default class Rack {
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Reverb', '#0055AA'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'StepSequencer', '#00AA55'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'VoltageQuantizer', '#5500AA'));
-    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'MidiInput', '#55AA00'));
-    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'MidiCCInput', '#AA0055'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Noise', '#AA5500'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'ClockDivider', '#0055AA'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Sampler', '#00AA55'));
@@ -318,14 +319,19 @@ export default class Rack {
     }
   }
 
-  getPatchString(): string {
+  async getPatchString(): Promise<string> {
     const output: any = {};
-    output.moduleSlots = this.moduleSlots.map((moduleSlot) => {
+    output.moduleSlots = await Promise.all(this.moduleSlots.map(async (moduleSlot) => {
+      let toParamsResponse = moduleSlot.module.toParams();
+      if (isPromise(toParamsResponse)) {
+        toParamsResponse = await toParamsResponse;
+      }
+
       return {
-        module: moduleSlot.module.toParams(),
+        module: toParamsResponse,
         position: moduleSlot.position,
       }
-    });
+    }));
     output.cables = this.cables.map((cable) => {
       return {
         outModule: this.getModuleIndex(cable.plug1.module),

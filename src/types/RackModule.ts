@@ -11,5 +11,5 @@ export default interface RackModule {
   onMousedown(position: Vec2): void;
   onMousemove(position: Vec2): void;
   onMouseup(position: Vec2): void;
-  toParams(): Object;
+  toParams(): Object | Promise<Object>;
 }

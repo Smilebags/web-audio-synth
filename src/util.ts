@@ -137,3 +137,7 @@ export function clamp(value: number, low: number = 0, high: number = 1) {
 export function notify(message: string): void {
   console.log(message);
 }
+
+export function isPromise(obj: any): obj is Promise<any> {
+  return typeof obj.then === 'function';
+}

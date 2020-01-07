@@ -1,4 +1,5 @@
 import AbstractRackModule from "./AbstractRackModule.js";
+import AsyncWorkerPort from "../AsyncWorkerPort.js";
 
 export default class SamplerModule extends AbstractRackModule {
   type: string = 'Sampler';
@@ -9,15 +10,19 @@ export default class SamplerModule extends AbstractRackModule {
   private startPosParam: AudioParam;
   private playbackRateParam: AudioParam;
   private noopGain: GainNode;
+  private asyncWorkerPort: AsyncWorkerPort;
 
   constructor(
     private context: AudioContext,
-    params: Object
+    params: any,
   ) {
     super(params);
 
-
     this.sampler = new AudioWorkletNode(this.context, 'sampler-processor');
+    this.asyncWorkerPort = new AsyncWorkerPort(this.sampler.port);
+    if (params.sampleData) {
+      this.setSampleData(params.sampleData);
+    }
 
     this.noopGain = this.context.createGain();
     this.noopGain.gain.value = 0;
@@ -36,5 +41,24 @@ export default class SamplerModule extends AbstractRackModule {
     this.addPlug(this.playbackRateParam, 'Rate', 'in');
     
     this.addPlug(this.sampler, 'Out', 'out');
+  }
+
+  private async getSampleData(): Promise<string> {
+    const res = await this.asyncWorkerPort.postMessage<{payload: Float32Array}>({ type: 'getSampleData' });
+    return res.payload.join(',');
+  }
+
+  private async setSampleData(sampleData: string) {
+    const buffer = new Float32Array(sampleData
+      .split(',')
+      .map(Number));
+    await this.asyncWorkerPort.postMessage({ type: 'setSampleData', payload: buffer });
+  }
+
+  async toParams(): Promise<Object> {
+    return {
+      ...super.toParams(),
+      sampleData: await this.getSampleData(),
+    };
   }
 }

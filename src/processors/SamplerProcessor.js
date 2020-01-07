@@ -9,6 +9,41 @@ class SamplerProcessor extends AudioWorkletProcessor {
     this.isWriting = false;
     this.isPlayTriggerHigh = false;
     this.cutoff = 0.5;
+
+    this.port.onmessage = (message) => this.handleMessage(message);
+  }
+
+  handleMessage(message) {
+    switch(message.data.body.type) {
+      case 'getSampleData':
+        this.getSampleData(message.data.messageId);
+        break;
+      case 'setSampleData':
+        this.setSampleData(message.data.body.payload);
+        break;
+      default:
+        break;
+    }
+  }
+
+  getSampleData(messageId) {
+    const recordedSection = this.buffer.slice(this.recordingLength);
+    this.port.postMessage({
+      messageId: messageId,
+      body: {
+        type: 'sampleData',
+        payload: this.buffer,
+      },
+    });
+  }
+
+  setSampleData(payload) {
+    if (payload instanceof Float32Array) {
+      this.buffer = payload;
+    } else {
+      this.buffer = new Float32Array(payload);
+    }
+    this.recordingLength = this.buffer.length;
   }
 
   static get parameterDescriptors() {

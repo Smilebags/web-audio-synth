@@ -17,7 +17,7 @@ export default class SaveToClipboardButton implements HeaderButton {
   }
   async handlePress() {
     try {
-      const patchString = this.rack.getPatchString();
+      const patchString: string = await this.rack.getPatchString();
       // @ts-ignore
       await navigator.clipboard.writeText(patchString);
       modal('Success', 'Saved patch to clipboard.');
