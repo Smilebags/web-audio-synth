@@ -27,18 +27,7 @@ export default class VoltageSequencer extends AbstractRackModule {
     params: any,
   ) {
     super(params);
-
-    this.context = context;
-    
-    this.noopGain = this.context.createGain();
-    this.noopGain.gain.value = 0;
-    this.noopGain.connect(this.context.destination);
-    
-    this.sequencerProcessor = new AudioWorkletNode(this.context, 'sequencer-processor');
-    this.sequencerProcessor.port.onmessage = (message: any) => this.handleSequencerProcessorMessage(message);
-    this.sequencerProcessor.connect(this.noopGain);
-
-    this.levels = [
+    const levels = params.levels || [
       0,
       0,
       0,
@@ -56,6 +45,18 @@ export default class VoltageSequencer extends AbstractRackModule {
       0,
       0,
     ];
+
+    this.context = context;
+    
+    this.noopGain = this.context.createGain();
+    this.noopGain.gain.value = 0;
+    this.noopGain.connect(this.context.destination);
+    
+    this.sequencerProcessor = new AudioWorkletNode(this.context, 'sequencer-processor');
+    this.sequencerProcessor.port.onmessage = (message: any) => this.handleSequencerProcessorMessage(message);
+    this.sequencerProcessor.connect(this.noopGain);
+
+    this.levels = levels;
 
     this.addDefaultEventListeners();
 
@@ -152,5 +153,12 @@ export default class VoltageSequencer extends AbstractRackModule {
       this.renderDial(renderContext, pos, this.dialSize, this.levels[index], '');
       this.renderLed(renderContext, pos, 3, Number(this.currentIndex === index));
     });
+  }
+
+  toParams(): Object {
+    return {
+      ...super.toParams(),
+      levels: this.levels,
+    };
   }
 }

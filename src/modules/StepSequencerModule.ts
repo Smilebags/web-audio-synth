@@ -24,18 +24,7 @@ export default class StepSequencerModule extends AbstractRackModule {
   ) {
     super(params);
 
-    const { tickInterval = 200 } = params;
-    this.context = context;
-    
-    this.noopGain = this.context.createGain();
-    this.noopGain.gain.value = 0;
-    this.noopGain.connect(this.context.destination);
-    
-    this.sequencerProcessor = new AudioWorkletNode(this.context, 'sequencer-processor');
-    this.sequencerProcessor.port.onmessage = (message: any) => this.handleSequencerProcessorMessage(message);
-    this.sequencerProcessor.connect(this.noopGain);
-
-    this.levels = [
+    const levels = params.levels || [
       false,
       false,
       false,
@@ -53,6 +42,19 @@ export default class StepSequencerModule extends AbstractRackModule {
       false,
       false,
     ];
+
+    const { tickInterval = 200 } = params;
+    this.context = context;
+    
+    this.noopGain = this.context.createGain();
+    this.noopGain.gain.value = 0;
+    this.noopGain.connect(this.context.destination);
+    
+    this.sequencerProcessor = new AudioWorkletNode(this.context, 'sequencer-processor');
+    this.sequencerProcessor.port.onmessage = (message: any) => this.handleSequencerProcessorMessage(message);
+    this.sequencerProcessor.connect(this.noopGain);
+
+    this.levels = levels;
 
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
 
@@ -142,5 +144,12 @@ export default class StepSequencerModule extends AbstractRackModule {
         this.buttonSize,
       );
     });
+  }
+
+  toParams(): Object {
+    return {
+      ...super.toParams(),
+      levels: this.levels,
+    };
   }
 }

@@ -22,12 +22,7 @@ export default class ChordsModule extends AbstractRackModule {
 
   private activeStep: number = 0;
   private callbackDials: CallbackDial[] = [];
-  private channelLevels = [
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-  ];
+  private channelLevels: number[][];
 
   private mousedownDialIndex: [number, number] | null = null;
   private mousedownDialInitialValue: number | null = null;
@@ -45,6 +40,13 @@ export default class ChordsModule extends AbstractRackModule {
   ) {
     super(params);
     this.context = context;
+
+    this.channelLevels = params.channelLevels || [
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+    ];
 
     this.processor = new AudioWorkletNode(this.context, 'chords-processor', {numberOfOutputs: 4});
     this.noopGain = this.context.createGain();
@@ -235,6 +237,13 @@ export default class ChordsModule extends AbstractRackModule {
         '',
       );
     });
+  }
+
+  toParams(): Object {
+    return {
+      ...super.toParams(),
+      channelLevels: this.channelLevels,
+    };
   }
 
 }

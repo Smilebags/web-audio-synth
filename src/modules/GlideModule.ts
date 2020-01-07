@@ -13,11 +13,14 @@ export default class GlideModule extends AbstractRackModule {
   ) {
     super(params);
 
+    const glideAmount = params.glideAmount || 0;
+
     this.glideWorklet = new AudioWorkletNode(this.context, 'glide-processor');
 
     this.addPlug(this.glideWorklet, 'In', 'in');
 
     this.glideAmountParam = this.glideWorklet.parameters.get('glideAmount')!;
+    this.glideAmountParam.value = glideAmount;
     this.addDialPlugAndLabel(
       this.glideAmountParam,
       this.glideAmountParam,
@@ -29,5 +32,12 @@ export default class GlideModule extends AbstractRackModule {
     this.addPlug(this.glideWorklet, 'Out', 'out');
 
     this.addDefaultEventListeners();
+  }
+
+  toParams(): Object {
+    return {
+      ...super.toParams(),
+      glideAmount: this.glideAmountParam.value,
+    };
   }
 }

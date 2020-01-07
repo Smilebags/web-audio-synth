@@ -2,10 +2,6 @@
 - Add touch support
 
 Needs params saved
-  Sequencer
-  Step Sequencer
-  Glide
-  Chords
   Sampler
 
 Needs customisable names
