@@ -1,9 +1,6 @@
 # TODO
 - Add touch support
 
-Needs params saved
-  Sampler
-
 Needs customisable names
   Output
   Sequencer
