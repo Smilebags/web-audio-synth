@@ -20,6 +20,7 @@ import AudioInputModule from "./modules/AudioInputModule.js";
 import GlideModule from "./modules/GlideModule.js";
 import ValuesModule from "./modules/ValuesModule.js";
 import ChordsModule from "./modules/ChordsModule.js";
+import DistortionModule from "./modules/DistortionModule.js";
 
 
 
@@ -69,6 +70,8 @@ export default class RackModuleFactory {
         return new ValuesModule(this.audioContext, params);
       case 'Chords':
         return new ChordsModule(this.audioContext, params);
+      case 'Distortion':
+        return new DistortionModule(this.audioContext, params);
     }
   }
 }

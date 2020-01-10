@@ -17,4 +17,5 @@ export type RackModuleType = 'Filter'
   | 'Glide'
   | 'Values'
   | 'Chords'
+  | 'Distortion'
   | 'Reverb';
