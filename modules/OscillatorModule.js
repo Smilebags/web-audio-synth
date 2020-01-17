@@ -1,12 +1,13 @@
 import AbstractRackModule from "./AbstractRackModule.js";
 import { subtract, displayFreq } from "../util.js";
 export default class OscillatorModule extends AbstractRackModule {
-    constructor(context, { oscType = 'sine', voltageOffset = Math.log2(440), }) {
-        super();
+    constructor(context, params) {
+        super(params);
         this.type = 'Oscillator';
         this.initialVoltage = null;
-        this.mousedownPos = null;
         this.mousemovePos = null;
+        const { oscType = 'sine' } = params;
+        const { voltageOffset = Math.log2(440) } = params;
         this.context = context;
         this.osc = this.context.createOscillator();
         this.osc.frequency.value = 0;
@@ -113,7 +114,7 @@ export default class OscillatorModule extends AbstractRackModule {
     // }
     toParams() {
         return {
-            type: this.type,
+            ...super.toParams(),
             oscType: this.osc.type,
             voltageOffset: this.voltageOffset,
         };

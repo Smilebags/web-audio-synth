@@ -1,12 +1,12 @@
 import AbstractRackModule from "./AbstractRackModule.js";
 export default class EnvelopeModule extends AbstractRackModule {
-    constructor(context, { a = 0.01, d = 0.2, s = 1, r = 0.2, }) {
-        super();
+    constructor(context, params) {
+        super(params);
         this.type = 'Envelope';
-        this.mousedownParam = null;
-        this.paramInitialValue = null;
-        this.mousedownPos = null;
-        this.paramValueOffset = null;
+        const { a = 0.01 } = params;
+        const { d = 0.05 } = params;
+        const { s = 0.5 } = params;
+        const { r = 0.2 } = params;
         this.context = context;
         this.envelope = new AudioWorkletNode(this.context, 'envelope-generator-processor');
         this.addPlug(this.envelope, 'Trigger', 'in', 0);
@@ -23,39 +23,11 @@ export default class EnvelopeModule extends AbstractRackModule {
         this.envelopeReleaseParam.value = r;
         this.addDialPlugAndLabel(this.envelopeReleaseParam, this.envelopeReleaseParam, 'R', 'in', () => this.envelopeReleaseParam.value.toFixed(2));
         this.addPlug(this.envelope, 'Out', 'out', 5);
-        this.addEventListener('mousedown', (e) => { this.handleMousedown(e); });
-        this.addEventListener('mousemove', (e) => { this.handleMousemove(e); });
-        this.addEventListener('mouseup', () => { this.handleMouseup(); });
-    }
-    handleMousedown(mousedownEvent) {
-        const param = this.getDialParamFromPosition(mousedownEvent);
-        if (!param) {
-            return;
-        }
-        this.mousedownParam = param;
-        this.mousedownPos = mousedownEvent;
-        this.paramInitialValue = param.value;
-    }
-    handleMousemove(mousemoveEvent) {
-        if (this.mousedownPos === null
-            || this.mousedownParam === null
-            || this.paramInitialValue === null) {
-            return;
-        }
-        const relativeYPos = this.mousedownPos.y - mousemoveEvent.y;
-        this.paramValueOffset = this.paramInitialValue + (relativeYPos / 2 ** 6);
-        if (this.mousedownParam) {
-            this.mousedownParam.value = this.paramValueOffset;
-        }
-    }
-    handleMouseup() {
-        this.mousedownParam = null;
-        this.paramInitialValue = null;
-        this.mousedownPos = null;
+        this.addDefaultEventListeners();
     }
     toParams() {
         return {
-            type: this.type,
+            ...super.toParams(),
             a: this.envelopeAttackParam.value,
             d: this.envelopeDecayParam.value,
             s: this.envelopeSustainParam.value,

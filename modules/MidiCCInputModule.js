@@ -1,12 +1,15 @@
 import AbstractRackModule from "./AbstractRackModule.js";
+import { chooseOption } from "../util.js";
 export default class MidiCCInputModule extends AbstractRackModule {
-    constructor(context) {
-        super();
+    constructor(context, params) {
+        super(params);
         this.type = "MidiCCInput";
-        this.name = "CC In";
+        this.name = this.name || "CC In";
         this.midiInput = null;
-        this.ccRangeOffset = 21;
+        this.isInLearnMode = false;
+        const { ccRangeOffset = 21 } = params;
         this.context = context;
+        this.ccRangeOffset = ccRangeOffset;
         this.outputs = [];
         for (let i = 0; i < 8; i++) {
             const output = this.context.createConstantSource();
@@ -23,6 +26,21 @@ export default class MidiCCInputModule extends AbstractRackModule {
         this.addPlug(this.outputs[5], "6", "out", 1, 'right');
         this.addPlug(this.outputs[6], "7", "out", 2, 'right');
         this.addPlug(this.outputs[7], "8", "out", 3, 'right');
+        this.addButton({
+            enabled: () => this.isInLearnMode,
+            callback: () => this.triggerLearnMode(),
+            position: { x: 5, y: 305 },
+            size: { x: 90, y: 90 },
+            text: () => this.isInLearnMode ? 'Learning' : 'Learn',
+        });
+        this.addDefaultEventListeners();
+    }
+    triggerLearnMode() {
+        this.isInLearnMode = true;
+        this.midiInput.addEventListener('midimessage', (midiInputEvent) => {
+            this.ccRangeOffset = midiInputEvent.data[1];
+            this.isInLearnMode = false;
+        }, { once: true });
     }
     async setupMidiAccess() {
         // @ts-ignore
@@ -31,13 +49,18 @@ export default class MidiCCInputModule extends AbstractRackModule {
         for (const input of access.inputs.values()) {
             midiInputs.push(input);
         }
-        if (midiInputs.length) {
-            this.midiInput = midiInputs[0];
-        }
-        if (!this.midiInput) {
+        if (!midiInputs.length) {
             return;
         }
-        this.midiInput.onmidimessage = (e) => this.handleMidiMessage(e);
+        if (midiInputs.length === 1) {
+            this.midiInput = midiInputs[0];
+        }
+        else {
+            const choice = await chooseOption('MIDI CC Input device', 'Choose which MIDI device to use for the MIDI CC Module', midiInputs.map(input => input.name));
+            const index = midiInputs.findIndex(input => input.name === choice);
+            this.midiInput = midiInputs[index];
+        }
+        this.midiInput.addEventListener('midimessage', (e) => this.handleMidiMessage(e));
     }
     handleMidiMessage(e) {
         switch (e.data[0]) {
@@ -57,7 +80,8 @@ export default class MidiCCInputModule extends AbstractRackModule {
     }
     toParams() {
         return {
-            type: this.type,
+            ...super.toParams(),
+            ccRangeOffset: this.ccRangeOffset,
         };
     }
 }

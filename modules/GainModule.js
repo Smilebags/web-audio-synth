@@ -1,49 +1,20 @@
 import AbstractRackModule from "./AbstractRackModule.js";
 export default class OscillatorModule extends AbstractRackModule {
-    constructor(context, { gain = 1, }) {
-        super();
+    constructor(context, params) {
+        super(params);
         this.type = 'Gain';
-        this.mousedownParam = null;
-        this.paramInitialValue = null;
-        this.mousedownPos = null;
+        const { gain = 1 } = params;
         this.context = context;
         this.gainNode = this.context.createGain();
         this.gainNode.gain.value = gain;
         this.addPlug(this.gainNode, 'In', 'in');
         this.addDialPlugAndLabel(this.gainNode.gain, this.gainNode.gain, 'VC', 'in', () => this.gainNode.gain.value.toFixed(2));
         this.addPlug(this.gainNode, 'Out', 'out');
-        this.addEventListener('mousedown', (e) => { this.handleMousedown(e); });
-        this.addEventListener('mousemove', (e) => { this.handleMousemove(e); });
-        this.addEventListener('mouseup', () => { this.handleMouseup(); });
-    }
-    handleMousedown(pos) {
-        const dialParam = this.getDialParamFromPosition(pos);
-        if (!dialParam) {
-            return;
-        }
-        this.mousedownParam = dialParam;
-        this.paramInitialValue = dialParam.value;
-        this.mousedownPos = pos;
-    }
-    handleMousemove(mousemoveEvent) {
-        if (this.mousedownPos === null
-            || this.mousedownParam === null
-            || this.paramInitialValue === null) {
-            return;
-        }
-        const relativeYPos = this.mousedownPos.y - mousemoveEvent.y;
-        if (this.mousedownParam) {
-            this.mousedownParam.value = this.paramInitialValue + (relativeYPos / 2 ** 6);
-        }
-    }
-    handleMouseup() {
-        this.mousedownParam = null;
-        this.paramInitialValue = null;
-        this.mousedownPos = null;
+        this.addDefaultEventListeners();
     }
     toParams() {
         return {
-            type: this.type,
+            ...super.toParams(),
             gain: this.gainNode.gain.value,
         };
     }

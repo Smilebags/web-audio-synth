@@ -1,25 +1,17 @@
 import AbstractRackModule from "./AbstractRackModule.js";
 import { distance } from "../util.js";
 export default class VoltageSequencer extends AbstractRackModule {
-    constructor(context) {
-        super();
+    constructor(context, params) {
+        super(params);
         this.type = 'VoltageSequencer';
         this.name = 'Sequencer';
         this.currentIndex = 0;
         this.topOffset = 40;
         this.dialSpread = 24;
         this.dialSize = 10;
-        this.mousedownPos = null;
         this.mousedownDialIndex = null;
         this.mousedownDialInitialValue = null;
-        this.context = context;
-        this.noopGain = this.context.createGain();
-        this.noopGain.gain.value = 0;
-        this.noopGain.connect(this.context.destination);
-        this.sequencerProcessor = new AudioWorkletNode(this.context, 'sequencer-processor');
-        this.sequencerProcessor.port.onmessage = (message) => this.handleSequencerProcessorMessage(message);
-        this.sequencerProcessor.connect(this.noopGain);
-        this.levels = [
+        const levels = params.levels || [
             0,
             0,
             0,
@@ -37,9 +29,15 @@ export default class VoltageSequencer extends AbstractRackModule {
             0,
             0,
         ];
-        this.addEventListener('mousedown', (e) => { this.handleMousedown(e); });
-        this.addEventListener('mousemove', (mousemovePos) => this.handleMousemove(mousemovePos));
-        this.addEventListener('mouseup', (mouseupPos) => this.handleMouseup(mouseupPos));
+        this.context = context;
+        this.noopGain = this.context.createGain();
+        this.noopGain.gain.value = 0;
+        this.noopGain.connect(this.context.destination);
+        this.sequencerProcessor = new AudioWorkletNode(this.context, 'sequencer-processor');
+        this.sequencerProcessor.port.onmessage = (message) => this.handleSequencerProcessorMessage(message);
+        this.sequencerProcessor.connect(this.noopGain);
+        this.levels = levels;
+        this.addDefaultEventListeners();
         this.addPlug(this.sequencerProcessor, 'Clock', 'in', 3);
         const stepTriggerParam = this.sequencerProcessor.parameters.get('stepTrigger');
         if (stepTriggerParam) {
@@ -71,7 +69,7 @@ export default class VoltageSequencer extends AbstractRackModule {
         this.levels[this.mousedownDialIndex] = this.mousedownDialInitialValue + valueDifference;
         this.sequencerProcessor.port.postMessage({ type: 'setLevels', payload: this.levels });
     }
-    handleMouseup(pos) {
+    handleMouseup() {
         this.mousedownDialIndex = null;
         this.mousedownDialInitialValue = null;
     }
@@ -118,7 +116,8 @@ export default class VoltageSequencer extends AbstractRackModule {
     }
     toParams() {
         return {
-            type: this.type,
+            ...super.toParams(),
+            levels: this.levels,
         };
     }
 }

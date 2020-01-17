@@ -1,7 +1,7 @@
 import AbstractRackModule from "./AbstractRackModule.js";
 export default class RecorderModule extends AbstractRackModule {
-    constructor(context) {
-        super();
+    constructor(context, params) {
+        super(params);
         this.type = 'Output';
         this.name = 'Out + Record';
         this.recorderBuffer = [];
@@ -76,10 +76,5 @@ export default class RecorderModule extends AbstractRackModule {
         super.render(renderContext);
         this.renderButton(renderContext, { x: 5, y: 205 }, { x: 90, y: 90 }, this.mediaRecorder.state === 'recording' ? 'Discard' : 'Start', this.mediaRecorder.state === 'recording');
         this.renderButton(renderContext, { x: 5, y: 305 }, { x: 90, y: 90 }, 'Save', this.mediaRecorder.state === 'recording');
-    }
-    toParams() {
-        return {
-            type: this.type,
-        };
     }
 }

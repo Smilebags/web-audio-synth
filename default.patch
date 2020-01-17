@@ -1,0 +1,14 @@
+{
+  "moduleSlots": [
+    {
+      "module": {
+        "type": "Output"
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    }
+  ],
+  "cables": []
+}

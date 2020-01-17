@@ -40,12 +40,13 @@ const VOLTMAP = {
     d1: 17 / 12,
 };
 export default class KeyboardInputModule extends AbstractRackModule {
-    constructor(context, { isOn = true, octave = 0, gateHighVoltage = 1, }) {
-        super();
+    constructor(context, params) {
+        super(params);
         this.type = 'KeyboardInput';
         this.name = 'Keyboard In';
-        this.mousedownPos = null;
-        this.mousemovePos = null;
+        const { isOn = true } = params;
+        const { octave = 0 } = params;
+        const { gateHighVoltage = 1 } = params;
         this.context = context;
         this.isOn = isOn;
         this.octave = octave;
@@ -104,7 +105,7 @@ export default class KeyboardInputModule extends AbstractRackModule {
     }
     toParams() {
         return {
-            type: this.type,
+            ...super.toParams(),
             isOn: this.isOn,
             octave: this.octave,
             gateHighVoltage: this.gateHighVoltage,

@@ -1,0 +1,386 @@
+{
+  "moduleSlots": [
+    {
+      "module": {
+        "type": "Output"
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "module": {
+        "type": "KeyboardInput",
+        "isOn": true,
+        "octave": 0,
+        "gateHighVoltage": 1
+      },
+      "position": {
+        "x": 100,
+        "y": 0
+      }
+    },
+    {
+      "module": {
+        "type": "MidiInput",
+        "gateHighVoltage": 1
+      },
+      "position": {
+        "x": 200,
+        "y": 0
+      }
+    },
+    {
+      "module": {
+        "type": "MidiCCInput"
+      },
+      "position": {
+        "x": 300,
+        "y": 0
+      }
+    },
+    {
+      "module": {
+        "type": "Oscillator",
+        "oscType": "sawtooth",
+        "voltageOffset": 8.78135971352466
+      },
+      "position": {
+        "x": 0,
+        "y": 1
+      }
+    },
+    {
+      "module": {
+        "type": "Oscillator",
+        "oscType": "sawtooth",
+        "voltageOffset": 8.78135971352466
+      },
+      "position": {
+        "x": 100,
+        "y": 1
+      }
+    },
+    {
+      "module": {
+        "type": "Oscillator",
+        "oscType": "sawtooth",
+        "voltageOffset": 8.78135971352466
+      },
+      "position": {
+        "x": 200,
+        "y": 1
+      }
+    },
+    {
+      "module": {
+        "type": "Envelope",
+        "a": 0.009999999776482582,
+        "d": 0,
+        "s": 0,
+        "r": 0
+      },
+      "position": {
+        "x": 300,
+        "y": 1
+      }
+    },
+    {
+      "module": {
+        "type": "Gain",
+        "gain": 1
+      },
+      "position": {
+        "x": 400,
+        "y": 1
+      }
+    },
+    {
+      "module": {
+        "type": "Gain",
+        "gain": 0
+      },
+      "position": {
+        "x": 500,
+        "y": 1
+      }
+    },
+    {
+      "module": {
+        "type": "Gain",
+        "gain": 0.03125
+      },
+      "position": {
+        "x": 0,
+        "y": 2
+      }
+    },
+    {
+      "module": {
+        "type": "Gain",
+        "gain": -1
+      },
+      "position": {
+        "x": 100,
+        "y": 2
+      }
+    },
+    {
+      "module": {
+        "type": "Gain",
+        "gain": 0.1953125
+      },
+      "position": {
+        "x": 600,
+        "y": 1
+      }
+    },
+    {
+      "module": {
+        "type": "Filter",
+        "voltageOffset": 0
+      },
+      "position": {
+        "x": 700,
+        "y": 1
+      }
+    },
+    {
+      "module": {
+        "type": "Gain",
+        "gain": 2
+      },
+      "position": {
+        "x": 800,
+        "y": 1
+      }
+    },
+    {
+      "module": {
+        "type": "Gain",
+        "gain": 12
+      },
+      "position": {
+        "x": 900,
+        "y": 1
+      }
+    },
+    {
+      "module": {
+        "type": "Gain",
+        "gain": 12
+      },
+      "position": {
+        "x": 1000,
+        "y": 1
+      }
+    },
+    {
+      "module": {
+        "type": "Gain",
+        "gain": 2
+      },
+      "position": {
+        "x": 1100,
+        "y": 1
+      }
+    },
+    {
+      "module": {
+        "type": "Gain",
+        "gain": 2
+      },
+      "position": {
+        "x": 1200,
+        "y": 1
+      }
+    },
+    {
+      "module": {
+        "type": "Gain",
+        "gain": 4
+      },
+      "position": {
+        "x": 1300,
+        "y": 1
+      }
+    }
+  ],
+  "cables": [
+    {
+      "outModule": 19,
+      "outPlug": 2,
+      "inModule": 7,
+      "inPlug": 4
+    },
+    {
+      "outModule": 18,
+      "outPlug": 2,
+      "inModule": 7,
+      "inPlug": 2
+    },
+    {
+      "outModule": 3,
+      "outPlug": 3,
+      "inModule": 19,
+      "inPlug": 0
+    },
+    {
+      "outModule": 3,
+      "outPlug": 2,
+      "inModule": 7,
+      "inPlug": 3
+    },
+    {
+      "outModule": 3,
+      "outPlug": 1,
+      "inModule": 18,
+      "inPlug": 0
+    },
+    {
+      "outModule": 17,
+      "outPlug": 2,
+      "inModule": 7,
+      "inPlug": 1
+    },
+    {
+      "outModule": 3,
+      "outPlug": 0,
+      "inModule": 17,
+      "inPlug": 0
+    },
+    {
+      "outModule": 16,
+      "outPlug": 2,
+      "inModule": 13,
+      "inPlug": 2
+    },
+    {
+      "outModule": 3,
+      "outPlug": 4,
+      "inModule": 16,
+      "inPlug": 0
+    },
+    {
+      "outModule": 15,
+      "outPlug": 2,
+      "inModule": 14,
+      "inPlug": 1
+    },
+    {
+      "outModule": 3,
+      "outPlug": 5,
+      "inModule": 15,
+      "inPlug": 0
+    },
+    {
+      "outModule": 5,
+      "outPlug": 1,
+      "inModule": 8,
+      "inPlug": 0
+    },
+    {
+      "outModule": 2,
+      "outPlug": 0,
+      "inModule": 6,
+      "inPlug": 0
+    },
+    {
+      "outModule": 2,
+      "outPlug": 0,
+      "inModule": 5,
+      "inPlug": 0
+    },
+    {
+      "outModule": 2,
+      "outPlug": 0,
+      "inModule": 4,
+      "inPlug": 0
+    },
+    {
+      "outModule": 8,
+      "outPlug": 2,
+      "inModule": 9,
+      "inPlug": 0
+    },
+    {
+      "outModule": 2,
+      "outPlug": 2,
+      "inModule": 7,
+      "inPlug": 0
+    },
+    {
+      "outModule": 4,
+      "outPlug": 1,
+      "inModule": 8,
+      "inPlug": 0
+    },
+    {
+      "outModule": 6,
+      "outPlug": 1,
+      "inModule": 8,
+      "inPlug": 0
+    },
+    {
+      "outModule": 3,
+      "outPlug": 6,
+      "inModule": 10,
+      "inPlug": 0
+    },
+    {
+      "outModule": 10,
+      "outPlug": 2,
+      "inModule": 5,
+      "inPlug": 0
+    },
+    {
+      "outModule": 10,
+      "outPlug": 2,
+      "inModule": 11,
+      "inPlug": 0
+    },
+    {
+      "outModule": 11,
+      "outPlug": 2,
+      "inModule": 6,
+      "inPlug": 0
+    },
+    {
+      "outModule": 9,
+      "outPlug": 2,
+      "inModule": 12,
+      "inPlug": 0
+    },
+    {
+      "outModule": 3,
+      "outPlug": 7,
+      "inModule": 9,
+      "inPlug": 1
+    },
+    {
+      "outModule": 7,
+      "outPlug": 5,
+      "inModule": 14,
+      "inPlug": 0
+    },
+    {
+      "outModule": 14,
+      "outPlug": 2,
+      "inModule": 13,
+      "inPlug": 1
+    },
+    {
+      "outModule": 12,
+      "outPlug": 2,
+      "inModule": 13,
+      "inPlug": 0
+    },
+    {
+      "outModule": 13,
+      "outPlug": 3,
+      "inModule": 0,
+      "inPlug": 0
+    }
+  ]
+}

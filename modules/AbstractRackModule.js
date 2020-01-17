@@ -2,18 +2,98 @@ import Plug from "../Plug.js";
 import { distance, clamp } from "../util.js";
 ;
 export default class AbstractRackModule {
-    constructor() {
+    constructor(params) {
         this.width = 100;
         this.plugs = [];
         this.labels = [];
         this.dials = [];
+        this.buttons = [];
         this.name = null;
         this.eventListeners = {};
+        this.mousedownParam = null;
+        this.paramInitialValue = null;
+        this.mousedownPos = null;
+        this.paramValueOffset = null;
+        this.isInRenameMode = false;
+        this.handleRenameModeKeyboardKeystroke = (e) => {
+            if (this.label === null) {
+                return; //this shouldn't happen if label is set prior to adding the event listener
+            }
+            switch (e.keyCode) {
+                case 8:
+                    if (this.label === '') {
+                        break;
+                    }
+                    this.label = this.label.substring(0, this.label.length - 1);
+                    break;
+                case 13:
+                    this.isInRenameMode = false;
+                    document.removeEventListener('keydown', this.handleRenameModeKeyboardKeystroke);
+                    break;
+                default:
+                    if ((e.keyCode >= 48 && e.keyCode <= 57)
+                        || (e.keyCode >= 65 && e.keyCode <= 90)
+                        || e.keyCode === 32) {
+                        this.label += e.key;
+                    }
+                    break;
+            }
+        };
+        this.label = params.label || null;
     }
     getPlugAtPosition(pos) {
         return this.plugs.find(plug => {
             return distance(pos, plug.position) <= plug.radius;
         }) || null;
+    }
+    getPlugIndex(plug) {
+        return this.plugs.findIndex(modulePlug => modulePlug === plug);
+    }
+    getPlugByIndex(index) {
+        return this.plugs[index] || null;
+    }
+    getAllPlugs() {
+        return this.plugs;
+    }
+    addDefaultEventListeners() {
+        this.addEventListener('mousedown', (e) => { this.handleMousedown(e); });
+        this.addEventListener('mousemove', (e) => { this.handleMousemove(e); });
+        this.addEventListener('mouseup', () => { this.handleMouseup(); });
+    }
+    handleMousedown(mousedownEvent) {
+        if (mousedownEvent.y <= 16) {
+            this.enterRenameMode();
+        }
+        const param = this.getDialParamFromPosition(mousedownEvent);
+        if (param) {
+            this.mousedownParam = param;
+            this.mousedownPos = mousedownEvent;
+            this.paramInitialValue = param.value;
+            return;
+        }
+        const selectedButton = this.buttons
+            .find(button => this.testButtonIntersection(button, mousedownEvent));
+        if (selectedButton) {
+            selectedButton.callback();
+            return;
+        }
+    }
+    handleMousemove(mousemoveEvent) {
+        if (this.mousedownPos === null
+            || this.mousedownParam === null
+            || this.paramInitialValue === null) {
+            return;
+        }
+        const relativeYPos = this.mousedownPos.y - mousemoveEvent.y;
+        this.paramValueOffset = this.paramInitialValue + (relativeYPos / 2 ** 7);
+        if (this.mousedownParam) {
+            this.mousedownParam.value = this.paramValueOffset;
+        }
+    }
+    handleMouseup() {
+        this.mousedownParam = null;
+        this.paramInitialValue = null;
+        this.mousedownPos = null;
     }
     onMousedown(position) {
         this.emit('mousedown', position);
@@ -23,6 +103,13 @@ export default class AbstractRackModule {
     }
     onMouseup(position) {
         this.emit('mouseup', position);
+    }
+    enterRenameMode() {
+        this.isInRenameMode = true;
+        if (this.label === null) {
+            this.label = this.displayName;
+        }
+        document.addEventListener('keydown', this.handleRenameModeKeyboardKeystroke);
     }
     getYPositionFromOrder(order = null) {
         const slot = order !== null ? order : this.firstAvailablePlugSlot;
@@ -54,25 +141,46 @@ export default class AbstractRackModule {
         });
         this.addPlug(plugParam, name, type, order);
     }
+    addButton(button) {
+        this.buttons.push(button);
+    }
+    testButtonIntersection(button, pos) {
+        return (button.position.x <= pos.x)
+            && (button.position.y <= pos.y)
+            && (button.position.x + button.size.x >= pos.x)
+            && (button.position.y + button.size.y >= pos.y);
+    }
     addDial(pos, radius, param) {
         this.dials.push({ pos, radius, param });
     }
-    addPlug(param, name, type, order = null, positioning = 'center') {
-        let positioningOffset = 0;
-        if (positioning !== 'center') {
-            const offsetAmount = this.width / 6;
-            positioningOffset += positioning === 'left' ? -offsetAmount : offsetAmount;
+    addPlug(param, name, type, order = null, positioning = 'center', fixedPosition) {
+        let position = fixedPosition;
+        if (positioning !== 'fixed') {
+            let positioningOffset = 0;
+            if (positioning !== 'center') {
+                const offsetAmount = this.width / 6;
+                positioningOffset += positioning === 'left' ? -offsetAmount : offsetAmount;
+            }
+            const xPosition = (this.width / 2) + positioningOffset;
+            const yPosition = this.getYPositionFromOrder(order);
+            position = {
+                x: xPosition,
+                y: yPosition,
+            };
         }
-        const xPosition = (this.width / 2) + positioningOffset;
-        const yPosition = this.getYPositionFromOrder(order);
-        const position = {
-            x: xPosition,
-            y: yPosition,
-        };
         this.plugs.push(new Plug(this, param, position, name, type));
     }
     get firstAvailablePlugSlot() {
         return this.plugs.length;
+    }
+    get displayName() {
+        if (this.label !== null) {
+            return this.label;
+        }
+        if (this.name !== null) {
+            return this.name;
+        }
+        return this.type;
     }
     addLabel(label) {
         const defaultLabel = {
@@ -158,7 +266,13 @@ export default class AbstractRackModule {
         renderContext.textAlign = "center";
         renderContext.fillStyle = '#ffffff';
         renderContext.font = "16px Arial";
-        renderContext.fillText(this.name || this.type, this.width / 2, 20);
+        renderContext.fillText(this.displayName, this.width / 2, 20);
+        if (this.isInRenameMode) {
+            renderContext.save();
+            renderContext.fillStyle = '#ffffff';
+            renderContext.fillRect(5, 20, 90, 2);
+            renderContext.restore();
+        }
         renderContext.font = "12px Arial";
         this.plugs.forEach((plug) => {
             this.renderPlug(renderContext, plug);
@@ -166,7 +280,10 @@ export default class AbstractRackModule {
         this.labels.forEach((label) => {
             this.renderLabel(renderContext, label);
         });
-        this.dials.forEach((dial) => this.renderDial(renderContext, dial.pos, dial.radius, dial.param.value, ''));
+        this.buttons.forEach((button) => {
+            this.renderButton(renderContext, button.position, button.size, button.text(), button.enabled());
+        });
+        this.dials.forEach((dial) => this.renderDial(renderContext, dial.pos, dial.radius, dial.param.value * 2 * Math.PI, ''));
     }
     emit(eventName, eventValue) {
         if (!this.eventListeners[eventName]) {
@@ -189,5 +306,11 @@ export default class AbstractRackModule {
             this.eventListeners[eventName] = [];
         }
         this.eventListeners[eventName].push(callback);
+    }
+    toParams() {
+        return {
+            type: this.type,
+            label: this.label,
+        };
     }
 }

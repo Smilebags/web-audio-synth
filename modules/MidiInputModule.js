@@ -1,14 +1,21 @@
 import AbstractRackModule from "./AbstractRackModule.js";
+import { chooseOption } from "../util.js";
 export default class MidiInputModule extends AbstractRackModule {
-    constructor(context, { gateHighVoltage = 1 }) {
-        super();
+    constructor(context, params) {
+        super(params);
         this.type = "MidiInput";
         this.name = "Midi In";
         this.midiInputs = null;
         this.midiInput = null;
-        this.midiInputIndex = 0;
+        this.isInLearnMode = false;
+        this.noteOnOffset = 16;
+        this.pitchbendOffset = 96;
+        this.modwheelOffset = 48;
+        const { gateHighVoltage = 1 } = params;
+        const { channel = 1 } = params;
         this.context = context;
         this.gateHighVoltage = gateHighVoltage;
+        this.channel = channel;
         this.currentNotes = new Set();
         this.velocity = this.context.createConstantSource();
         this.velocity.offset.value = 0;
@@ -35,6 +42,37 @@ export default class MidiInputModule extends AbstractRackModule {
         this.addPlug(this.trigger, "Trigger", "out");
         this.addPlug(this.pitchBend, "Pitchbend", "out");
         this.addPlug(this.modWheel, "Modwheel", "out");
+        this.addButton({
+            enabled: () => this.isInLearnMode,
+            callback: () => this.triggerLearnMode(),
+            position: { x: 5, y: 305 },
+            size: { x: 90, y: 90 },
+            text: () => this.isInLearnMode ? 'Learning' : 'Learn',
+        });
+        this.addDefaultEventListeners();
+    }
+    triggerLearnMode() {
+        this.isInLearnMode = true;
+        this.midiInput.addEventListener('midimessage', (midiInputEvent) => {
+            const eventStatus = midiInputEvent.data[0];
+            if (eventStatus < 144 || eventStatus > 159) {
+                return;
+            }
+            this.channel = eventStatus - 143;
+            this.isInLearnMode = false;
+        }, { once: true });
+    }
+    get noteOnStatus() {
+        return 127 + this.channel + this.noteOnOffset;
+    }
+    get noteOffStatus() {
+        return 127 + this.channel;
+    }
+    get pitchbendStatus() {
+        return 127 + this.channel + this.pitchbendOffset;
+    }
+    get modwheelStatus() {
+        return 127 + this.channel + this.modwheelOffset;
     }
     async setupMidiAccess() {
         // @ts-ignore
@@ -43,27 +81,31 @@ export default class MidiInputModule extends AbstractRackModule {
         for (const input of access.inputs.values()) {
             this.midiInputs.push(input);
         }
-        if (this.midiInputs.length) {
+        if (!this.midiInputs.length) {
+            return;
+        }
+        if (this.midiInputs.length === 1) {
             this.midiInput = this.midiInputs[0];
         }
-        if (!this.midiInput) {
-            return;
+        else {
+            const choice = await chooseOption('MIDI Note Input device', 'Choose which MIDI device to use for the MIDI Keyboard module', this.midiInputs.map((input) => input.name));
+            const index = this.midiInputs.findIndex((input) => input.name === choice);
+            this.midiInput = this.midiInputs[index];
         }
         this.midiInput.onmidimessage = (e) => this.handleMidiMessage(e);
     }
     handleMidiMessage(e) {
-        console.log(e.data);
         switch (e.data[0]) {
-            case 144:
+            case this.noteOnStatus:
                 this.handleNoteOn(e.data);
                 break;
-            case 128:
+            case this.noteOffStatus:
                 this.handleNoteOff(e.data);
                 break;
-            case 224:
+            case this.pitchbendStatus:
                 this.handlePitchBend(e.data);
                 break;
-            case 176:
+            case this.modwheelStatus:
                 this.handleModWheel(e.data);
                 break;
             default:
@@ -124,7 +166,8 @@ export default class MidiInputModule extends AbstractRackModule {
     }
     toParams() {
         return {
-            type: this.type,
+            ...super.toParams(),
+            channel: this.channel,
             gateHighVoltage: this.gateHighVoltage
         };
     }

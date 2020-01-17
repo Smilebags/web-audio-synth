@@ -1,7 +1,7 @@
 import AbstractRackModule from "./AbstractRackModule.js";
 export default class AudioInputModule extends AbstractRackModule {
-    constructor(context) {
-        super();
+    constructor(context, params) {
+        super(params);
         this.context = context;
         this.type = "AudioInput";
         this.name = "Audio In";
@@ -10,10 +10,5 @@ export default class AudioInputModule extends AbstractRackModule {
             this.audioSourceNode = this.context.createMediaStreamSource(stream);
             this.addPlug(this.audioSourceNode, "Microphone", "out");
         }, () => { });
-    }
-    toParams() {
-        return {
-            type: this.type,
-        };
     }
 }

@@ -1,21 +1,14 @@
 import AbstractRackModule from "./AbstractRackModule.js";
 export default class StepSequencerModule extends AbstractRackModule {
-    constructor(context, { tickInterval = 200, }) {
-        super();
+    constructor(context, params) {
+        super(params);
         this.type = 'StepSequencer';
         this.name = 'Step Seq.';
         this.buttonSize = 16;
         this.topOffset = 30;
         this.buttonInterval = 18;
         this.currentIndex = 0;
-        this.context = context;
-        this.noopGain = this.context.createGain();
-        this.noopGain.gain.value = 0;
-        this.noopGain.connect(this.context.destination);
-        this.sequencerProcessor = new AudioWorkletNode(this.context, 'sequencer-processor');
-        this.sequencerProcessor.port.onmessage = (message) => this.handleSequencerProcessorMessage(message);
-        this.sequencerProcessor.connect(this.noopGain);
-        this.levels = [
+        const levels = params.levels || [
             false,
             false,
             false,
@@ -33,6 +26,15 @@ export default class StepSequencerModule extends AbstractRackModule {
             false,
             false,
         ];
+        const { tickInterval = 200 } = params;
+        this.context = context;
+        this.noopGain = this.context.createGain();
+        this.noopGain.gain.value = 0;
+        this.noopGain.connect(this.context.destination);
+        this.sequencerProcessor = new AudioWorkletNode(this.context, 'sequencer-processor');
+        this.sequencerProcessor.port.onmessage = (message) => this.handleSequencerProcessorMessage(message);
+        this.sequencerProcessor.connect(this.noopGain);
+        this.levels = levels;
         this.addEventListener('mousedown', (e) => { this.handleMousedown(e); });
         this.addPlug(this.sequencerProcessor, 'Clock', 'in', 3);
         const stepTriggerParam = this.sequencerProcessor.parameters.get('stepTrigger');
@@ -105,7 +107,8 @@ export default class StepSequencerModule extends AbstractRackModule {
     }
     toParams() {
         return {
-            type: this.type,
+            ...super.toParams(),
+            levels: this.levels,
         };
     }
 }

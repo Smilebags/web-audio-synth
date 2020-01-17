@@ -1,7 +1,8 @@
-import { subtract, isSet, add, distance } from "./util.js";
+import { subtract, isSet, add, distance, isPromise } from "./util.js";
 import Cable from "./Cable.js";
 import SaveToClipboardButton from "./headerButtons/SaveToClipboardButton.js";
 import HeaderButtonFactory from "./headerButtons/HeaderButtonFactory.js";
+import ModifierKeyStatus from "./ModifierKeyStatus.js";
 ;
 export default class Rack {
     constructor(audioContext, renderContext, rackModuleFactory) {
@@ -20,9 +21,17 @@ export default class Rack {
         this.headerHeight = 32;
         this.headerButtons = [];
         this.moduleHeight = 400;
+        this.selectedModule = null;
+        this.isDraggingModule = false;
+        this.draggedModuleOffset = null;
+        this.modifierKeyStatus = new ModifierKeyStatus();
         this.dpr = window.devicePixelRatio || 1;
         this.resetWindowSize();
         this.headerButtons.push(new SaveToClipboardButton(this));
+        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Output', '#00AA55'));
+        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'KeyboardInput', '#5500AA'));
+        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'MidiInput', '#55AA00'));
+        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'MidiCCInput', '#AA0055'));
         this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Oscillator', '#0055AA'));
         this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Gain', '#00AA55'));
         this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Envelope', '#5500AA'));
@@ -32,14 +41,14 @@ export default class Rack {
         this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Reverb', '#0055AA'));
         this.headerButtons.push(HeaderButtonFactory.createButton(this, 'StepSequencer', '#00AA55'));
         this.headerButtons.push(HeaderButtonFactory.createButton(this, 'VoltageQuantizer', '#5500AA'));
-        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'MidiInput', '#55AA00'));
-        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'MidiCCInput', '#AA0055'));
         this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Noise', '#AA5500'));
         this.headerButtons.push(HeaderButtonFactory.createButton(this, 'ClockDivider', '#0055AA'));
         this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Sampler', '#00AA55'));
         this.headerButtons.push(HeaderButtonFactory.createButton(this, 'AudioInput', '#5500AA'));
         this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Glide', '#55AA00'));
         this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Values', '#AA0055'));
+        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Chords', '#AA5500'));
+        this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Distortion', '#0055AA'));
         this.onMousedown = (e) => this.handleMousedown(e);
         this.onMousemove = (e) => this.handleMousemove(e);
         this.onMouseup = (e) => this.handleMouseup(e);
@@ -56,6 +65,7 @@ export default class Rack {
                 throw 'Invalid patch string';
             }
             rack.loadModulesFromPatchObject(patch);
+            rack.connectCablesFromPatchObject(patch);
         }
         catch (error) {
             console.error(error);
@@ -69,10 +79,19 @@ export default class Rack {
     handleWheel(e) {
         e.preventDefault();
         e.stopPropagation();
-        this.setScrollPosition({
-            x: this.scrollPosition.x + e.deltaX,
-            y: this.scrollPosition.y + e.deltaY,
-        });
+        if (this.modifierKeyStatus.shift) {
+            // swap scroll directions to allow for horizontal scroll
+            this.setScrollPosition({
+                x: this.scrollPosition.x + e.deltaY,
+                y: this.scrollPosition.y + e.deltaX,
+            });
+        }
+        else {
+            this.setScrollPosition({
+                x: this.scrollPosition.x + e.deltaX,
+                y: this.scrollPosition.y + e.deltaY,
+            });
+        }
         return false;
     }
     setScrollPosition(pos) {
@@ -85,6 +104,18 @@ export default class Rack {
             this.addModule(moduleInstance, moduleSlot.position);
         });
     }
+    connectCablesFromPatchObject(patchObject) {
+        patchObject.cables.forEach((cableOptions) => {
+            const outModule = this.moduleSlots[cableOptions.outModule].module;
+            const inModule = this.moduleSlots[cableOptions.inModule].module;
+            const outPlug = outModule.getPlugByIndex(cableOptions.outPlug);
+            const inPlug = inModule.getPlugByIndex(cableOptions.inPlug);
+            if (!outPlug || !inPlug) {
+                return;
+            }
+            this.patch(outPlug, inPlug);
+        });
+    }
     handleMousedown(mousedownEvent) {
         const mousedownPosition = {
             x: mousedownEvent.clientX,
@@ -95,18 +126,31 @@ export default class Rack {
             return;
         }
         this.rackMousedownPosition = this.toRackFromWorldPosition(mousedownPosition);
+        if (this.modifierKeyStatus.alt) {
+            this.handleDeleteModuleClick(this.rackMousedownPosition);
+            return;
+        }
+        if (this.modifierKeyStatus.ctrl) {
+            this.handleMoveModuleMouseDown(this.rackMousedownPosition);
+            return;
+        }
         addEventListener("mousemove", this.onMousemove);
         addEventListener("mouseup", this.onMouseup);
         this.mousedownPlug = this.getPlugAtRackPosition(this.rackMousedownPosition);
-        if (!this.mousedownPlug) {
-            this.delegateMousedown(this.rackMousedownPosition);
+        if (this.mousedownPlug) {
+            return;
         }
+        this.delegateMousedown(this.rackMousedownPosition);
     }
     handleMousemove(mousemoveEvent) {
         this.rackMousemovePosition = this.toRackFromWorldPosition({
             x: mousemoveEvent.clientX,
             y: mousemoveEvent.clientY,
         });
+        if (this.isDraggingModule) {
+            this.handleMoveModuleMouseMove(this.rackMousemovePosition);
+            return;
+        }
         if (!this.mousedownPlug) {
             this.delegateMousemove(this.rackMousemovePosition);
         }
@@ -116,6 +160,11 @@ export default class Rack {
             x: mouseupEvent.clientX,
             y: mouseupEvent.clientY,
         });
+        if (this.isDraggingModule) {
+            this.handleMoveModuleMouseUp(this.rackMouseupPosition);
+            this.cleanUpMouseState();
+            return;
+        }
         if (!this.mousedownPlug) {
             this.delegateMouseup(this.rackMouseupPosition);
             this.cleanUpMouseState();
@@ -132,6 +181,53 @@ export default class Rack {
             this.patch(this.mousedownPlug, this.mouseupPlug);
         }
         this.cleanUpMouseState();
+    }
+    handleDeleteModuleClick(rackPos) {
+        const selectedModule = this.getModuleByRackPosition(rackPos);
+        if (!selectedModule) {
+            return;
+        }
+        this.removeModule(selectedModule);
+    }
+    handleMoveModuleMouseDown(rackPos) {
+        const selectedModule = this.getModuleByRackPosition(rackPos);
+        if (!selectedModule) {
+            return;
+        }
+        this.selectedModule = selectedModule;
+        this.isDraggingModule = true;
+        this.draggedModuleOffset = { x: 0, y: 0 };
+        addEventListener("mousemove", this.onMousemove);
+        addEventListener("mouseup", this.onMouseup);
+    }
+    handleMoveModuleMouseMove(rackPos) {
+        if (!this.rackMousedownPosition) {
+            return;
+        }
+        this.draggedModuleOffset = {
+            x: rackPos.x - this.rackMousedownPosition.x,
+            y: rackPos.y - this.rackMousedownPosition.y,
+        };
+    }
+    handleMoveModuleMouseUp(rackPos) {
+        if (!this.rackMousedownPosition ||
+            !this.selectedModule) {
+            return;
+        }
+        this.draggedModuleOffset = {
+            x: rackPos.x - this.rackMousedownPosition.x,
+            y: rackPos.y - this.rackMousedownPosition.y,
+        };
+        const rowOffset = Math.floor((this.draggedModuleOffset.y / this.moduleHeight) + 0.5);
+        const moduleSlot = this.moduleSlots.find(slot => slot.module === this.selectedModule);
+        if (moduleSlot
+            && rowOffset !== 0
+            && moduleSlot.position.y + rowOffset >= 0) {
+            moduleSlot.position = this.getNextAvailableSpace(moduleSlot.module.width, moduleSlot.position.y + rowOffset);
+        }
+        this.isDraggingModule = false;
+        this.selectedModule = null;
+        this.draggedModuleOffset = null;
     }
     cleanUpMouseState() {
         this.rackMousedownPosition = null;
@@ -153,12 +249,24 @@ export default class Rack {
             currentButtonStart += headerButton.width;
         }
     }
-    getPatchString() {
+    async getPatchString() {
         const output = {};
-        output.moduleSlots = this.moduleSlots.map((moduleSlot) => {
+        output.moduleSlots = await Promise.all(this.moduleSlots.map(async (moduleSlot) => {
+            let toParamsResponse = moduleSlot.module.toParams();
+            if (isPromise(toParamsResponse)) {
+                toParamsResponse = await toParamsResponse;
+            }
             return {
-                module: moduleSlot.module.toParams(),
+                module: toParamsResponse,
                 position: moduleSlot.position,
+            };
+        }));
+        output.cables = this.cables.map((cable) => {
+            return {
+                outModule: this.getModuleIndex(cable.plug1.module),
+                outPlug: cable.plug1.module.getPlugIndex(cable.plug1),
+                inModule: this.getModuleIndex(cable.plug2.module),
+                inPlug: cable.plug2.module.getPlugIndex(cable.plug2),
             };
         });
         return JSON.stringify(output);
@@ -166,20 +274,47 @@ export default class Rack {
     get activeRow() {
         return Math.round(this.scrollPosition.y / this.moduleHeight);
     }
-    get nextAvailableSpace() {
-        const yOffset = this.activeRow;
+    getNextAvailableSpace(width, preferredRow) {
+        const yOffset = preferredRow !== undefined ? preferredRow : this.activeRow;
         const relevantModuleSlots = this.moduleSlots.filter(slot => slot.position.y === yOffset);
-        const xOffset = relevantModuleSlots.reduce((currentMax, slot) => {
-            if (slot.position.x + slot.module.width >= currentMax) {
-                return slot.position.x + slot.module.width;
+        if (relevantModuleSlots.length === 0) {
+            return {
+                x: 0,
+                y: yOffset,
+            };
+        }
+        if (relevantModuleSlots.length === 1) {
+            return {
+                x: relevantModuleSlots[0].module.width,
+                y: yOffset,
+            };
+        }
+        const sortedModuleSlots = relevantModuleSlots.sort((a, b) => a.position.x - b.position.x);
+        for (let i = 1; i < sortedModuleSlots.length; i++) {
+            const previousModule = sortedModuleSlots[i - 1];
+            const previousModuleEnd = previousModule.position.x + previousModule.module.width;
+            const spaceBefore = sortedModuleSlots[i].position.x - previousModuleEnd;
+            if (spaceBefore >= width) {
+                return {
+                    x: previousModuleEnd,
+                    y: yOffset,
+                };
             }
-            return currentMax;
-        }, 0);
+        }
+        const lastModuleSlot = sortedModuleSlots[sortedModuleSlots.length - 1];
+        const endPosition = lastModuleSlot.position.x + lastModuleSlot.module.width;
         return {
-            x: xOffset,
+            x: endPosition,
             y: yOffset,
         };
     }
+    // getModuleSlotCalculatedPosition(moduleSlot: ModuleSlot): Vec2 {
+    //     return {
+    //       x: moduleSlot.position.x,
+    //       y: moduleSlot.position.y * this.moduleHeight,
+    //     }
+    //   }
+    // }
     toRackFromWorldPosition(worldPos) {
         return subtract(worldPos, { x: -this.scrollPosition.x, y: this.headerHeight - this.scrollPosition.y });
     }
@@ -187,7 +322,7 @@ export default class Rack {
         return add(rackPos, { x: -this.scrollPosition.x, y: this.headerHeight });
     }
     addModule(rackModule, modulePosition) {
-        const defaultPosition = this.nextAvailableSpace;
+        const defaultPosition = this.getNextAvailableSpace(rackModule.width);
         this.moduleSlots.push({ module: rackModule, position: modulePosition || defaultPosition });
     }
     getModuleIndex(rackModule) {
@@ -197,6 +332,13 @@ export default class Rack {
         const moduleSlot = this.getModuleSlotByModule(rackModule);
         if (!moduleSlot) {
             throw 'No module slot found';
+        }
+        if (moduleSlot.module === this.selectedModule
+            && this.draggedModuleOffset) {
+            return {
+                x: moduleSlot.position.x + this.draggedModuleOffset.x,
+                y: (moduleSlot.position.y * this.moduleHeight) + this.draggedModuleOffset.y,
+            };
         }
         return {
             x: moduleSlot.position.x,
@@ -262,6 +404,20 @@ export default class Rack {
         }
         this.cables.splice(index, 1);
     }
+    removeModule(rackModule) {
+        const cables = this.getCablesByModule(rackModule);
+        cables.map(cable => this.removeCable(cable));
+        const slotIndex = this.moduleSlots.findIndex(moduleSlot => moduleSlot.module === rackModule);
+        if (slotIndex === -1) {
+            return;
+        }
+        this.moduleSlots.splice(slotIndex, 1);
+    }
+    getCablesByModule(rackModule) {
+        const plugs = rackModule.getAllPlugs();
+        return this.cables.filter(cable => (plugs.indexOf(cable.plug1) !== -1
+            || plugs.indexOf(cable.plug2) !== -1));
+    }
     delegateMousedown(rackPosition) {
         const rackModule = this.getModuleByRackPosition(rackPosition);
         this.delegateModule = rackModule;
@@ -325,8 +481,8 @@ export default class Rack {
     renderModules() {
         this.moduleSlots.forEach((moduleSlot) => {
             this.renderContext.save();
-            const modulePosition = moduleSlot.position;
-            this.renderContext.translate(modulePosition.x, modulePosition.y * this.moduleHeight);
+            const modulePosition = this.getModuleRackPosition(moduleSlot.module);
+            this.renderContext.translate(modulePosition.x, modulePosition.y);
             this.renderContext.fillStyle = "#202020";
             this.renderContext.fillRect(0, 0, moduleSlot.module.width, this.moduleHeight);
             this.renderBorder(moduleSlot, 0, 0.5);

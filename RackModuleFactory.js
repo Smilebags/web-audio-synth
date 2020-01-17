@@ -17,6 +17,8 @@ import SamplerModule from "./modules/SamplerModule.js";
 import AudioInputModule from "./modules/AudioInputModule.js";
 import GlideModule from "./modules/GlideModule.js";
 import ValuesModule from "./modules/ValuesModule.js";
+import ChordsModule from "./modules/ChordsModule.js";
+import DistortionModule from "./modules/DistortionModule.js";
 export default class RackModuleFactory {
     constructor(audioContext) {
         this.audioContext = audioContext;
@@ -30,37 +32,41 @@ export default class RackModuleFactory {
             case 'StepSequencer':
                 return new StepSequencerModule(this.audioContext, params);
             case 'VoltageSequencer':
-                return new VoltageSequencerModule(this.audioContext);
+                return new VoltageSequencerModule(this.audioContext, params);
             case 'KeyboardInput':
                 return new KeyboardInputModule(this.audioContext, params);
             case 'MidiInput':
                 return new MidiInputModule(this.audioContext, params);
             case 'MidiCCInput':
-                return new MidiCCInputModule(this.audioContext);
+                return new MidiCCInputModule(this.audioContext, params);
             case 'Delay':
                 return new DelayModule(this.audioContext, params);
             case 'Output':
-                return new OutputModule(this.audioContext);
+                return new OutputModule(this.audioContext, params);
             case 'Gain':
                 return new GainModule(this.audioContext, params);
             case 'Oscillator':
                 return new OscillatorModule(this.audioContext, params);
             case 'VoltageQuantizer':
-                return new VoltageQuantizerModule(this.audioContext);
+                return new VoltageQuantizerModule(this.audioContext, params);
             case 'Reverb':
-                return new ReverbModule(this.audioContext);
+                return new ReverbModule(this.audioContext, params);
             case 'Noise':
-                return new NoiseModule(this.audioContext);
+                return new NoiseModule(this.audioContext, params);
             case 'ClockDivider':
-                return new ClockDividerModule(this.audioContext);
+                return new ClockDividerModule(this.audioContext, params);
             case 'Sampler':
-                return new SamplerModule(this.audioContext);
+                return new SamplerModule(this.audioContext, params);
             case 'AudioInput':
-                return new AudioInputModule(this.audioContext);
+                return new AudioInputModule(this.audioContext, params);
             case 'Glide':
-                return new GlideModule(this.audioContext);
+                return new GlideModule(this.audioContext, params);
             case 'Values':
-                return new ValuesModule(this.audioContext);
+                return new ValuesModule(this.audioContext, params);
+            case 'Chords':
+                return new ChordsModule(this.audioContext, params);
+            case 'Distortion':
+                return new DistortionModule(this.audioContext, params);
         }
     }
 }
