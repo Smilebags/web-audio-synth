@@ -49,6 +49,7 @@ export default class Rack {
   private draggedModuleOffset: Vec2 | null = null;
 
   private modifierKeyStatus = new ModifierKeyStatus();
+  private moduleXPositionStepSize: number = 100;
 
   constructor(
     public audioContext: AudioContext,
@@ -274,7 +275,7 @@ export default class Rack {
     };
   }
 
-  handleMoveModuleMouseUp(rackPos: Vec2): void {
+  handleMoveModuleMouseUp(mouseUpRackPos: Vec2): void {
     if(
       !this.rackMousedownPosition ||
       !this.selectedModule
@@ -282,20 +283,36 @@ export default class Rack {
       return;
     }
     this.draggedModuleOffset = {
-      x: rackPos.x - this.rackMousedownPosition.x,
-      y: rackPos.y - this.rackMousedownPosition.y,
+      x: mouseUpRackPos.x - this.rackMousedownPosition.x,
+      y: mouseUpRackPos.y - this.rackMousedownPosition.y,
     };
     const rowOffset = Math.floor((this.draggedModuleOffset.y / this.moduleHeight) + 0.5);
     const moduleSlot = this.moduleSlots.find(slot => slot.module === this.selectedModule);
+
     if (
       moduleSlot
-      && rowOffset !== 0
-      && moduleSlot.position.y + rowOffset >= 0) {
-      moduleSlot.position = this.getNextAvailableSpace(moduleSlot.module.width, moduleSlot.position.y + rowOffset);
+      && moduleSlot.position.y + rowOffset >= 0
+    ) {
+      const newModuleRow = moduleSlot.position.y + rowOffset;
+      const newModuleXPosition = moduleSlot.position.x + this.draggedModuleOffset.x;
+      const newModuleColumn = Math.round(newModuleXPosition / this.moduleXPositionStepSize) * this.moduleXPositionStepSize;
+
+      const newModulePosition = { x: newModuleColumn, y: newModuleRow };
+      
+      if (this.isSpaceAvailable(newModulePosition, moduleSlot.module.width)) {
+        moduleSlot.position = newModulePosition;
+      } else {
+        moduleSlot.position = this.getNextAvailableSpace(moduleSlot.module.width, newModuleRow);
+      }
     }
+
     this.isDraggingModule = false;
     this.selectedModule = null;
     this.draggedModuleOffset = null;
+  }
+
+  isSpaceAvailable(position: Vec2, width: number): boolean {
+    return true;
   }
 
   cleanUpMouseState(): void {
@@ -359,11 +376,22 @@ export default class Rack {
     }
     if(relevantModuleSlots.length === 1) {
       return {
-        x: relevantModuleSlots[0].module.width,
+        x: relevantModuleSlots[0].position.x >= width ? 0 : relevantModuleSlots[0].module.width,
         y: yOffset,
       };
     }
+
     const sortedModuleSlots = relevantModuleSlots.sort((a, b) => a.position.x - b.position.x);
+
+    if (
+      sortedModuleSlots[0].position.x >= width
+    ) {
+      return {
+        x: 0,
+        y: yOffset,
+      };
+    }
+
     for (let i = 1; i < sortedModuleSlots.length; i++) {
       const previousModule = sortedModuleSlots[i-1]
       const previousModuleEnd = previousModule.position.x + previousModule.module.width;
