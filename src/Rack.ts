@@ -411,15 +411,6 @@ export default class Rack {
     };
   }
 
-  // getModuleSlotCalculatedPosition(moduleSlot: ModuleSlot): Vec2 {
-    
-  //     return {
-  //       x: moduleSlot.position.x,
-  //       y: moduleSlot.position.y * this.moduleHeight,
-  //     }
-  //   }
-  // }
-
   toRackFromWorldPosition(worldPos: Vec2): Vec2 {
     return subtract(worldPos, {x: -this.scrollPosition.x, y: this.headerHeight - this.scrollPosition.y});
   }
@@ -693,17 +684,5 @@ export default class Rack {
       cableSlack,
       "#ff0000",
     );
-    // this.renderContext.lineWidth = 4;
-    // this.renderContext.lineCap = 'round';
-    // this.renderContext.beginPath();
-    // this.renderContext.moveTo(
-    //   this.rackMousedownPosition.x,
-    //   this.rackMousedownPosition.y,
-    // );
-    // this.renderContext.lineTo(
-    //   this.rackMousemovePosition.x,
-    //   this.rackMousemovePosition.y,
-    // );
-    // this.renderContext.stroke();
   }
 }
