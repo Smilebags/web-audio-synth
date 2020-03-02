@@ -5,9 +5,9 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "cp src/index.html dist && cp -R src/static dist/ && npx tsc -w",
-    "build": "cp src/index.html dist && cp -R src/static dist/ && npx tsc",
-    "serve": "ws -d dist",
+    "dev": "cp src/index.html dist/index.html && cp -R src/static dist/static && npx tsc -w",
+    "build": "cp src/index.html dist/index.html && cp -R src/static dist/static && npx tsc",
+    "serve": "npx ws -d dist",
     "deploy": "git checkout gh-pages && git merge master && npm run build && git subtree push --prefix dist origin gh-pages && git checkout master"
   },
   "repository": {
@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/Smilebags/web-audio-synth#readme",
   "devDependencies": {
-    "typescript": "^3.5.3",
-    "ws": "^7.1.1"
+    "local-web-server": "^4.0.0",
+    "typescript": "^3.5.3"
   }
 }
