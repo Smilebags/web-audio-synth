@@ -57,6 +57,7 @@ export default class VoltageSequencer extends AbstractRackModule {
     this.sequencerProcessor.connect(this.noopGain);
 
     this.levels = levels;
+    this.sendLevels();
 
     this.addDefaultEventListeners();
 
@@ -70,6 +71,10 @@ export default class VoltageSequencer extends AbstractRackModule {
       this.addPlug(resetTriggerParam, 'Reset', 'in', 5);
     }
     this.addPlug(this.sequencerProcessor, 'Out', 'out', 6);
+  }
+
+  sendLevels(): void {
+    this.sequencerProcessor.port.postMessage({type: 'setLevels', payload: this.levels});
   }
 
   handleMousedown(mousedownPosition: Vec2): void {
@@ -95,8 +100,9 @@ export default class VoltageSequencer extends AbstractRackModule {
     const pixelDifference = pos.y - this.mousedownPos.y;
     const valueDifference = pixelDifference / 2 ** 6;
     this.levels[this.mousedownDialIndex] = this.mousedownDialInitialValue + valueDifference;
-    this.sequencerProcessor.port.postMessage({type: 'setLevels', payload: this.levels});
+    this.sendLevels();
   }
+
 
   handleMouseup(): void {
     this.mousedownDialIndex = null;
