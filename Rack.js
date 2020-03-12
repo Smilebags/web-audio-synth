@@ -25,6 +25,7 @@ export default class Rack {
         this.isDraggingModule = false;
         this.draggedModuleOffset = null;
         this.modifierKeyStatus = new ModifierKeyStatus();
+        this.moduleXPositionStepSize = 100;
         this.dpr = window.devicePixelRatio || 1;
         this.resetWindowSize();
         this.headerButtons.push(new SaveToClipboardButton(this));
@@ -209,25 +210,36 @@ export default class Rack {
             y: rackPos.y - this.rackMousedownPosition.y,
         };
     }
-    handleMoveModuleMouseUp(rackPos) {
+    handleMoveModuleMouseUp(mouseUpRackPos) {
         if (!this.rackMousedownPosition ||
             !this.selectedModule) {
             return;
         }
         this.draggedModuleOffset = {
-            x: rackPos.x - this.rackMousedownPosition.x,
-            y: rackPos.y - this.rackMousedownPosition.y,
+            x: mouseUpRackPos.x - this.rackMousedownPosition.x,
+            y: mouseUpRackPos.y - this.rackMousedownPosition.y,
         };
         const rowOffset = Math.floor((this.draggedModuleOffset.y / this.moduleHeight) + 0.5);
         const moduleSlot = this.moduleSlots.find(slot => slot.module === this.selectedModule);
         if (moduleSlot
-            && rowOffset !== 0
             && moduleSlot.position.y + rowOffset >= 0) {
-            moduleSlot.position = this.getNextAvailableSpace(moduleSlot.module.width, moduleSlot.position.y + rowOffset);
+            const newModuleRow = moduleSlot.position.y + rowOffset;
+            const newModuleXPosition = moduleSlot.position.x + this.draggedModuleOffset.x;
+            const newModuleColumn = Math.round(newModuleXPosition / this.moduleXPositionStepSize) * this.moduleXPositionStepSize;
+            const newModulePosition = { x: newModuleColumn, y: newModuleRow };
+            if (this.isSpaceAvailable(newModulePosition, moduleSlot.module.width)) {
+                moduleSlot.position = newModulePosition;
+            }
+            else {
+                moduleSlot.position = this.getNextAvailableSpace(moduleSlot.module.width, newModuleRow);
+            }
         }
         this.isDraggingModule = false;
         this.selectedModule = null;
         this.draggedModuleOffset = null;
+    }
+    isSpaceAvailable(position, width) {
+        return true;
     }
     cleanUpMouseState() {
         this.rackMousedownPosition = null;
@@ -285,11 +297,17 @@ export default class Rack {
         }
         if (relevantModuleSlots.length === 1) {
             return {
-                x: relevantModuleSlots[0].module.width,
+                x: relevantModuleSlots[0].position.x >= width ? 0 : relevantModuleSlots[0].module.width,
                 y: yOffset,
             };
         }
         const sortedModuleSlots = relevantModuleSlots.sort((a, b) => a.position.x - b.position.x);
+        if (sortedModuleSlots[0].position.x >= width) {
+            return {
+                x: 0,
+                y: yOffset,
+            };
+        }
         for (let i = 1; i < sortedModuleSlots.length; i++) {
             const previousModule = sortedModuleSlots[i - 1];
             const previousModuleEnd = previousModule.position.x + previousModule.module.width;
@@ -308,13 +326,6 @@ export default class Rack {
             y: yOffset,
         };
     }
-    // getModuleSlotCalculatedPosition(moduleSlot: ModuleSlot): Vec2 {
-    //     return {
-    //       x: moduleSlot.position.x,
-    //       y: moduleSlot.position.y * this.moduleHeight,
-    //     }
-    //   }
-    // }
     toRackFromWorldPosition(worldPos) {
         return subtract(worldPos, { x: -this.scrollPosition.x, y: this.headerHeight - this.scrollPosition.y });
     }
@@ -516,17 +527,5 @@ export default class Rack {
         const cableLength = distance(this.rackMousedownPosition, this.rackMousemovePosition);
         const cableSlack = cableLength * 0.3;
         this.renderCord(this.renderContext, this.rackMousedownPosition, this.rackMousemovePosition, cableSlack, "#ff0000");
-        // this.renderContext.lineWidth = 4;
-        // this.renderContext.lineCap = 'round';
-        // this.renderContext.beginPath();
-        // this.renderContext.moveTo(
-        //   this.rackMousedownPosition.x,
-        //   this.rackMousedownPosition.y,
-        // );
-        // this.renderContext.lineTo(
-        //   this.rackMousemovePosition.x,
-        //   this.rackMousemovePosition.y,
-        // );
-        // this.renderContext.stroke();
     }
 }

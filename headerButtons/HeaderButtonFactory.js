@@ -1,13 +1,16 @@
+import stringLength from "../StringLength.js";
 export default class HeaderButtonFactory {
     static createButton(rack, moduleType, colour, label) {
+        const name = label || moduleType;
         return {
-            width: 32 * 3,
+            width: (stringLength(name) * 10) + 8 + 8,
             render(context) {
                 context.save();
                 context.fillStyle = colour;
                 context.fillRect(2, 2, this.width - 4, 28);
                 context.fillStyle = '#ffffff';
-                context.fillText(label || moduleType, 4, 28, this.width - 8);
+                context.font = '10px Arial';
+                context.fillText(name, 4, 28, this.width - 6);
                 context.restore();
             },
             handlePress() {

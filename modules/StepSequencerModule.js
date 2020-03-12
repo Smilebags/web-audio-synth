@@ -35,6 +35,7 @@ export default class StepSequencerModule extends AbstractRackModule {
         this.sequencerProcessor.port.onmessage = (message) => this.handleSequencerProcessorMessage(message);
         this.sequencerProcessor.connect(this.noopGain);
         this.levels = levels;
+        this.sendLevels();
         this.addEventListener('mousedown', (e) => { this.handleMousedown(e); });
         this.addPlug(this.sequencerProcessor, 'Clock', 'in', 3);
         const stepTriggerParam = this.sequencerProcessor.parameters.get('stepTrigger');
@@ -67,6 +68,9 @@ export default class StepSequencerModule extends AbstractRackModule {
     }
     toggleButton(index) {
         this.levels[index] = !this.levels[index];
+        this.sendLevels();
+    }
+    sendLevels() {
         this.sequencerProcessor.port.postMessage({ type: 'setLevels', payload: this.levels });
     }
     get buttonCount() {

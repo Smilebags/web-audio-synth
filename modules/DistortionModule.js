@@ -10,8 +10,29 @@ export default class DistortionModule extends AbstractRackModule {
         this.updateWaveshaperCurve(distortionAmount);
         this.distortionAmount = distortionAmount;
         this.waveshaper.curve = this.waveshaperCurve;
-        this.addPlug(this.waveshaper, 'In', 'in');
-        this.addPlug(this.waveshaper, 'Out', 'out');
+        this.driveAmount = this.context.createConstantSource();
+        this.driveAmount.offset.value = 1;
+        this.driveAmount.start();
+        this.drivePreAmp = this.context.createGain();
+        this.drivePreAmp.gain.value = 0;
+        this.drivePostAmp = this.context.createGain();
+        this.drivePostAmp.gain.value = 0;
+        this.mathNode = new AudioWorkletNode(this.context, 'math-processor', { numberOfOutputs: 5, numberOfInputs: 0 });
+        const mathAIn = this.mathNode.parameters.get('aInput');
+        const mathBIn = this.mathNode.parameters.get('bInput');
+        mathAIn.value = 1;
+        this.driveAmount.connect(this.drivePreAmp.gain);
+        this.driveAmount.connect(mathBIn);
+        this.mathNode.connect(this.drivePostAmp.gain, 3);
+        this.drivePreAmp.connect(this.waveshaper);
+        this.waveshaper.connect(this.drivePostAmp);
+        // this.drivePreAmp.connect(this.drivePostAmp);
+        this.addPlug(this.drivePreAmp, 'In', 'in');
+        this.addDialPlugAndLabel(this.driveAmount.offset, this.driveAmount.offset, 'Drive', 'in', () => this.driveAmount.offset.value.toFixed(2));
+        this.addPlug(this.drivePostAmp, 'Out', 'out');
+        // this.addPlug(this.driveAmount, 'Amt', 'out');
+        // this.addPlug(this.drivePreAmp, 'Pre', 'out');
+        // this.addPlug(this.drivePostAmp, 'Post', 'out');
         this.addDefaultEventListeners();
     }
     updateWaveshaperCurve(amount) {
