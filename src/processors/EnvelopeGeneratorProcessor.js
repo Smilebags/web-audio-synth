@@ -69,7 +69,7 @@ class EnvelopeGeneratorProcessor extends AudioWorkletProcessor {
     const output = outputs[0];
     const outputChannel = output[0];
     const input = inputs[0];
-    const inputChannel = input[0];
+    const inputChannel = input[0] || [];
     for (let i = 0; i < outputChannel.length; i++) {
       const a = this.getParameterValue(parameters, 'a', i);
       const d = this.getParameterValue(parameters, 'd', i);

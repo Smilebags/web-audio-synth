@@ -25,6 +25,10 @@ class VoltPerOctaveProcessor extends AudioWorkletProcessor {
   }
 
   getInputValue(input, index) {
+    if (!input) {
+      return 0;
+    }
+
     if (!input.length) {
       return 0;
     }
