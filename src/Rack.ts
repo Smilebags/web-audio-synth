@@ -81,6 +81,8 @@ export default class Rack {
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Values', '#AA0055'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Chords', '#AA5500'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Distortion', '#0055AA'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Amplitude', '#00AA55'));
+    this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Viewer', '#5500AA'));
 
     this.onMousedown = (e) => this.handleMousedown(e);
     this.onMousemove = (e) => this.handleMousemove(e);
