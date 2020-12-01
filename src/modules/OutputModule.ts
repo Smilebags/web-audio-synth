@@ -11,6 +11,7 @@ export default class RecorderModule extends AbstractRackModule {
   name: string = 'Out + Record';
   
   private input: GainNode;
+  private volumeReduction: GainNode;
   private mediaStreamNode: MediaStreamAudioDestinationNode;
   // @ts-ignore
   private mediaRecorder: MediaRecorder;
@@ -23,6 +24,8 @@ export default class RecorderModule extends AbstractRackModule {
     super(params);
     this.context = context;
     this.input = this.context.createGain();
+    this.volumeReduction = this.context.createGain();
+    this.volumeReduction.gain.value = 0.1;
     this.mediaStreamNode = this.context.createMediaStreamDestination();
     // @ts-ignore
     this.mediaRecorder = new MediaRecorder(this.mediaStreamNode.stream);
@@ -31,8 +34,9 @@ export default class RecorderModule extends AbstractRackModule {
       this.recorderBuffer.push(event.data);
     };
 
-    this.input.connect(this.mediaStreamNode);
-    this.input.connect(this.context.destination);
+    this.input.connect(this.volumeReduction);
+    this.volumeReduction.connect(this.mediaStreamNode);
+    this.volumeReduction.connect(this.context.destination);
 
     this.addPlug(this.input, 'In', 'in');
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
