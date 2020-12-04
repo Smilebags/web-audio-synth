@@ -181,7 +181,7 @@ export default class Rack {
       return;
     }
 
-    if (this.modifierKeyStatus.ctrl) {
+    if (this.modifierKeyStatus.ctrl || this.modifierKeyStatus.meta) {
       this.handleMoveModuleMouseDown(this.rackMousedownPosition);
       return;
     }

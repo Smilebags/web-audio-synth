@@ -2,6 +2,7 @@ export default class ModifierKeyStatus {
   private altIsPressed = false;
   private shiftIsPressed = false;
   private ctrlIsPressed = false;
+  private metaIsPressed = false;
   constructor() {
     document.addEventListener('keydown', e => this.handleKeychange(e));
     document.addEventListener('keyup', e => this.handleKeychange(e));
@@ -11,6 +12,7 @@ export default class ModifierKeyStatus {
     this.altIsPressed = keychangeEvent.getModifierState('Alt');
     this.ctrlIsPressed = keychangeEvent.getModifierState('Control');
     this.shiftIsPressed = keychangeEvent.getModifierState('Shift');
+    this.metaIsPressed = !!keychangeEvent.metaKey;
   }
 
   get alt() {
@@ -23,5 +25,9 @@ export default class ModifierKeyStatus {
 
   get shift() {
     return this.shiftIsPressed;
+  }
+
+  get meta() {
+    return this.metaIsPressed;
   }
 }
