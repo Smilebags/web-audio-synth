@@ -6,10 +6,10 @@ export default class RecorderModule extends AbstractRackModule {
   width!: number;
   context: AudioContext;
   plugs!: Plug[];
-  
+
   type: string = 'Output';
   name: string = 'Out + Record';
-  
+
   private input: GainNode;
   private volumeReduction: GainNode;
   private mediaStreamNode: MediaStreamAudioDestinationNode;
@@ -29,7 +29,7 @@ export default class RecorderModule extends AbstractRackModule {
     this.mediaStreamNode = this.context.createMediaStreamDestination();
     // @ts-ignore
     this.mediaRecorder = new MediaRecorder(this.mediaStreamNode.stream);
-    this.mediaRecorder.onstop  = () => {}; 
+    this.mediaRecorder.onstop = () => {};
     this.mediaRecorder.ondataavailable = (event: any) => {
       this.recorderBuffer.push(event.data);
     };
@@ -39,22 +39,22 @@ export default class RecorderModule extends AbstractRackModule {
     this.volumeReduction.connect(this.context.destination);
 
     this.addPlug(this.input, 'In', 'in');
-    this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
+    this.addEventListener('mousedown', (e: Vec2) => { this.handleMousedown(e) });
   }
 
   handleMousedown(pos: Vec2) {
-    if(pos.y > 300) {
+    if (pos.y > 300) {
       this.handleSaveClick();
       return;
     }
-    if(pos.y > 200) {
+    if (pos.y > 200) {
       this.handleStartStopClick();
       return;
     }
   }
 
   handleStartStopClick() {
-    if(this.mediaRecorder.state === 'recording') {
+    if (this.mediaRecorder.state === 'recording') {
       this.stopRecording(false);
       return;
     }
@@ -62,39 +62,50 @@ export default class RecorderModule extends AbstractRackModule {
   }
 
   handleSaveClick() {
-    this.stopRecording(true);  
+    this.stopRecording(true);
   }
 
   stopRecording(save: boolean) {
-    if(save) {
-      this.mediaRecorder.onstop  = () => this.downloadFile();    
+    if (save) {
+      this.mediaRecorder.onstop = () => this.downloadFile();
     }
-    if(this.mediaRecorder.state === 'recording') {
+    if (this.mediaRecorder.state === 'recording') {
       this.mediaRecorder.stop();
     }
     setTimeout(() => {
-      this.mediaRecorder.onstop  = () => {}; 
+      this.mediaRecorder.onstop = () => { };
     }, 0);
   }
 
   downloadFile() {
     const prefix = 'web-audio-synth'
     const extension = 'wav';
-    const now = new Date();
-    const date = now.toLocaleTimeString(undefined, {
-      // @ts-ignore
-      dateStyle: 'short',
-      timeStyle: 'medium',
-    });
-    const filename = `${prefix}-${date}.${extension}`
+    const dateString = this.makeDateString(new Date());
+    const filename = `${prefix}-${dateString}.${extension}`
       .replace(' ', '')
       .replace(/[\/:,]/g, '-');
-    
-    var blob = new Blob(this.recorderBuffer, { 'type' : 'audio/wav; codecs=0' });
+
+    var blob = new Blob(this.recorderBuffer, { 'type': 'audio/wav; codecs=0' });
     const dlNode = document.createElement('a');
     dlNode.href = URL.createObjectURL(blob);
     dlNode.download = filename;
     dlNode.click();
+  }
+
+  private makeDateString(date: Date) {
+    const twoDigits = (num: number) => String(num).padStart(2, '0');
+    const year = date.getFullYear();
+    const rest = [
+      date.getMonth() + 1,
+      date.getDate(),
+      date.getHours(),
+      date.getMinutes(),
+      date.getSeconds(),
+    ].map(twoDigits);
+
+    const parts = [ year, ...rest ];
+
+    return parts.join('-');
   }
 
   startRecording() {
@@ -106,15 +117,15 @@ export default class RecorderModule extends AbstractRackModule {
     super.render(renderContext);
     this.renderButton(
       renderContext,
-      {x: 5, y: 205},
-      {x: 90, y: 90},
+      { x: 5, y: 205 },
+      { x: 90, y: 90 },
       this.mediaRecorder.state === 'recording' ? 'Discard' : 'Start',
       this.mediaRecorder.state === 'recording',
     );
     this.renderButton(
       renderContext,
-      {x: 5, y: 305},
-      {x: 90, y: 90},
+      { x: 5, y: 305 },
+      { x: 90, y: 90 },
       'Save',
       this.mediaRecorder.state === 'recording',
     );
