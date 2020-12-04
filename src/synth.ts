@@ -78,5 +78,6 @@ async function registerProcessors(audioContext: AudioContext) {
     audioContext.audioWorklet.addModule('processors/MathProcessor.js'),
     audioContext.audioWorklet.addModule('processors/AmplitudeProcessor.js'),
     audioContext.audioWorklet.addModule('processors/ViewerProcessor.js'),
+    audioContext.audioWorklet.addModule('processors/DistortionProcessor.js'),
   ]);
 }
