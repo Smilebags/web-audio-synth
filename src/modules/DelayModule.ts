@@ -21,7 +21,7 @@ export default class DelayModule extends AbstractRackModule {
     this.delay = this.context.createDelay();
     this.delay.delayTime.value = delay;
 
-    this.addPlug(this.delay, 'In', 'in');
+    this.addPlug({ param: this.delay, name: 'In', type: 'in' });
     this.addDialPlugAndLabel(
       this.delay.delayTime,
       this.delay.delayTime,
@@ -29,7 +29,7 @@ export default class DelayModule extends AbstractRackModule {
       'in',
       () => this.delay.delayTime.value.toFixed(2),
     );
-    this.addPlug(this.delay, 'Out', 'out');
+    this.addPlug({ param: this.delay, name: 'Out', type: 'out' });
 
     this.addDefaultEventListeners();
   }

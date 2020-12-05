@@ -53,7 +53,7 @@ export default class FilterModule extends AbstractRackModule {
     this.qIn.connect(this.lowpass.Q);
     this.qIn.connect(this.highpass.Q);
 
-    this.addPlug(this.in, 'In', 'in');
+    this.addPlug({ param: this.in, name: 'In', type: 'in' });
 
     this.addDialPlugAndLabel(
       this.voCoarseParam,
@@ -71,8 +71,8 @@ export default class FilterModule extends AbstractRackModule {
       () => this.qIn.offset.value.toFixed(2),
     );
 
-    this.addPlug(this.lowpass, 'Low', 'out', 3);
-    this.addPlug(this.highpass, 'High', 'out', 4);
+    this.addPlug({ param: this.lowpass, name: 'Low', type: 'out', order: 3 });
+    this.addPlug({ param: this.highpass, name: 'High', type: 'out', order: 4 });
 
     this.addDefaultEventListeners();
   }

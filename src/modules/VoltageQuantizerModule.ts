@@ -17,8 +17,8 @@ export default class VoltageQuantizerModule extends AbstractRackModule {
 
     this.context = context;
     this.quantizer = new AudioWorkletNode(this.context, 'voltage-quantizer-processor');
-    this.addPlug(this.quantizer, 'In', 'in', 0);
-    this.addPlug(this.quantizer, 'Out', 'out', 1);
+    this.addPlug({ param: this.quantizer, name: 'In', type: 'in', order: 0 });
+    this.addPlug({ param: this.quantizer, name: 'Out', type: 'out', order: 1 });
 
     this.addDefaultEventListeners();
   }

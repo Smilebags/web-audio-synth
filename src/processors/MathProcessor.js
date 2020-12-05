@@ -2,46 +2,31 @@ class MathProcessor extends AudioWorkletProcessor {
   static get parameterDescriptors() {
     return [
       {
-        name: 'aInput',
+        name: 'a',
         defaultValue: 0
       },
       {
-        name: 'bInput',
+        name: 'b',
         defaultValue: 0
       },
     ];
   }
 
   process(inputs, outputs, parameters) {
-    const addChannel = outputs[0][0];
-    const subtractChannel = outputs[1][0];
-    const multiplyChannel = outputs[2][0];
-    const divideChannel = outputs[3][0];
-    const modChannel = outputs[4][0];
+    const subtractChannel = outputs[0][0];
+    const multiplyChannel = outputs[1][0];
+    const divideChannel = outputs[2][0];
+    const modChannel = outputs[3][0];
     
-    for (let i = 0; i < addChannel.length; i++) {
-      const a = this.getParameterValue(parameters, 'aInput', i);
-      const b = this.getParameterValue(parameters, 'bInput', i);
+    for (let i = 0; i < outputs[0][0].length; i++) {
+      const a = this.getParameterValue(parameters, 'a', i);
+      const b = this.getParameterValue(parameters, 'b', i);
 
       // set output
-      addChannel[i] = a + b;
       subtractChannel[i] = a - b;
       multiplyChannel[i] = a * b;
       divideChannel[i] = a / b;
       modChannel[i] = a % b;
-    }
-    if (currentFrame % 10000 === 0) {
-      const a = this.getParameterValue(parameters, 'aInput', 0);
-      const b = this.getParameterValue(parameters, 'bInput', 0);
-      console.log(`
-      a: ${a}
-      b: ${b}
-      add: ${addChannel[0]}
-      subtract: ${subtractChannel[0]}
-      multiply: ${multiplyChannel[0]}
-      divide: ${divideChannel[0]}
-      mod: ${modChannel[0]}
-      `);
     }
 
     return true;

@@ -38,7 +38,7 @@ export default class RecorderModule extends AbstractRackModule {
     this.volumeReduction.connect(this.mediaStreamNode);
     this.volumeReduction.connect(this.context.destination);
 
-    this.addPlug(this.input, 'In', 'in');
+    this.addPlug({ param: this.input, name: 'In', type: 'in' });
     this.addEventListener('mousedown', (e: Vec2) => { this.handleMousedown(e) });
   }
 

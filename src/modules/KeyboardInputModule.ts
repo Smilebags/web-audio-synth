@@ -83,8 +83,8 @@ export default class KeyboardInputModule extends AbstractRackModule {
     this.vo.offset.value = 0;
     this.vo.start();
 
-    this.addPlug(this.gate, 'Gate', 'out');
-    this.addPlug(this.vo, 'V/O', 'out');
+    this.addPlug({ param: this.gate, name: 'Gate', type: 'out' });
+    this.addPlug({ param: this.vo, name: 'V/O', type: 'out' });
 
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
     window.addEventListener('keydown', (e: KeyboardEvent) => {this.handleKeydown(e)})

@@ -1,6 +1,16 @@
 import { Vec2 } from "./types/Vec2.js";
 import RackModule from "./types/RackModule.js";
 
+interface PlugParameters {
+  rackModule: RackModule;
+  param: AudioNode | AudioParam;
+  position: Vec2;
+  name?: string | null;
+  type?: 'in' | 'out';
+  radius?: number;
+  channel?: number;
+}
+
 export default class Plug {
   module: RackModule;
   param: AudioNode | AudioParam;
@@ -8,13 +18,17 @@ export default class Plug {
   name: string | null;
   radius: number;
   type: 'in' | 'out';
-  constructor(
-    rackModule: RackModule,
-    param: AudioNode | AudioParam,
-    position: Vec2,
-    name: string | null = null,
-    type: 'in' | 'out' = 'in',
-    radius: number = 10,
+  channel?: number;
+
+  constructor({
+    rackModule,
+    param,
+    position,
+    name = null,
+    type = 'in',
+    radius = 10,
+    channel = undefined,
+  }: PlugParameters,
   ) {
     this.module = rackModule;
     this.param = param;
@@ -22,6 +36,7 @@ export default class Plug {
     this.name = name;
     this.radius = radius;
     this.type = type;
+    this.channel = channel;
   }
 
   disconnect(plug: Plug) {
@@ -36,6 +51,11 @@ export default class Plug {
     }
     if (this.type === 'in' && plug.type === 'out') {
       plug.connect(this);
+      return;
+    }
+    if (this.param instanceof AudioNode) {
+      // @ts-ignore
+      this.param.connect(plug.param, this.channel);
       return;
     }
     // @ts-ignore

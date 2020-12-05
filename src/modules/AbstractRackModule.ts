@@ -17,6 +17,15 @@ interface Button {
   callback: Function;
 }
 
+interface AddPlugOptions {
+  param: AudioNode | AudioParam;
+  name: string;
+  type: 'in' | 'out';
+  order?: number | null;
+  position?: 'left' | 'center' | 'right' | Vec2,
+  channel?: number;
+}
+
 export default abstract class AbstractRackModule implements RackModule {
   width: number = 100;
   plugs: Plug[] = [];
@@ -196,10 +205,7 @@ export default abstract class AbstractRackModule implements RackModule {
     });
 
     this.addPlug(
-      plugParam,
-      name,
-      type,
-      order,
+      { param: plugParam, name, type, order },
     );
   }
 
@@ -222,29 +228,27 @@ export default abstract class AbstractRackModule implements RackModule {
     this.dials.push({pos, radius, param});
   }
 
-  protected addPlug(
-    param: AudioNode | AudioParam, 
-    name: string,
-    type: 'in' | 'out',
-    order: number | null = null,
-    positioning: 'left' | 'center' | 'right' | 'fixed' = 'center',
-    fixedPosition?: Vec2,
-  ): void {
-    let position = fixedPosition;
-    if (positioning !== 'fixed') {
-      let positioningOffset = 0;
-      if (positioning !== 'center') {
-        const offsetAmount = this.width / 6;
-        positioningOffset += positioning === 'left' ? -offsetAmount : offsetAmount;
-      }
-      const xPosition = (this.width / 2) + positioningOffset;
-      const yPosition = this.getYPositionFromOrder(order);
-      position = {
-        x: xPosition,
-        y: yPosition,
-      }
+  protected addPlug({param, name, type, order = null, position = 'center', channel }: AddPlugOptions): void {
+    if (typeof position !== 'string') {
+      this.plugs.push(new Plug({ rackModule: this, param, position, name, type, channel }));
+      return;
     }
-    this.plugs.push(new Plug(this, param, position!, name, type));
+    const calculatedPosition = this.getPlugPosition(position, order);
+    this.plugs.push(new Plug({ rackModule: this, param, position: calculatedPosition, name, type, channel }));
+  }
+
+  private getPlugPosition(positioning: string, order: number | null): Vec2 {
+    let positioningOffset = 0;
+    if (positioning !== 'center') {
+      const offsetAmount = this.width / 6;
+      positioningOffset += positioning === 'left' ? -offsetAmount : offsetAmount;
+    }
+    const xPosition = (this.width / 2) + positioningOffset;
+    const yPosition = this.getYPositionFromOrder(order);
+    return {
+      x: xPosition,
+      y: yPosition,
+    };
   }
 
   get firstAvailablePlugSlot() {

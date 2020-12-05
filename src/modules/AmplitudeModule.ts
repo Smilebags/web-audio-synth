@@ -13,8 +13,8 @@ export default class AmplitudeModule extends AbstractRackModule {
 
     this.amplitudeWorklet = new AudioWorkletNode(this.context, 'amplitude-processor');
 
-    this.addPlug(this.amplitudeWorklet, 'In', 'in');
-    this.addPlug(this.amplitudeWorklet, 'Out', 'out');
+    this.addPlug({ param: this.amplitudeWorklet, name: 'In', type: 'in' });
+    this.addPlug({ param: this.amplitudeWorklet, name: 'Out', type: 'out' });
 
     this.addDefaultEventListeners();
   }

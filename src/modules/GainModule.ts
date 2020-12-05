@@ -23,7 +23,7 @@ export default class OscillatorModule extends AbstractRackModule {
     this.gainNode = this.context.createGain();
     this.gainNode.gain.value = gain;
     
-    this.addPlug(this.gainNode, 'In', 'in');
+    this.addPlug({ param: this.gainNode, name: 'In', type: 'in' });
     this.addDialPlugAndLabel(
       this.gainNode.gain,
       this.gainNode.gain,
@@ -31,7 +31,7 @@ export default class OscillatorModule extends AbstractRackModule {
       'in',
       () => this.gainNode.gain.value.toFixed(2),
     );
-    this.addPlug(this.gainNode, 'Out', 'out');
+    this.addPlug({ param: this.gainNode, name: 'Out', type: 'out' });
 
     this.addDefaultEventListeners();
   }

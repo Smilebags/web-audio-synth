@@ -70,12 +70,7 @@ export default class ChordsModule extends AbstractRackModule {
     const stepTriggerParam = this.processor.parameters.get('stepTrigger')!;
     
     this.addPlug(
-      stepTriggerParam,
-      '',
-      'in',
-      null,
-      'fixed',
-      {x: 30, y: 40},
+      { param: stepTriggerParam, name: '', type: 'in', order: null, position: { x: 30, y: 40 } },
     );
     const stepLabel = {
       getText: () => 'Step',
@@ -85,12 +80,7 @@ export default class ChordsModule extends AbstractRackModule {
     this.addLabel(stepLabel);
 
     this.addPlug(
-      resetTriggerParam,
-      '',
-      'in',
-      null,
-      'fixed',
-      {x: 120, y: 40},
+      { param: resetTriggerParam, name: '', type: 'in', order: null, position: { x: 120, y: 40 } },
     );
     const resetLabel = {
       getText: () => 'Reset',
@@ -112,22 +102,12 @@ export default class ChordsModule extends AbstractRackModule {
         );
       }
       this.addPlug(
-        this.noopGain,
-        '',
-        'in',
-        null,
-        'fixed',
-        {x: 150, y: this.gridYOffset + (this.gridYSpan * y)},
+        { param: this.noopGain, name: '', type: 'in', order: null, position: { x: 150, y: this.gridYOffset + (this.gridYSpan * y) } },
       );
     }
     for (let x = 0; x < 4; x++) {
       this.addPlug(
-        this.channelOutputs[x],
-        '',
-        'out',
-        null,
-        'fixed',
-        {x: this.gridXOffset + (this.gridXSpan * x), y: 380},
+        { param: this.channelOutputs[x], name: '', type: 'out', order: null, position: { x: this.gridXOffset + (this.gridXSpan * x), y: 380 } },
       );
     }
 

@@ -29,7 +29,7 @@ export default class ViewerModule extends AbstractRackModule {
 
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
 
-    this.addPlug(this.viewerProcessor, 'In', 'in');
+    this.addPlug({ param: this.viewerProcessor, name: 'In', type: 'in' });
     setInterval(() => {
       this.getSamples();
     }, 50);

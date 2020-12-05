@@ -67,12 +67,12 @@ export default class MidiInputModule extends AbstractRackModule {
 
     this.setupMidiAccess();
 
-    this.addPlug(this.vo, "V/O", "out");
-    this.addPlug(this.velocity, "Velocity", "out");
-    this.addPlug(this.gate, "Gate", "out");
-    this.addPlug(this.trigger, "Trigger", "out");
-    this.addPlug(this.pitchBend, "Pitchbend", "out");
-    this.addPlug(this.modWheel, "Modwheel", "out");
+    this.addPlug({ param: this.vo, name: "V/O", type: "out" });
+    this.addPlug({ param: this.velocity, name: "Velocity", type: "out" });
+    this.addPlug({ param: this.gate, name: "Gate", type: "out" });
+    this.addPlug({ param: this.trigger, name: "Trigger", type: "out" });
+    this.addPlug({ param: this.pitchBend, name: "Pitchbend", type: "out" });
+    this.addPlug({ param: this.modWheel, name: "Modwheel", type: "out" });
 
     this.addButton({
       enabled: () => this.isInLearnMode,

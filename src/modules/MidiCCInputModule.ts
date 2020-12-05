@@ -37,14 +37,14 @@ export default class MidiCCInputModule extends AbstractRackModule {
 
     this.setupMidiAccess();
 
-    this.addPlug(this.outputs[0], "1", "out", 0, 'left');
-    this.addPlug(this.outputs[1], "2", "out", 1, 'left');
-    this.addPlug(this.outputs[2], "3", "out", 2, 'left');
-    this.addPlug(this.outputs[3], "4", "out", 3, 'left');
-    this.addPlug(this.outputs[4], "5", "out", 0, 'right');
-    this.addPlug(this.outputs[5], "6", "out", 1, 'right');
-    this.addPlug(this.outputs[6], "7", "out", 2, 'right');
-    this.addPlug(this.outputs[7], "8", "out", 3, 'right');
+    this.addPlug({ param: this.outputs[0], name: "1", type: "out", order: 0, position: 'left' });
+    this.addPlug({ param: this.outputs[1], name: "2", type: "out", order: 1, position: 'left' });
+    this.addPlug({ param: this.outputs[2], name: "3", type: "out", order: 2, position: 'left' });
+    this.addPlug({ param: this.outputs[3], name: "4", type: "out", order: 3, position: 'left' });
+    this.addPlug({ param: this.outputs[4], name: "5", type: "out", order: 0, position: 'right' });
+    this.addPlug({ param: this.outputs[5], name: "6", type: "out", order: 1, position: 'right' });
+    this.addPlug({ param: this.outputs[6], name: "7", type: "out", order: 2, position: 'right' });
+    this.addPlug({ param: this.outputs[7], name: "8", type: "out", order: 3, position: 'right' });
     
     this.addButton({
       enabled: () => this.isInLearnMode,

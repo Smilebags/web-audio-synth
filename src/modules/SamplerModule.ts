@@ -29,18 +29,18 @@ export default class SamplerModule extends AbstractRackModule {
     this.noopGain.connect(this.context.destination);
     this.sampler.connect(this.noopGain);
 
-    this.addPlug(this.sampler, 'In', 'in');
+    this.addPlug({ param: this.sampler, name: 'In', type: 'in' });
 
     this.recordTriggerParam = this.sampler.parameters.get('recordTrigger')!;
-    this.addPlug(this.recordTriggerParam, 'Record', 'in');
+    this.addPlug({ param: this.recordTriggerParam, name: 'Record', type: 'in' });
     this.playTriggerParam = this.sampler.parameters.get('playTrigger')!;
-    this.addPlug(this.playTriggerParam, 'Play', 'in');
+    this.addPlug({ param: this.playTriggerParam, name: 'Play', type: 'in' });
     this.startPosParam = this.sampler.parameters.get('startPosition')!;
-    this.addPlug(this.startPosParam, 'Start', 'in');
+    this.addPlug({ param: this.startPosParam, name: 'Start', type: 'in' });
     this.playbackRateParam = this.sampler.parameters.get('playbackRate')!;
-    this.addPlug(this.playbackRateParam, 'Rate', 'in');
+    this.addPlug({ param: this.playbackRateParam, name: 'Rate', type: 'in' });
     
-    this.addPlug(this.sampler, 'Out', 'out');
+    this.addPlug({ param: this.sampler, name: 'Out', type: 'out' });
   }
 
   private async getSampleData(): Promise<string> {

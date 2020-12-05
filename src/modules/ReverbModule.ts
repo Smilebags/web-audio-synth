@@ -38,13 +38,13 @@ export default class ReverbModule extends AbstractRackModule {
     this.context = context;
 
     this.in = this.context.createGain();
-    this.addPlug(this.in, 'In', 'in', 0);
+    this.addPlug({ param: this.in, name: 'In', type: 'in', order: 0 });
 
     this.impulseResponseUrls.forEach((impulseResponseUrl, index) => {
       this.reverbs[index] = this.context.createConvolver();
       getImpulseBuffer(context, impulseResponseUrl).then((arrayBuffer) => {
         this.reverbs[index].buffer = arrayBuffer;
-        this.addPlug(this.reverbs[index], this.reverbNames[index], 'out', index + 1);
+        this.addPlug({ param: this.reverbs[index], name: this.reverbNames[index], type: 'out', order: index + 1 });
         this.in.connect(this.reverbs[index]);
       });
     });

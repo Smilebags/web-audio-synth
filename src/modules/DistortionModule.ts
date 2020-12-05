@@ -17,7 +17,6 @@ export default class DistortionModule extends AbstractRackModule {
     super(params);
     const {distortionAmount = 4 } = params;
     this.context = context;
-    this.distortionAmount = distortionAmount;
 
     this.distortionAmount = this.context.createConstantSource();
     this.distortionAmount.offset.value = distortionAmount;
@@ -27,7 +26,7 @@ export default class DistortionModule extends AbstractRackModule {
 
     this.distortionAmount.connect(distortionIn);
 
-    this.addPlug(this.distortionNode, 'In', 'in');
+    this.addPlug({ param: this.distortionNode, name: 'In', type: 'in' });
     this.addDialPlugAndLabel(
       this.distortionAmount.offset,
       this.distortionAmount.offset,
@@ -35,7 +34,7 @@ export default class DistortionModule extends AbstractRackModule {
       'in',
       () => this.distortionAmount.offset.value.toFixed(2),
     );
-    this.addPlug(this.distortionNode, 'Out', 'out');
+    this.addPlug({ param: this.distortionNode, name: 'Out', type: 'out' });
 
     this.addDefaultEventListeners();
   }

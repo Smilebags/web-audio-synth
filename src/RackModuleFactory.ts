@@ -23,6 +23,7 @@ import ChordsModule from "./modules/ChordsModule.js";
 import DistortionModule from "./modules/DistortionModule.js";
 import AmplitudeModule from "./modules/AmplitudeModule.js";
 import ViewerModule from "./modules/ViewerModule.js";
+import MathModule from "./modules/MathModule.js";
 
 
 
@@ -76,6 +77,8 @@ export default class RackModuleFactory {
         return new DistortionModule(this.audioContext, params);
       case 'Viewer':
         return new ViewerModule(this.audioContext, params);
+      case 'Math':
+        return new MathModule(this.audioContext, params);
       case 'Amplitude':
         return new AmplitudeModule(this.audioContext, params);
     }

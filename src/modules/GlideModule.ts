@@ -17,7 +17,7 @@ export default class GlideModule extends AbstractRackModule {
 
     this.glideWorklet = new AudioWorkletNode(this.context, 'glide-processor');
 
-    this.addPlug(this.glideWorklet, 'In', 'in');
+    this.addPlug({ param: this.glideWorklet, name: 'In', type: 'in' });
 
     this.glideAmountParam = this.glideWorklet.parameters.get('glideAmount')!;
     this.glideAmountParam.value = glideAmount;
@@ -29,7 +29,7 @@ export default class GlideModule extends AbstractRackModule {
       () => this.glideAmountParam.value.toFixed(2),
     );
 
-    this.addPlug(this.glideWorklet, 'Out', 'out');
+    this.addPlug({ param: this.glideWorklet, name: 'Out', type: 'out' });
 
     this.addDefaultEventListeners();
   }

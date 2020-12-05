@@ -38,10 +38,10 @@ export default class OscillatorModule extends AbstractRackModule {
     this.voCoarseParam = this.vo.parameters.get('coarse');
     if (this.voCoarseParam) {
       this.voCoarseParam.value = this.voltageOffset;
-      this.addPlug(this.voCoarseParam, 'V/O In', 'in', 0);
+      this.addPlug({ param: this.voCoarseParam, name: 'V/O In', type: 'in', order: 0 });
     }
 
-    this.addPlug(this.osc, 'Out', 'out', 1);
+    this.addPlug({ param: this.osc, name: 'Out', type: 'out', order: 1 });
 
     this.addEventListener('mousedown', (e: Vec2) => {this.handleMousedown(e)});
     this.addEventListener('mousemove', (e: Vec2) => {this.handleMousemove(e)});

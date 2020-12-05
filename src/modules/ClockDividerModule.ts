@@ -36,15 +36,15 @@ export default class ClockDividerModule extends AbstractRackModule {
     this.divider.connect(this.div32, 4);
     this.divider.connect(this.div64, 5);
 
-    this.addPlug(this.divider, 'In', 'in');
+    this.addPlug({ param: this.divider, name: 'In', type: 'in' });
     const resetTriggerParam = this.divider.parameters.get('resetTrigger')!;
-    this.addPlug(resetTriggerParam, 'Reset', 'in');
+    this.addPlug({ param: resetTriggerParam, name: 'Reset', type: 'in' });
 
-    this.addPlug(this.div2, '/2', 'out');
-    this.addPlug(this.div4, '/4', 'out');
-    this.addPlug(this.div8, '/8', 'out');
-    this.addPlug(this.div16, '/16', 'out');
-    this.addPlug(this.div32, '/32', 'out');
-    this.addPlug(this.div64, '/64', 'out');
+    this.addPlug({ param: this.div2, name: '/2', type: 'out' });
+    this.addPlug({ param: this.div4, name: '/4', type: 'out' });
+    this.addPlug({ param: this.div8, name: '/8', type: 'out' });
+    this.addPlug({ param: this.div16, name: '/16', type: 'out' });
+    this.addPlug({ param: this.div32, name: '/32', type: 'out' });
+    this.addPlug({ param: this.div64, name: '/64', type: 'out' });
   }
 }

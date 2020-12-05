@@ -27,7 +27,7 @@ export default class EnvelopeModule extends AbstractRackModule {
     this.context = context;
     this.envelope = new AudioWorkletNode(this.context, 'envelope-generator-processor');
 
-    this.addPlug(this.envelope, 'Trigger', 'in', 0);
+    this.addPlug({ param: this.envelope, name: 'Trigger', type: 'in', order: 0 });
 
 
     this.envelopeAttackParam = this.envelope.parameters.get('a')!;
@@ -70,7 +70,7 @@ export default class EnvelopeModule extends AbstractRackModule {
       () => this.envelopeReleaseParam.value.toFixed(2),
     );
     
-    this.addPlug(this.envelope, 'Out', 'out', 5);
+    this.addPlug({ param: this.envelope, name: 'Out', type: 'out', order: 5 });
 
     this.addDefaultEventListeners();
   }
