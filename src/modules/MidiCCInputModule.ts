@@ -1,7 +1,7 @@
 import Plug from "../Plug.js";
 import AbstractRackModule from "./AbstractRackModule.js";
 import { Vec2 } from "../types/Vec2.js";
-import { chooseOption } from "../util.js";
+import { chooseOption } from "../util/Modal.js";
 
 export default class MidiCCInputModule extends AbstractRackModule {
   width!: number;

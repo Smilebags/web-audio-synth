@@ -1,7 +1,7 @@
 import Plug from "../Plug.js";
 import AbstractRackModule from "./AbstractRackModule.js";
 import { Vec2 } from "../types/Vec2.js";
-import { subtract } from "../util.js";
+import { subtract } from "../util/Vec2Math.js";
 
 const getImpulseBuffer = (audioContext: AudioContext, impulseUrl: string) => {
   return fetch(impulseUrl)
@@ -42,9 +42,9 @@ export default class ReverbModule extends AbstractRackModule {
 
     this.impulseResponseUrls.forEach((impulseResponseUrl, index) => {
       this.reverbs[index] = this.context.createConvolver();
+      this.addPlug({ param: this.reverbs[index], name: this.reverbNames[index], type: 'out', order: index + 1 });
       getImpulseBuffer(context, impulseResponseUrl).then((arrayBuffer) => {
         this.reverbs[index].buffer = arrayBuffer;
-        this.addPlug({ param: this.reverbs[index], name: this.reverbNames[index], type: 'out', order: index + 1 });
         this.in.connect(this.reverbs[index]);
       });
     });

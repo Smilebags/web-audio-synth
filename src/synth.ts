@@ -1,6 +1,7 @@
 import Rack from './Rack.js';
 import RackModuleFactory from './RackModuleFactory.js';
-import { chooseOption, loadImage, modal } from './util.js';
+import { loadImage } from './util/util.js';
+import { chooseOption, modal } from "./util/Modal.js";
 
 const optionsEl = document.querySelector('.options')!;
 optionsEl.addEventListener('click', hideOptions, {once: true});

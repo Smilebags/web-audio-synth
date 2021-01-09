@@ -1,7 +1,7 @@
 import { RackModuleType } from "../types/RackModuleType";
 import Rack from "../Rack";
 import HeaderButton from "../types/HeaderButton";
-import stringLength from "../StringLength.js";
+import stringLength from "../util/StringLength.js";
 
 export default class HeaderButtonFactory {
   static createButton(rack: Rack, moduleType: RackModuleType, colour: string, label?: string): HeaderButton {

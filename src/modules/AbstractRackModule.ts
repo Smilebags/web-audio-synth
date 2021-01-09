@@ -1,6 +1,7 @@
 import RackModule from "../types/RackModule.js";
 import Plug from "../Plug.js";
-import { distance, clamp } from "../util.js";
+import { clamp } from "../util/util.js";
+import { distance } from "../util/Vec2Math.js";
 import { Vec2 } from "../types/Vec2.js";
 
 interface Label {

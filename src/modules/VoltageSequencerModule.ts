@@ -1,7 +1,7 @@
 import Plug from "../Plug.js";
 import AbstractRackModule from "./AbstractRackModule.js";
 import { Vec2 } from "../types/Vec2.js";
-import { distance } from "../util.js";
+import { distance } from "../util/Vec2Math.js";
 
 export default class VoltageSequencer extends AbstractRackModule {
   width!: number;

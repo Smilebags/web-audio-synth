@@ -1,7 +1,7 @@
 import Plug from "../Plug.js";
 import AbstractRackModule from "./AbstractRackModule.js";
 import { Vec2 } from "../types/Vec2.js";
-import { subtract } from "../util.js";
+import { subtract } from "../util/Vec2Math.js";
 
 export default class DelayModule extends AbstractRackModule {
   width!: number;

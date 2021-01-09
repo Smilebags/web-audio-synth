@@ -2,7 +2,8 @@ import { Vec2 } from "./types/Vec2.js";
 import RackModule from "./types/RackModule.js";
 import Plug from "./Plug.js";
 
-import { subtract, isSet, add, distance, isPromise } from "./util.js";
+import { isSet, isPromise } from "./util/util.js";
+import { subtract, add, distance } from "./util/Vec2Math.js";
 import Cable from "./Cable.js";
 import RackModuleFactory from "./RackModuleFactory.js";
 import HeaderButton from "./types/HeaderButton.js";

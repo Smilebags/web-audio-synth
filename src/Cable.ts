@@ -1,5 +1,5 @@
 import Plug from "./Plug.js";
-import { add, distance } from "./util.js";
+import { add, distance } from "./util/Vec2Math.js";
 import Rack from "./Rack.js";
 import { Vec2 } from "./types/Vec2.js";
 

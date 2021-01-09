@@ -1,7 +1,8 @@
 import Plug from "../Plug.js";
 import AbstractRackModule from "./AbstractRackModule.js";
 import { Vec2 } from "../types/Vec2.js";
-import { subtract, distance, displayFreq } from "../util.js";
+import { displayFreq } from "../util/util.js";
+import { subtract, distance } from "../util/Vec2Math.js";
 
 export default class FilterModule extends AbstractRackModule {
   width!: number;

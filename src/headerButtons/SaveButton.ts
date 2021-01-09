@@ -1,7 +1,7 @@
 import HeaderButton from "../types/HeaderButton.js";
 import Rack from "../Rack.js";
-import { chooseOption, modal } from "../util.js";
-import stringLength from "../StringLength.js";
+import { chooseOption, modal } from "../util/Modal.js";
+import stringLength from "../util/StringLength.js";
 
 enum SaveMethod {
   Clipboard = 'CLIPBOARD',
