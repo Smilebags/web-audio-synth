@@ -1,13 +1,12 @@
 import Rack from './Rack.js';
 import RackModuleFactory from './RackModuleFactory.js';
-// import samplePatch from './SamplePatch.js';
-import { loadImage } from './util.js';
+import { chooseOption, loadImage, modal } from './util.js';
 
 const optionsEl = document.querySelector('.options')!;
 optionsEl.addEventListener('click', hideOptions, {once: true});
 
-const loadFromClipboardEl = document.querySelector('.load-from-clipboard')!;
-loadFromClipboardEl.addEventListener('click', loadFromClipboard, {once: true});
+const loadFromClipboardEl = document.querySelector('.load-rack')!;
+loadFromClipboardEl.addEventListener('click', loadRack, {once: true});
 
 const startDefaultEl = document.querySelector('.start-default')!;
 startDefaultEl.addEventListener('click', () => loadPatch(), {once: true});
@@ -29,7 +28,7 @@ async function loadPatch(patchName = 'default') {
   Rack.fromPatchString(audioContext, rackContext,rackModuleFactory, patchString);
 }
 
-async function loadFromClipboard() {
+async function loadRack() {
   const audioContext = new AudioContext();
   await loadDependencies(audioContext);
 
@@ -37,8 +36,23 @@ async function loadFromClipboard() {
   const rackContext = rackEl.getContext('2d')!;
   const rackModuleFactory = new RackModuleFactory(audioContext);
 
-  // @ts-ignore
-  const patchString = await navigator.clipboard.readText();
+  const loadOption = await chooseOption(
+    'Load source',
+    'Where would you like to load from?',
+    ['Browser', 'Clipboard'],
+  );
+
+  let patchString;
+  if (loadOption === 'Browser') {
+    patchString = await localStorage.getItem('saved-rack');
+  } else {
+    patchString = await navigator.clipboard.readText();
+  }
+
+  if (!patchString) {
+    modal('Load error', 'No saved patch was found');
+    return;
+  }
 
   Rack.fromPatchString(audioContext, rackContext,rackModuleFactory, patchString);
 }

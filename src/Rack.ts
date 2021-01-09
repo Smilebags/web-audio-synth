@@ -6,7 +6,7 @@ import { subtract, isSet, add, distance, isPromise } from "./util.js";
 import Cable from "./Cable.js";
 import RackModuleFactory from "./RackModuleFactory.js";
 import HeaderButton from "./types/HeaderButton.js";
-import SaveToClipboardButton from "./headerButtons/SaveToClipboardButton.js";
+import SaveButton from "./headerButtons/SaveButton.js";
 import HeaderButtonFactory from "./headerButtons/HeaderButtonFactory.js";
 import ModifierKeyStatus from "./ModifierKeyStatus.js";
 
@@ -59,7 +59,7 @@ export default class Rack {
     this.dpr = window.devicePixelRatio || 1;
     this.resetWindowSize();
 
-    this.headerButtons.push(new SaveToClipboardButton(this));
+    this.headerButtons.push(new SaveButton(this, localStorage, navigator.clipboard));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'Output', '#00AA55'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'KeyboardInput', '#5500AA'));
     this.headerButtons.push(HeaderButtonFactory.createButton(this, 'MidiInput', '#55AA00'));

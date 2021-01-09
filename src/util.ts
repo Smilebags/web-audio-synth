@@ -56,17 +56,23 @@ export async function modal(
   });
 }
 
-export function chooseOption(
+export function chooseOption<U, T extends (U | { text: string, value: U })>(
   title: string,
   message: string,
-  options: string[],
-): Promise<string> {
+  options: T[],
+): Promise<U> {
   return new Promise((resolve) => {
-    const actions: ModalAction[] = options.map(option => ({
-      primary: false,
-      text: option,
-      callback: () => {resolve(option)},
-    }));
+    const actions: ModalAction[] = options.map(option => {
+      // @ts-ignore ts won't narrow the type from (T extends (string | {})). Until it's fixed, ignore it here
+      const label = typeof option === 'string' ? option : option.text;
+      // @ts-ignore ts won't narrow the type from (T extends (string | {})). Until it's fixed, ignore it here
+      const resolveValue = typeof option === 'string' ? option : option.value;
+      return {
+        primary: false,
+        text: label,
+        callback: () => {resolve(resolveValue)},
+      };
+    });
     modal(title, message, actions);
   });
 }
