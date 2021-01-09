@@ -1,5 +1,7 @@
-class NoiseProcessor extends AudioWorkletProcessor {
-  process(inputs, outputs) {
+import { BaseProcessor } from './BaseProcessor.js';
+
+class NoiseProcessor extends BaseProcessor {
+  process(inputs: Float32Array[][], outputs: Float32Array[][]) {
     const output = outputs[0];
     for (let channel = 0; channel < output.length; ++channel) {
       const outputChannel = output[channel];

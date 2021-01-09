@@ -1,19 +1,40 @@
-class SequencerProcessor extends AudioWorkletProcessor {
+import { BaseProcessor } from './BaseProcessor.js';
+
+interface SequencerProcessorMessage {
+  type: 'setLevels';
+  payload: number[];
+}
+
+class SequencerProcessor extends BaseProcessor {
+  isHigh = false;
+  isResetHigh = false;
+  isStepHigh = false;
+  threshold = 0.1;
+  currentStep = 0;
+  currentSubtick = 0;
+  cutoffValue = 0.5;
+  levels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
   constructor() {
     super();
-    this.isHigh = false;
-    this.isResetHigh = false;
-    this.isStepHigh = false;
-    this.threshold = 0.1;
-    this.currentStep = 0;
-    this.currentSubtick = 0;
-    this.cutoffValue = 0.5;
-    this.levels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
     this.port.onmessage = (message) => this.handleMessage(message);
   }
 
-  handleMessage(message) {
+  static get parameterDescriptors() {
+    return [
+      {
+        name: 'resetTrigger',
+        defaultValue: 0,
+      },
+      {
+        name: 'stepTrigger',
+        defaultValue: 0,
+      },
+    ]
+  }
+
+  // @ts-ignore Apparently MessageEvent isn't a generic 🤷‍♂️
+  handleMessage(message: MessageEvent<SequencerProcessorMessage>) {
     switch(message.data.type) {
       case 'setLevels':
         this.setLevels(message.data.payload);
@@ -23,7 +44,7 @@ class SequencerProcessor extends AudioWorkletProcessor {
     }
   }
 
-  setLevels(levels) {
+  setLevels(levels: number[]) {
     this.levels = levels;
   }
 
@@ -57,7 +78,7 @@ class SequencerProcessor extends AudioWorkletProcessor {
     });
   }
 
-  process(inputs, outputs, parameters) {
+  process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: AudioWorkletParameters) {
     const output = outputs[0];
     const outputChannel = output[0];
     const input = inputs[0];
@@ -104,29 +125,6 @@ class SequencerProcessor extends AudioWorkletProcessor {
     }
 
     return true;
-  }
-
-  getParameterValue(parameters, parameterName, sampleIndex) {
-    if (!parameters[parameterName]) {
-      return 0;
-    }
-    if (parameters[parameterName].length === 1) {
-      return parameters[parameterName][0];
-    }
-    return parameters[parameterName][sampleIndex];
-  }
-
-  static get parameterDescriptors() {
-    return [
-      {
-        name: 'resetTrigger',
-        defaultValue: 0,
-      },
-      {
-        name: 'stepTrigger',
-        defaultValue: 0,
-      },
-    ]
   }
 }
 

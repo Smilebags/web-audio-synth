@@ -1,11 +1,9 @@
+import { BaseProcessor } from './BaseProcessor.js';
 
-class AmplitudeProcessor extends AudioWorkletProcessor {
-  constructor() {
-    super();
-    this.amplitude = 0;
-  }
+class AmplitudeProcessor extends BaseProcessor {
+  amplitude = 0;
 
-  process(inputs, outputs, parameters) {
+  process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: AudioWorkletParameters) {
     const output = outputs[0];
     const outputChannel = output[0];
     const input = inputs[0];
@@ -19,5 +17,5 @@ class AmplitudeProcessor extends AudioWorkletProcessor {
     return true;
   }
 }
-  
+
 registerProcessor('amplitude-processor', AmplitudeProcessor);

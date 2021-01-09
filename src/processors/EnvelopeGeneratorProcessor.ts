@@ -1,10 +1,9 @@
-class EnvelopeGeneratorProcessor extends AudioWorkletProcessor {
-  constructor() {
-    super();
-    this.samplingFrequency = 44100;
-    this.stage = 'off'; // off | a | d | s | r
-    this.value = 0;
-  }
+import { BaseProcessor } from './BaseProcessor.js';
+
+class EnvelopeGeneratorProcessor extends BaseProcessor {
+  samplingFrequency = 44100;
+  stage: 'off' | 'a' | 'd' | 's' | 'r' = 'off';
+  value = 0;
 
   static get parameterDescriptors() {
     return [
@@ -35,37 +34,37 @@ class EnvelopeGeneratorProcessor extends AudioWorkletProcessor {
         defaultValue: 0.8,
         minValue: 1e-5,
       },
-    ]
+    ];
   }
 
-  attackSamples(attackValue) {
+  attackSamples(attackValue: number) {
     return attackValue * this.samplingFrequency;
   }
 
-  attackChangeAmount(attackValue) {
+  attackChangeAmount(attackValue: number) {
     return (1 / this.attackSamples(attackValue));
   }
 
-  decaySamples(decayValue, sustainValue) {
+  decaySamples(decayValue: number, sustainValue: number) {
     if (sustainValue === 1) {
       return 0;
     }
     return (decayValue * this.samplingFrequency) / (1 - sustainValue);
   }
 
-  decayChangeAmount(decayValue, sustainValue) {
+  decayChangeAmount(decayValue: number, sustainValue: number) {
     return (1 / this.decaySamples(decayValue, sustainValue));
   }
 
-  releaseSamples(releaseValue) {
+  releaseSamples(releaseValue: number) {
     return (releaseValue * this.samplingFrequency);
   }
 
-  releaseChangeAmount(releaseValue) {
+  releaseChangeAmount(releaseValue: number) {
     return (1 / this.releaseSamples(releaseValue));
   }
 
-  process(inputs, outputs, parameters) {
+  process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: AudioWorkletParameters) {
     const output = outputs[0];
     const outputChannel = output[0];
     const input = inputs[0];
@@ -80,54 +79,35 @@ class EnvelopeGeneratorProcessor extends AudioWorkletProcessor {
     return true;
   }
 
-  getParameterValue(parameters, parameterName, sampleIndex) {
-    if (!parameters[parameterName]) {
-      return 0;
-    }
-    if (parameters[parameterName].length === 1) {
-      return parameters[parameterName][0];
-    }
-    return parameters[parameterName][sampleIndex];
-  }
-
-  tick(inputValue, parameters, sampleIndex, a, d, s, r) {
+  tick(inputValue: number, parameters: AudioWorkletParameters, sampleIndex: number, a: number, d: number, s: number, r: number) {
     const attackChangeAmount = this.attackChangeAmount(a);
     const decayChangeAmount = this.decayChangeAmount(d, s);
     const releaseChangeAmount = this.releaseChangeAmount(r);
     this.setState(inputValue, parameters, sampleIndex, a, d, s);
     switch (this.stage) {
       case 'a':
-        this.value = Math.min(
-          this.value + attackChangeAmount,
-          1,
-        );
+        this.value = Math.min(this.value + attackChangeAmount, 1);
         break;
       case 'd':
-        this.value = Math.max(
-          this.value - decayChangeAmount,
-          s,
-        );
+        this.value = Math.max(this.value - decayChangeAmount, s);
         break;
       case 's':
         this.value = s;
         break;
       case 'r':
-        this.value = Math.max(
-          this.value - releaseChangeAmount,
-          0,
-        );
+        this.value = Math.max(this.value - releaseChangeAmount, 0);
         break;
       case 'off':
         this.value = 0;
         break;
       default:
-          this.value = 0;
+        this.value = 0;
         break;
     }
     return this.value;
   }
 
-  setState(inputValue, parameters, sampleIndex, a, d, s) {
+  setState(inputValue: number, parameters: AudioWorkletParameters, sampleIndex: number, a: number, d: number, s: number) {
     if (inputValue >= this.getParameterValue(parameters, 'cutoffValue', sampleIndex)) {
       this.setOnStage(a, d, s);
       return;
@@ -135,7 +115,7 @@ class EnvelopeGeneratorProcessor extends AudioWorkletProcessor {
     this.setOffStage();
   }
 
-  setOnStage(a, d, s) {
+  setOnStage(a: number, d: number, s: number) {
     const attackChangeAmount = this.attackChangeAmount(a);
     const decayChangeAmount = this.decayChangeAmount(d, s);
     if (this.stage === 'r' || this.stage === 'off') {
@@ -158,7 +138,6 @@ class EnvelopeGeneratorProcessor extends AudioWorkletProcessor {
       this.stage = 'off';
     }
   }
-
 }
 
 registerProcessor('envelope-generator-processor', EnvelopeGeneratorProcessor);

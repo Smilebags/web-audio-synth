@@ -1,22 +1,34 @@
-class ChordsProcessor extends AudioWorkletProcessor {
+import { BaseProcessor } from './BaseProcessor.js';
+
+export interface ChordsProcessorMessage {
+  type: 'setLevel';
+  payload: {
+    channel: number;
+    index: number;
+    value: number;
+  };
+}
+
+class ChordsProcessor extends BaseProcessor {
+  isResetHigh = false;
+  isStepHigh = false;
+  threshold = 0.1;
+  currentStep = 0;
+  cutoffValue = 0.5;
+  channelLevels = [
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+  ];
+
   constructor() {
     super();
-    this.isResetHigh = false;
-    this.isStepHigh = false;
-    this.threshold = 0.1;
-    this.currentStep = 0;
-    this.cutoffValue = 0.5;
-    this.channelLevels = [
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-    ];
-
     this.port.onmessage = (message) => this.handleMessage(message);
   }
-
-  handleMessage(message) {
+  
+  // @ts-ignore Apparently MessageEvent isn't a generic 🤷‍♂️
+  handleMessage(message: MessageEvent<ChordsProcessorMessage>) {
     switch(message.data.type) {
       case 'setLevel':
         this.setLevel(message.data.payload);
@@ -26,11 +38,11 @@ class ChordsProcessor extends AudioWorkletProcessor {
     }
   }
 
-  setLevel(payload) {
+  setLevel(payload: ChordsProcessorMessage['payload']) {
     this.channelLevels[payload.channel][payload.index] = payload.value;
   }
 
-  outputValue(channel) {
+  outputValue(channel: number) {
     return this.channelLevels[channel][this.currentStep];
   }
 
@@ -50,7 +62,7 @@ class ChordsProcessor extends AudioWorkletProcessor {
     });
   }
 
-  process(inputs, outputs, parameters) {
+  process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: AudioWorkletParameters) {
     const outputChannel1 = outputs[0][0];
     const outputChannel2 = outputs[1][0];
     const outputChannel3 = outputs[2][0];
@@ -59,7 +71,6 @@ class ChordsProcessor extends AudioWorkletProcessor {
     for (let i = 0; i < outputChannel1.length; i++) {
       const cutoff = this.cutoffValue;
       
-      // do reset
       const resetValue = this.getParameterValue(parameters, 'resetTrigger', i);
       if (this.isResetHigh === true) {
         this.isResetHigh = resetValue >= cutoff - this.threshold;
@@ -70,7 +81,6 @@ class ChordsProcessor extends AudioWorkletProcessor {
         }
       }
 
-      // do step
       const stepValue = this.getParameterValue(parameters, 'stepTrigger', i);
       if (this.isStepHigh === true) {
         this.isStepHigh = stepValue >= cutoff - this.threshold;
@@ -81,17 +91,15 @@ class ChordsProcessor extends AudioWorkletProcessor {
         }
       }
 
-      // set output
       outputChannel1[i] = this.outputValue(0);
       outputChannel2[i] = this.outputValue(1);
       outputChannel3[i] = this.outputValue(2);
       outputChannel4[i] = this.outputValue(3);
     }
-
     return true;
   }
 
-  getParameterValue(parameters, parameterName, sampleIndex) {
+  getParameterValue(parameters: AudioWorkletParameters, parameterName: string, sampleIndex: number) {
     if (!parameters[parameterName]) {
       return 0;
     }

@@ -1,32 +1,47 @@
-class SamplerProcessor extends AudioWorkletProcessor {
+import { BaseProcessor } from './BaseProcessor.js';
+
+export type SamplerProcessorMessage = GetSampleDataMessage | SetSampleDataMessage;
+
+interface GetSampleDataMessage {
+  type: 'getSampleData';
+  messageId: number;
+}
+
+interface SetSampleDataMessage {
+  type: 'setSampleData';
+  payload: number[] | Float32Array;
+}
+
+class SamplerProcessor extends BaseProcessor {
+  bufferLength = sampleRate * 30;
+  buffer = new Float32Array(this.bufferLength);
+  recordingLength = 0;
+  bufferWriteOffset = 0;
+  bufferReadOffset = 0;
+  isWriting = false;
+  isPlayTriggerHigh = false;
+  cutoff = 0.5;
+
   constructor() {
     super();
-    this.bufferLength = sampleRate * 30;
-    this.buffer = new Float32Array(this.bufferLength);
-    this.recordingLength = 0;
-    this.bufferWriteOffset = 0;
-    this.bufferReadOffset = 0;
-    this.isWriting = false;
-    this.isPlayTriggerHigh = false;
-    this.cutoff = 0.5;
-
     this.port.onmessage = (message) => this.handleMessage(message);
   }
 
-  handleMessage(message) {
-    switch(message.data.body.type) {
+  // @ts-ignore Apparently MessageEvent isn't a generic 🤷‍♂️
+  handleMessage(message: MessageEvent<SamplerProcessorMessage>) {
+    switch(message.data.type) {
       case 'getSampleData':
         this.getSampleData(message.data.messageId);
         break;
       case 'setSampleData':
-        this.setSampleData(message.data.body.payload);
+        this.setSampleData(message.data.payload);
         break;
       default:
         break;
     }
   }
 
-  getSampleData(messageId) {
+  getSampleData(messageId: number) {
     const recordedSection = this.buffer.slice(this.recordingLength);
     this.port.postMessage({
       messageId: messageId,
@@ -37,7 +52,7 @@ class SamplerProcessor extends AudioWorkletProcessor {
     });
   }
 
-  setSampleData(payload) {
+  setSampleData(payload: Float32Array | number[]) {
     if (payload instanceof Float32Array) {
       this.buffer = payload;
     } else {
@@ -74,7 +89,7 @@ class SamplerProcessor extends AudioWorkletProcessor {
   }
 
 
-  process(inputs, outputs, parameters) {
+  process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: AudioWorkletParameters) {
     const output = outputs[0];
     const outputChannel = output[0];
     const input = inputs[0];
@@ -117,6 +132,7 @@ class SamplerProcessor extends AudioWorkletProcessor {
     this.recordingLength = 0;
     this.bufferWriteOffset = 0;
   }
+
   stopRecording() {
     if (!this.isWriting) {
       return;
@@ -124,13 +140,13 @@ class SamplerProcessor extends AudioWorkletProcessor {
     this.isWriting = false;
     this.recordingLength = this.bufferWriteOffset;
   }
-  
-  write(value) {
+
+  write(value: number) {
     this.buffer[this.bufferWriteOffset] = value;
     this.bufferWriteOffset = (this.bufferWriteOffset + 1) % this.bufferLength;
   }
 
-  restartPlay(startPos) {
+  restartPlay(startPos: number) {
     this.bufferReadOffset = Math.floor(this.recordingLength * startPos);
   }
 
@@ -141,18 +157,8 @@ class SamplerProcessor extends AudioWorkletProcessor {
     return this.buffer[this.readPosition];
   }
 
-  advanceReadPosition(amount) {
+  advanceReadPosition(amount: number) {
     this.bufferReadOffset += amount; 
-  }
-
-  getParameterValue(parameters, parameterName, sampleIndex) {
-    if (!parameters[parameterName]) {
-      return 0;
-    }
-    if (parameters[parameterName].length === 1) {
-      return parameters[parameterName][0];
-    }
-    return parameters[parameterName][sampleIndex];
   }
 }
 

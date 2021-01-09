@@ -1,6 +1,6 @@
 import AbstractRackModule from "./AbstractRackModule.js";
 import AsyncWorkerPort from "../AsyncWorkerPort.js";
-
+import { SamplerProcessorMessage } from '../processors/SamplerProcessor.js';
 export default class SamplerModule extends AbstractRackModule {
   type: string = 'Sampler';
 
@@ -44,7 +44,7 @@ export default class SamplerModule extends AbstractRackModule {
   }
 
   private async getSampleData(): Promise<string> {
-    const res = await this.asyncWorkerPort.postMessage<{payload: Float32Array}>({ type: 'getSampleData' });
+    const res = await this.asyncWorkerPort.postMessage({ type: 'getSampleData' }) as any;
     return res.payload.join(',');
   }
 

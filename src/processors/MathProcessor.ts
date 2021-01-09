@@ -1,4 +1,6 @@
-class MathProcessor extends AudioWorkletProcessor {
+import { BaseProcessor } from './BaseProcessor.js';
+
+class MathProcessor extends BaseProcessor {
   static get parameterDescriptors() {
     return [
       {
@@ -12,7 +14,7 @@ class MathProcessor extends AudioWorkletProcessor {
     ];
   }
 
-  process(inputs, outputs, parameters) {
+  process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: AudioWorkletParameters) {
     const subtractChannel = outputs[0][0];
     const multiplyChannel = outputs[1][0];
     const divideChannel = outputs[2][0];
@@ -22,7 +24,6 @@ class MathProcessor extends AudioWorkletProcessor {
       const a = this.getParameterValue(parameters, 'a', i);
       const b = this.getParameterValue(parameters, 'b', i);
 
-      // set output
       subtractChannel[i] = a - b;
       multiplyChannel[i] = a * b;
       divideChannel[i] = a / b;
@@ -31,17 +32,6 @@ class MathProcessor extends AudioWorkletProcessor {
 
     return true;
   }
-
-  getParameterValue(parameters, parameterName, sampleIndex) {
-    if (!parameters[parameterName]) {
-      return 0;
-    }
-    if (parameters[parameterName].length === 1) {
-      return parameters[parameterName][0];
-    }
-    return parameters[parameterName][sampleIndex];
-  }
-
 }
 
 registerProcessor('math-processor', MathProcessor);

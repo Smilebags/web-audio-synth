@@ -1,17 +1,23 @@
 const BUFFER_LENGTH = 2048;
 
+interface ViewerProcessorMessage {
+  type: 'getSamples';
+}
+
 class ViewerProcessor extends AudioWorkletProcessor {
+  sampleBuffer = new Float32Array(BUFFER_LENGTH);
+  sampleHead = 0;
+
   constructor() {
     super();
-    this.sampleBuffer = new Float32Array(BUFFER_LENGTH);
-    this.sampleHead = 0;
     this.port.onmessage = (message) => this.handleMessage(message);
   }
 
-  handleMessage(message) {
+  // @ts-ignore Apparently MessageEvent isn't a generic 🤷‍♂️
+  handleMessage(message: MessageEvent<ViewerProcessorMessage>) {
     switch(message.data.type) {
       case 'getSamples':
-        this.getSamples(message.data.payload);
+        this.getSamples();
         break;
       default:
         break;
@@ -28,7 +34,7 @@ class ViewerProcessor extends AudioWorkletProcessor {
     });
   }
 
-  process(inputs, outputs, parameters) {
+  process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: AudioWorkletParameters) {
     const output = outputs[0];
     const outputChannel = output[0];
     const input = inputs[0];
@@ -40,19 +46,9 @@ class ViewerProcessor extends AudioWorkletProcessor {
     return true;
   }
 
-  sample(newSampleValue) {
+  sample(newSampleValue: number) {
     this.sampleBuffer[this.sampleHead] = newSampleValue;
     this.sampleHead = (this.sampleHead + 1) % BUFFER_LENGTH;
-  }
-
-  getParameterValue(parameters, parameterName, sampleIndex) {
-    if (!parameters[parameterName]) {
-      return 0;
-    }
-    if (parameters[parameterName].length === 1) {
-      return parameters[parameterName][0];
-    }
-    return parameters[parameterName][sampleIndex];
   }
 }
 
