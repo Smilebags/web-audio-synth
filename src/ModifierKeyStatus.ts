@@ -6,6 +6,25 @@ export default class ModifierKeyStatus {
   constructor() {
     document.addEventListener('keydown', e => this.handleKeychange(e));
     document.addEventListener('keyup', e => this.handleKeychange(e));
+    window.addEventListener('blur', () => this.handleFocusEvent());
+    window.addEventListener('focus', () => this.handleFocusEvent());
+    setInterval(() => this.logActiveModifiers(), 100);
+  }
+
+  private logActiveModifiers() {
+    console.log({
+      alt: this.altIsPressed,
+      shift: this.shiftIsPressed,
+      ctrl: this.ctrlIsPressed,
+      meta: this.metaIsPressed,
+    });
+  }
+
+  handleFocusEvent(): void {
+    this.altIsPressed = false;
+    this.ctrlIsPressed = false;
+    this.shiftIsPressed = false;
+    this.metaIsPressed = false;
   }
 
   handleKeychange(keychangeEvent: KeyboardEvent): void {
