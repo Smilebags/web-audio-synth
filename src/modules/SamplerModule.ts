@@ -1,6 +1,5 @@
 import AbstractRackModule from "./AbstractRackModule.js";
 import AsyncWorkerPort from "../AsyncWorkerPort.js";
-import { SamplerProcessorMessage } from '../processors/SamplerProcessor.js';
 export default class SamplerModule extends AbstractRackModule {
   type: string = 'Sampler';
 
