@@ -21,4 +21,5 @@ export type RackModuleType = 'Filter'
   | 'Amplitude'
   | 'Viewer'
   | 'Math'
+  | 'SampleLoader'
   | 'Reverb';

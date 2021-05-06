@@ -24,11 +24,9 @@ import DistortionModule from "./modules/DistortionModule.js";
 import AmplitudeModule from "./modules/AmplitudeModule.js";
 import ViewerModule from "./modules/ViewerModule.js";
 import MathModule from "./modules/MathModule.js";
-
-
+import SampleLoaderModule from "./modules/SampleLoaderModule.js";
 
 export default class RackModuleFactory {
-
   constructor(private audioContext: AudioContext) {}
 
   createModule(type: RackModuleType, params: any): RackModule {
@@ -81,6 +79,8 @@ export default class RackModuleFactory {
         return new MathModule(this.audioContext, params);
       case 'Amplitude':
         return new AmplitudeModule(this.audioContext, params);
+      case 'SampleLoader':
+        return new SampleLoaderModule(this.audioContext, params);
     }
   }
 }
