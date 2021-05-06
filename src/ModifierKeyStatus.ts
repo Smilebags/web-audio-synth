@@ -8,7 +8,6 @@ export default class ModifierKeyStatus {
     document.addEventListener('keyup', e => this.handleKeychange(e));
     window.addEventListener('blur', () => this.handleFocusEvent());
     window.addEventListener('focus', () => this.handleFocusEvent());
-    setInterval(() => this.logActiveModifiers(), 100);
   }
 
   private logActiveModifiers() {
