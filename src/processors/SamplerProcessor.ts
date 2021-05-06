@@ -27,7 +27,6 @@ class SamplerProcessor extends BaseProcessor {
     this.port.onmessage = (message) => this.handleMessage(message);
   }
 
-  // @ts-ignore Apparently MessageEvent isn't a generic 🤷‍♂️
   handleMessage(message: MessageEvent<SamplerProcessorMessage>) {
     switch(message.data.type) {
       case 'getSampleData':
@@ -63,12 +62,8 @@ class SamplerProcessor extends BaseProcessor {
 
   static get parameterDescriptors() {
     return [
-      {
-        name: 'recordTrigger',
-      },
-      {
-        name: 'playTrigger',
-      },
+      { name: 'recordTrigger' },
+      { name: 'playTrigger' },
       {
         name: 'startPosition',
         defaultValue: 0,
