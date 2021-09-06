@@ -12,9 +12,9 @@ You can scroll both vertically and horizontally to view more modules than fit on
 Clicking on the buttons along the top will add a new module to the first available slot in the row closest to the top of the screen; if you scroll down, newly added modules will appear below the initial one.
 ## Modules
 Modules are what enables the creation or processing of sound. Each module has a specific purpose and they are connected together using cables to create more elaborate sounds.
-Control or Command clicking and dragging on a module will allow you to reposition it. When released it will snap to the grid
+Control or Command clicking and dragging on a module will allow you to reposition it. When released it will snap to the grid.
 Alt or Option clicking a module will delete it.
-Clicking on the title of a module will enable you to rename it. A white line will appear below the module name, and pressing enter will return to regular mode
+Clicking on the title of a module will enable you to rename it. A white line will appear below the module name, and pressing enter will return to regular mode.
 
 ## Cables
 Cables are what is used to move signals from one module to the next.
