@@ -1,4 +1,5 @@
-export type RackModuleType = 'Filter'
+export type RackModuleType = 
+  | 'Filter'
   | 'Envelope'
   | 'StepSequencer'
   | 'VoltageSequencer'
@@ -22,4 +23,5 @@ export type RackModuleType = 'Filter'
   | 'Viewer'
   | 'Math'
   | 'SampleLoader'
-  | 'Reverb';
+  | 'Reverb'
+;
