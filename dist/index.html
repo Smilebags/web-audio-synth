@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    html, body {
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      position: absolute;
+      z-index: -1;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .options {
+      display: grid;
+      height: calc(100vh - 32px);
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      grid-gap: 16px;
+      padding: 16px;
+    }
+    /* .options .left,
+    .options .right {
+      display: grid;
+    } */
+
+    .options.hidden {
+      display: none;
+    }
+
+    .options > * {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #333333;
+      color: white;
+      font-size: 32px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .modal__wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: sans-serif;
+    }
+
+    .modal__body {
+      width: 50vw;
+      max-height: 75vh;
+      background-color: white;
+      border-radius: 4px;
+      padding: 8px;
+    }
+
+    .modal__header {
+      font-size: 24px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .modal__contents {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+  </style>
+  <link rel="modulepreload" href="Rack.js">
+  <link rel="modulepreload" href="RackModuleFactory.js">
+  <link rel="modulepreload" href="modules/AbstractRackModule.js">
+  <link rel="modulepreload" href="Plug.js">
+  <link rel="preload" as="audio" href="ElvedenHallMarbleHall.m4a">
+</head>
+
+<body>
+  <div class="options">
+    <div class="load-rack">Load Rack</div>
+    <div class="start-default">Start Default</div>
+    <div class="start-three-voice-saw">Start Three-voice Saw Demo</div>
+    <div class="start-two-instruments">Start Multiple Instrument Demo</div>
+  </div>
+  <canvas class="rack">
+  </canvas>
+  <script src="synth.js" type="module"></script>
+</body>
+
+</html>
