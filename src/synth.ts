@@ -25,7 +25,7 @@ async function loadPatch(patchName = 'default') {
   const rackEl: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>('.rack')!;
   const rackContext = rackEl.getContext('2d')!;
   const rackModuleFactory = new RackModuleFactory(audioContext);
-  const patchString = await fetch(`/${patchName}.patch`).then(res => res.text());
+  const patchString = await fetch(`${patchName}.patch`).then(res => res.text());
   Rack.fromPatchString(audioContext, rackContext,rackModuleFactory, patchString);
 }
 
